@@ -7,10 +7,33 @@ public class TextureController : MonoBehaviour {
     public Material red;
     public Material star;
     public Material junction;
-
+    private Material originalMaterial;
     void Start() {
-        updateTexture();
-	}
+        if (gameObject.CompareTag("BlueSpace"))
+        {
+            GetComponentInChildren<Renderer>().material = blue;
+            originalMaterial = blue;
+        }
+        else if (gameObject.CompareTag("RedSpace"))
+        {
+            GetComponentInChildren<Renderer>().material = red;
+            originalMaterial = red;
+        }
+        else if (gameObject.CompareTag("StarSpace"))
+        {
+            GetComponentInChildren<Renderer>().material = star;
+            print("THIS SHOULD NOT BE A STAR NOW");
+        }
+        else if (gameObject.CompareTag("JunctionSpace"))
+        {
+            GetComponentInChildren<Renderer>().material = junction;
+            originalMaterial = junction;
+        }
+        else
+        {
+            print("INVALID TAG");
+        }
+    }
 	
 	
     public void updateTexture()
@@ -34,6 +57,24 @@ public class TextureController : MonoBehaviour {
         else
         {
             print("INVALID TAG");
+        }
+    }
+    public void applyOriginalTextureAndTag()
+    {
+        GetComponentInChildren<Renderer>().material = originalMaterial;
+        
+        if (originalMaterial.name == "BlueSpace")
+        {
+            transform.tag = "BlueSpace";
+        } else if(originalMaterial.name == "RedSpace")
+        {
+            transform.tag = "RedSpace";
+        } else if (originalMaterial.name == "StarSpace")
+        {
+            transform.tag = "StarSpace";
+        } else if(originalMaterial.name == "JunctionSpace")
+        {
+            transform.tag = "JunctionSpace";
         }
     }
 }
