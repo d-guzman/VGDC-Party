@@ -9,7 +9,7 @@ public class getJunction : MonoBehaviour {
     public bool setPrimarySpaceManually;
     void Start()
     {
-        print(transform.GetSiblingIndex());
+        //print(transform.GetSiblingIndex());
 
         if (!setPrimarySpaceManually)
         {

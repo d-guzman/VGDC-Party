@@ -7,7 +7,7 @@ public class getNextSpace : MonoBehaviour {
     public GameObject spaceNext;
     public bool setManually;
 	void Start () {
-        print(transform.GetSiblingIndex());
+       //print(transform.GetSiblingIndex());
         if (!setManually)
         {
             int index = transform.GetSiblingIndex();
