@@ -12,9 +12,7 @@ public class RandomizeStarSpace : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-        moveStarSpace();
-	}
+	
     public void createStarSpace()
     {
         GameObject[] blueSpaces = GameObject.FindGameObjectsWithTag("BlueSpace");

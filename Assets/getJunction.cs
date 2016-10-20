@@ -42,6 +42,22 @@ public class getJunction : MonoBehaviour {
     {
         return spaceNextSecondary;
     }
+    void OnDrawGizmosSelected()
+    {
 
+        Gizmos.color = Color.blue;
+        if(spaceNextPrimary != null)
+        {
+            Gizmos.DrawLine(transform.position + Vector3.up * 10, spaceNextPrimary.transform.position + Vector3.up * 10);
+
+        }
+        if(spaceNextSecondary != null)
+        {
+            Gizmos.DrawLine(transform.position + Vector3.up * 10, spaceNextSecondary.transform.position + Vector3.up * 10);
+
+        }
+
+
+    }
 }
 

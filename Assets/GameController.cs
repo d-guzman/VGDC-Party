@@ -31,8 +31,8 @@ public class GameController : MonoBehaviour {
     public void setCameraPreset(int x)
     {
         /*
-           1: StartSpace
-           2: Wide view of entire map
+           1: Wide view of entire map
+           2: StartSpace
            3:
 
         */

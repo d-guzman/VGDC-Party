@@ -34,5 +34,16 @@ public class getNextSpace : MonoBehaviour {
     {
         return spaceNext;
     }
-    
+    void OnDrawGizmosSelected()
+    {
+       
+        Gizmos.color = Color.blue;
+        if(spaceNext != null)
+        {
+            Gizmos.DrawLine(transform.position + Vector3.up * 10, spaceNext.transform.position + Vector3.up * 10);
+
+        }
+
+    }
+
 }
