@@ -3,13 +3,26 @@ using System.Collections;
 
 public class TurnCounter : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    private int turnCount;
+    void Awake()
+    {
+        turnCount = 0;
+        DontDestroyOnLoad(transform.gameObject);
+    }
+    public void setTurnCount(int x)
+    {
+        turnCount = 0;
+    }
+    public int getTurnCount()
+    {
+        return turnCount;
+    }
+    public bool gameIsOver()
+    {
+        return turnCount <= 0;
+    }
+    public void decrementTurnCount()
+    {
+        turnCount -= 1;
+    }
 }
