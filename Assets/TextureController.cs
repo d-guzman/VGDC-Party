@@ -7,6 +7,7 @@ public class TextureController : MonoBehaviour {
     public Material red;
     public Material star;
     public Material junction;
+    public Material white;
     private Material originalMaterial;
     void Start() {
         if (gameObject.CompareTag("BlueSpace"))
@@ -28,6 +29,11 @@ public class TextureController : MonoBehaviour {
         {
             GetComponentInChildren<Renderer>().material = junction;
             originalMaterial = junction;
+        } 
+        else if (gameObject.CompareTag("StartSpace"))
+        {
+            GetComponentInChildren<Renderer>().material = white;
+            originalMaterial = white;
         }
         else
         {
@@ -54,6 +60,10 @@ public class TextureController : MonoBehaviour {
         {
             GetComponentInChildren<Renderer>().material = junction;
         }
+        else if (gameObject.CompareTag("StartSpace"))
+        {
+            GetComponentInChildren<Renderer>().material = white;
+        }
         else
         {
             print("INVALID TAG");
@@ -75,6 +85,10 @@ public class TextureController : MonoBehaviour {
         } else if(originalMaterial.name == "JunctionSpace")
         {
             transform.tag = "JunctionSpace";
+        }
+        else if (gameObject.CompareTag("StartSpace"))
+        {
+            transform.tag = "StartSpace";
         }
     }
 }
