@@ -11,14 +11,16 @@ public class UIRevealer : MonoBehaviour {
     private Vector3 hiddenPosition;
     private Vector3 revealedPosition;
     private bool moving;
+   
+
     void Start() {
+
         
-        revealedPosition = transform.localPosition;
         /* use speedfactor of 100 for instant movement
          * This doesn't correlate to pixels or time or anything because I'm
          * just done with this script. 
          * 
-         * 
+         * Major resizing of the game window WILL break this 
          * */
         if (speedFactor == 0)
         {
@@ -30,26 +32,27 @@ public class UIRevealer : MonoBehaviour {
         {
             speedFactor = 1;
         }
+        revealedPosition = transform.localPosition;
         if (!revealed)
         {
             if (anchorDirection == "Up")
             {
 
-                transform.position += Vector3.up * gameObject.GetComponent<RectTransform>().rect.height  ;
+                transform.position += Vector3.up * (1 - gameObject.GetComponent<RectTransform>().anchorMin.y) * Screen.height;
             }
             else if (anchorDirection == "Down")
             {
-                transform.position += Vector3.down * gameObject.GetComponent<RectTransform>().rect.height ;
+                transform.position += Vector3.down * gameObject.GetComponent<RectTransform>().anchorMax.y * Screen.height ;
 
             }
             else if (anchorDirection == "Left")
             {
-                transform.position += Vector3.left * gameObject.GetComponent<RectTransform>().rect.width  ;
+                transform.position += Vector3.left * gameObject.GetComponent<RectTransform>().anchorMax.x * Screen.width  ;
 
             }
             else if (anchorDirection == "Right")
             {
-                transform.position += Vector3.right * gameObject.GetComponent<RectTransform>().rect.width  ;
+                transform.position += Vector3.right * (1-gameObject.GetComponent<RectTransform>().anchorMin.x) * Screen.width  ;
 
             }
             else
@@ -65,7 +68,8 @@ public class UIRevealer : MonoBehaviour {
     }
 
     void Update() {
-       
+        
+        
         if (revealed && moving)
         {
             moveToLocation(revealedPosition);
@@ -73,13 +77,19 @@ public class UIRevealer : MonoBehaviour {
         {
             moveToLocation(hiddenPosition);
         }
-        if (Input.GetKeyDown("3"))
+        if (Input.GetKeyDown("space"))
         {
-            revealUI();
-        }
-        else if (Input.GetKeyDown("4"))
-        {
-            hideUI();
+            if (revealed)
+            {
+                hideUI();
+            }
+            else
+            {
+                revealUI();
+            }
+            
+       
+            
         }
     }
     public void moveToLocation(Vector3 target)
@@ -113,21 +123,21 @@ public class UIRevealer : MonoBehaviour {
             if (anchorDirection == "Up")
             {
 
-                return transform.localPosition + Vector3.up * gameObject.GetComponent<RectTransform>().rect.height  ;
+                return transform.localPosition + Vector3.up * (1 - gameObject.GetComponent<RectTransform>().anchorMin.y) * Screen.height;
 
             }
             else if (anchorDirection == "Down")
             {
-                return transform.localPosition + Vector3.down * gameObject.GetComponent<RectTransform>().rect.height  ;
+                return transform.localPosition + Vector3.down * gameObject.GetComponent<RectTransform>().anchorMax.y * Screen.height;
             }
             else if (anchorDirection == "Left")
             {
-                return transform.localPosition + Vector3.left * gameObject.GetComponent<RectTransform>().rect.width  ;
+                return transform.localPosition + Vector3.left * gameObject.GetComponent<RectTransform>().anchorMax.x * Screen.width;
 
             }
             else if (anchorDirection == "Right")
             {
-                return transform.localPosition + Vector3.right * gameObject.GetComponent<RectTransform>().rect.width  ;
+                return transform.localPosition + Vector3.right * (1 - gameObject.GetComponent<RectTransform>().anchorMin.x) * Screen.width;
 
             }
             else
@@ -148,21 +158,21 @@ public class UIRevealer : MonoBehaviour {
             if (anchorDirection == "Up")
             {
 
-                return transform.localPosition - Vector3.up * gameObject.GetComponent<RectTransform>().rect.height ;
+                return transform.localPosition - Vector3.up * (1 - gameObject.GetComponent<RectTransform>().anchorMin.y) * Screen.height;
 
             }
             else if (anchorDirection == "Down")
             {
-                return transform.localPosition - Vector3.down * gameObject.GetComponent<RectTransform>().rect.height  ;
+                return transform.localPosition - Vector3.down * gameObject.GetComponent<RectTransform>().anchorMax.y * Screen.height;
             }
             else if (anchorDirection == "Left")
             {
-                return transform.localPosition - Vector3.left * gameObject.GetComponent<RectTransform>().rect.width  ;
+                return transform.localPosition - Vector3.left * gameObject.GetComponent<RectTransform>().anchorMax.x * Screen.width;
 
             }
             else if (anchorDirection == "Right")
             {
-                return transform.localPosition - Vector3.right * gameObject.GetComponent<RectTransform>().rect.width  ;
+                return transform.localPosition - Vector3.right * (1 - gameObject.GetComponent<RectTransform>().anchorMin.x) * Screen.width;
 
             }
             else

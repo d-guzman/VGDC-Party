@@ -26,6 +26,9 @@ public class GameController : MonoBehaviour {
             setCameraPreset(1);
         } else if (Input.GetKeyDown("2")){
             setCameraPreset(2);
+        } else if (Input.GetKeyDown("3"))
+        {
+            setCameraPreset(3);
         }
     }
     public void setCameraPreset(int x)
@@ -42,6 +45,10 @@ public class GameController : MonoBehaviour {
         } else if(x == 2)
         {
             cam.GetComponentInParent<CamBehavior>().setTargetLocation(new Vector3(500, 80, 0));
+        } else if(x == 3)
+        {
+            GameObject starSpace = GameObject.FindGameObjectWithTag("StarSpace");
+            cam.GetComponentInParent<CamBehavior>().setTargetLocation(new Vector3(starSpace.transform.position.x, 80, starSpace.transform.position.z));
         }
     }
     public void followPlayer(GameObject player)
