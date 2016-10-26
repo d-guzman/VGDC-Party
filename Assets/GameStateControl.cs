@@ -8,9 +8,12 @@ public class GameStateControl : MonoBehaviour {
     public GameObject endScreen;
     private bool gameOver;
     private bool gameStart;
+    GameObject[] playerList;
+
 	void Start () {
         gameOver = false;
         gameStart = false;
+        playerList = GameObject.FindGameObjectsWithTag("Player");
 	}
 	
 	// Update is called once per frame
@@ -43,5 +46,9 @@ public class GameStateControl : MonoBehaviour {
     public bool getGameOver()
     {
         return gameOver;
+    }
+    public int numAlivePlayers()
+    {
+        return playerList.Length;   
     }
 }
