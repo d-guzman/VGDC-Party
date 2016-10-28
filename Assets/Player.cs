@@ -5,46 +5,50 @@ public class Player : MonoBehaviour {
     
     public string playerName;
     public int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder,toMove;
-    public bool active=false,rolling=false,isMoving=false,onEdge=false;
-    private GameObject currentSpace=GameObject.Find("StartSpace");
+    public bool active=false,rolling=false,isMoving=false,onEdge=false,onAltPath=false;
+    private GameObject currentSpace,nextSpace;
     //Should coins just start at 10? What does the starting point count as spacewise?
     
 
 	// Use this for initialization
 	void Start () {
-	
-	}
+        currentSpace = GameObject.Find("StartSpace");
+        nextSpace = GameObject.Find("Space 0");
+    }
     	
 	// Update is called once per frame  
 	void Update () {
+        //testing movement - hit up twice:
+        if (Input.GetKey("up"))
+        {
+            active = true;
+        }
         if (active)
         {
+            if (!isMoving && toMove==0) { rolling = true; }
             if (onEdge)
                 moveToEdge();
             if (rolling)
             {
-                if (Input.GetButton("0"))
+                if (Input.GetKey("up"))
                 {
                     toMove=Random.Range(1,6);
+                    isMoving = true;
+                    rolling = false;
                 }
             }
             if (isMoving)
             {
-                move(getNextSpace());
+                //move(getNextSpace(nextSpace));
+                move(nextSpace);
                 if (isOnNextSpace())
                 {
-                    currentSpace = getNextSpace();
-                    if (toMove == 0)
+                    if (nextSpace.CompareTag("JunctionSpace"))
                     {
                         isMoving = false;
                         stopSpace();
                     }
-                    if (getNextSpace().CompareTag("JunctionSpace"))
-                    {
-                        isMoving = false;
-                        stopSpace();
-                    }
-                    else if (getNextSpace().CompareTag("StarSpace"))
+                    else if (nextSpace.CompareTag("StarSpace"))
                     {
                         isMoving = false;
                         stopSpace();
@@ -53,6 +57,33 @@ public class Player : MonoBehaviour {
                     {
                         toMove--;
                     }
+                    //currentSpace = getNextSpace();
+                    currentSpace = nextSpace;
+                    nextSpace = getNextSpace();
+                    if (toMove == 0)
+                    {
+                        isMoving = false;
+                        active = false;
+                        stopSpace();
+                    }
+                }
+            }
+            if (!isMoving)
+            {
+                if (currentSpace.CompareTag("JunctionSpace"))
+                {
+                    if (Input.GetKey("left")||Input.GetKey("right"))
+                    { onAltPath = !onAltPath; }
+                    if (Input.GetKey("up"))
+                    {
+                        if (onAltPath) { nextSpace = currentSpace.GetComponent<getJunction>().getSecondarySpace(); }
+                        else { nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace(); }
+                        isMoving = true;
+                    }
+                }
+                if (currentSpace.CompareTag("StarSpace"))
+                {
+                    isMoving = true;
                 }
             }
 
@@ -86,21 +117,18 @@ public class Player : MonoBehaviour {
     public void move(GameObject s)
     {
         if (s.transform.position.x > transform.position.x)
-            transform.Translate(Vector3.right * Time.deltaTime);
+            transform.Translate(Vector3.right*5);
         if (s.transform.position.x < transform.position.x)
-            transform.Translate(Vector3.left * Time.deltaTime);
-        if (s.transform.position.z > transform.position.x)
-            transform.Translate(Vector3.forward * Time.deltaTime);
-        if (s.transform.position.z < transform.position.x)
-            transform.Translate(Vector3.back * Time.deltaTime);
+            transform.Translate(Vector3.left*5);
+        if (s.transform.position.z > transform.position.z)
+            transform.Translate(Vector3.forward*5);
+        if (s.transform.position.z < transform.position.z)
+            transform.Translate(Vector3.back*5);
     }
 
     public bool isOnNextSpace()
     {
-        GameObject n = getNextSpace();
-        if (transform.position.x == n.transform.position.x && transform.position.y == n.transform.position.y)
-            return true;
-        return false;
+        return (transform.position.x == nextSpace.transform.position.x && transform.position.z == nextSpace.transform.position.z);
     }
 
     public void moveToEdge()
@@ -108,7 +136,7 @@ public class Player : MonoBehaviour {
         //snaps the player above its current space when its not its turn, snaps it back to center when it is its turn
         if (!onEdge)
         {
-            transform.position = new Vector3(currentSpace.transform.position.x, 0, currentSpace.transform.position.z+30);
+            transform.position = new Vector3(currentSpace.transform.position.x, 0, currentSpace.transform.position.z+15);
             onEdge = true;
         }
         else
@@ -138,7 +166,10 @@ public class Player : MonoBehaviour {
     }
     public GameObject getNextSpace()
     {
-        return currentSpace.GetComponent<getNextSpace>().nextSpace();
+        if (!currentSpace.CompareTag("JunctionSpace"))
+            return currentSpace.GetComponent<getNextSpace>().nextSpace();
+        else
+            return currentSpace.GetComponent<getJunction>().getPrimarySpace();
     }
 
 
