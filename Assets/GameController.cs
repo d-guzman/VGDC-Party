@@ -46,7 +46,7 @@ public class GameController : MonoBehaviour {
         {
             for(int i = 0; i < players.Length; i++)
             {
-                if (players[i].GetComponent<Player>().active)
+                if (players[i].GetComponent<Player>().isActiveAndEnabled)
                 {
                     followPlayer(players[i]);
                 }
