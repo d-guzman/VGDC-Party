@@ -5,7 +5,12 @@ using System.Collections;
 public class PlayerController : MonoBehaviour {
     //jump
     private bool isFalling = false;
-    private int jumpH = 7;
+    private int jumpH=7;
+
+    //attack
+    private bool wasHit = false;
+     
+
 
 
 
@@ -19,6 +24,15 @@ public class PlayerController : MonoBehaviour {
         
     }
 
+    void punch()
+    {
+        Vector3 half = new Vector3(.2f, .2f, .2f);
+        if(Physics.BoxCast(transform.position,half,transform.forward,Quaternion.identity,.7f) )
+        {
+            print("hited");
+        }
+    }
+
 	void Update()
     {
         
@@ -28,8 +42,8 @@ public class PlayerController : MonoBehaviour {
         Vector3 movement = new Vector3(moveHorizontal*speed*Time.deltaTime, 0.0f, moveVerticle*speed*Time.deltaTime);
         
         transform.Translate(movement);
-        print(rb1.velocity[1]);
-        print(isFalling);
+        //print(rb1.velocity[1]);
+       // print(isFalling);
         if (Input.GetButton("Fire1") && isFalling==false)
         {
             Vector3 movementjump = new Vector3(moveHorizontal * speed * Time.deltaTime, jumpH, moveVerticle * speed * Time.deltaTime);
@@ -41,14 +55,11 @@ public class PlayerController : MonoBehaviour {
         if (rb1.velocity[1] == 0)
         { isFalling = false; }
 
-
+        punch();
 
     }
 
-    void OnHitGround()
-    {
-        
-    }
+    
 
 
    
