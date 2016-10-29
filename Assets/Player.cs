@@ -4,40 +4,42 @@ using System.Collections;
 public class Player : MonoBehaviour {
     
     public string playerName;
-    public int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder,toMove;
-    public bool active=false,rolling=false,isMoving=false,onEdge=false,onAltPath=false;
+    public int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder,toMove,state=0,playersOnSpace=0;
+    public bool onEdge=false,onAltPath=false,hasInitiative=false;
     private GameObject currentSpace,nextSpace;
-    //Should coins just start at 10? What does the starting point count as spacewise?
     
+    //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star
 
 	// Use this for initialization
 	void Start () {
         currentSpace = GameObject.Find("StartSpace");
         nextSpace = GameObject.Find("Space 0");
+        coins = 10;
+        highestCoins = 10;
+        state = 0;
+        moveToEdge(playersOnSpace);
     }
     	
 	// Update is called once per frame  
 	void Update () {
         //testing movement - hit up twice:
-        if (Input.GetKey("up"))
+        if (Input.GetKeyDown("down"))
         {
-            active = true;
+            state=1;
         }
-        if (active)
+        if (state > 0)
         {
-            if (!isMoving && toMove==0) { rolling = true; }
             if (onEdge)
-                moveToEdge();
-            if (rolling)
+                moveToEdge(playersOnSpace);
+            if (state==1)
             {
-                if (Input.GetKey("up"))
+                if (Input.GetKeyDown("up"))
                 {
-                    toMove=Random.Range(1,6);
-                    isMoving = true;
-                    rolling = false;
+                    toMove = Random.Range(1, 6);
+                    state++;
                 }
             }
-            if (isMoving)
+            if (state==2)
             {
                 //move(getNextSpace(nextSpace));
                 move(nextSpace);
@@ -45,12 +47,12 @@ public class Player : MonoBehaviour {
                 {
                     if (nextSpace.CompareTag("JunctionSpace"))
                     {
-                        isMoving = false;
+                        state = 3;
                         stopSpace();
                     }
                     else if (nextSpace.CompareTag("StarSpace"))
                     {
-                        isMoving = false;
+                        state = 4;
                         stopSpace();
                     }
                     else
@@ -62,34 +64,27 @@ public class Player : MonoBehaviour {
                     nextSpace = getNextSpace();
                     if (toMove == 0)
                     {
-                        isMoving = false;
-                        active = false;
+                        state = 0;
                         stopSpace();
                     }
                 }
             }
-            if (!isMoving)
+            if (state == 3)
             {
-                if (currentSpace.CompareTag("JunctionSpace"))
+                if (Input.GetKeyDown("left") || Input.GetKeyDown("right"))
+                { onAltPath = !onAltPath; }
+                if (Input.GetKeyDown("up"))
                 {
-                    if (Input.GetKey("left")||Input.GetKey("right"))
-                    { onAltPath = !onAltPath; }
-                    if (Input.GetKey("up"))
-                    {
-                        if (onAltPath) { nextSpace = currentSpace.GetComponent<getJunction>().getSecondarySpace(); }
-                        else { nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace(); }
-                        isMoving = true;
-                    }
-                }
-                if (currentSpace.CompareTag("StarSpace"))
-                {
-                    isMoving = true;
+                    if (onAltPath) { nextSpace = currentSpace.GetComponent<getJunction>().getSecondarySpace(); }
+                    else { nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace(); }
+                    state = 2;
                 }
             }
-
+            if (state == 4)
+            {
+                state = 2;
+            }
         }
-        if (!active && !onEdge)
-            moveToEdge();
 	}
 
     private bool rankCompare(Player a)
@@ -125,19 +120,38 @@ public class Player : MonoBehaviour {
         if (s.transform.position.z < transform.position.z)
             transform.Translate(Vector3.back*5);
     }
-
+    public void setTurnOrder(int i) { turnOrder = i; }
     public bool isOnNextSpace()
     {
         return (transform.position.x == nextSpace.transform.position.x && transform.position.z == nextSpace.transform.position.z);
     }
 
-    public void moveToEdge()
+    public void moveToEdge(int i)
     {
         //snaps the player above its current space when its not its turn, snaps it back to center when it is its turn
         if (!onEdge)
         {
-            transform.position = new Vector3(currentSpace.transform.position.x, 0, currentSpace.transform.position.z+15);
-            onEdge = true;
+            //Moves the player to a different corner depending on its playersOnSpace value. Each player on the space increases playersOnSpace for the next player to land by 1
+            if (i == 0)
+            {
+                transform.position = new Vector3(currentSpace.transform.position.x - 15, 0, currentSpace.transform.position.z + 15);
+                onEdge = true;
+            }
+            else if (i == 1)
+            {
+                transform.position = new Vector3(currentSpace.transform.position.x + 15, 0, currentSpace.transform.position.z + 15);
+                onEdge = true;
+            }
+            else if (i == 2)
+            {
+                transform.position = new Vector3(currentSpace.transform.position.x - 15, 0, currentSpace.transform.position.z - 15);
+                onEdge = true;
+            }
+            else if (i == 3)
+            {
+                transform.position = new Vector3(currentSpace.transform.position.x + 15, 0, currentSpace.transform.position.z - 15);
+                onEdge = true;
+            }
         }
         else
         {
@@ -150,19 +164,25 @@ public class Player : MonoBehaviour {
     {
         if (currentSpace.CompareTag("BlueSpace"))
         {
+            coins += 3;
+            blueCount++;
+            moveToEdge(playersOnSpace);
         }
         if (currentSpace.CompareTag("RedSpace"))
         {
+            if (coins >= 3)
+                coins -= 3;
+            else
+                coins = 0;
+            redCount++;
+            moveToEdge(playersOnSpace);
         }
         if (currentSpace.CompareTag("StarSpace"))
         {
         }
-        if (currentSpace.CompareTag("StartSpace"))
-        {
-        }
-        if (currentSpace.CompareTag("JunctionSpace"))
-        {
-        }
+        //setRank(other players go here);
+        if (coins > highestCoins)
+            highestCoins = coins;
     }
     public GameObject getNextSpace()
     {
@@ -171,6 +191,11 @@ public class Player : MonoBehaviour {
         else
             return currentSpace.GetComponent<getJunction>().getPrimarySpace();
     }
-
+    public int getCoins() { return coins; }
+    public int getStars() { return stars; }
+    public int getRoll() { return toMove; }
+    public int getPlayersOnSpace() { return playersOnSpace; }
+    public void wonMiniGame() { coins += 10; }
+    public void setPlayersOnSpace(int i) { playersOnSpace = i; }
 
 }
