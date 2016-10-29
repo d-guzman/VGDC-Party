@@ -19,7 +19,7 @@ public class ArenaEvents : MonoBehaviour {
         
         if (playerArray[0].activeSelf)
         {
-            print("active");
+            //print("active");
         }
 
 
