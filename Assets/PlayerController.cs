@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour {
         float moveVerticle = Input.GetAxis("Vertical");
 
         Vector3 movement = new Vector3(moveHorizontal*speed*Time.deltaTime, 0.0f, moveVerticle*speed*Time.deltaTime);
-
+        
         transform.Translate(movement);
 
 
