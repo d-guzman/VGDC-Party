@@ -31,11 +31,12 @@ public class PlayerController : MonoBehaviour {
             print("punch");
             punching = true;
             RaycastHit enemy;
+           
             Vector3 half = new Vector3(.2f, .2f, .2f);
             if (Physics.BoxCast(transform.position, half, transform.forward, out enemy,Quaternion.identity, .7f))
             {
                 print("hited");
-                enemy.rigidbody.AddForce(transform.forward*5);
+                enemy.collider.attachedRigidbody.AddForce(transform.forward*7,ForceMode.VelocityChange);
 
                 punching = false;
             }
@@ -66,8 +67,12 @@ public class PlayerController : MonoBehaviour {
         if (rb1.velocity[1] == 0)
         { isFalling = false; }
 
-        punch();
 
+        
+    }
+  void FixedUpdate()
+    {
+        punch();
     }
 
     
