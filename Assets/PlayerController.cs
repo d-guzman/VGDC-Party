@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour {
 
     //attack
     private bool wasHit = false;
-     
+    private bool punching = false;
 
 
 
@@ -26,10 +26,21 @@ public class PlayerController : MonoBehaviour {
 
     void punch()
     {
-        Vector3 half = new Vector3(.2f, .2f, .2f);
-        if(Physics.BoxCast(transform.position,half,transform.forward,Quaternion.identity,.7f) )
+        if (Input.GetButtonDown("Fire2")&& punching==false)
         {
-            print("hited");
+            print("punch");
+            punching = true;
+            RaycastHit enemy;
+            Vector3 half = new Vector3(.2f, .2f, .2f);
+            if (Physics.BoxCast(transform.position, half, transform.forward, out enemy,Quaternion.identity, .7f))
+            {
+                print("hited");
+                enemy.rigidbody.AddForce(transform.forward*5);
+
+                punching = false;
+            }
+            else
+            { punching = false; }
         }
     }
 
