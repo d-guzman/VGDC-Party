@@ -4,11 +4,13 @@ using System.Collections;
 public class Player : MonoBehaviour {
     
     private string playerName;
-    private int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder,toMove,state=0,playersOnSpace=0;
+    private int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder = -1,toMove,state=0,playersOnSpace=0;
+    private int initiative = 0;
+
     private bool onEdge=false,onAltPath=false,hasInitiative=false;
     private GameObject currentSpace,nextSpace;
-    
-    //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star
+    private GameObject[] players;
+    //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star 5=roll for initiative 6 = turn over
 
 	// Use this for initialization
 	void Start () {
@@ -27,7 +29,36 @@ public class Player : MonoBehaviour {
         {
             state=1;
         }
-        if (state > 0)
+        if(state == 5)
+        {
+            bool validRoll = false;
+            if (Input.GetKeyDown("up"))
+            {
+                while (!validRoll)
+                {
+                    bool duplicateRoll = false;
+                    int tempInitative = Random.Range(1, 6);
+                    for(int i = 0; i < players.Length; i++)
+                    {
+                        if(tempInitative == players[i].GetComponent<Player>().getInitativeNum())
+                        {
+                            duplicateRoll = true;
+                        }
+                    }
+                    if (!duplicateRoll)
+                    {
+                        initiative = tempInitative;
+                        validRoll = true;
+                        setInitiative(true);
+                    }
+                }
+
+
+                setPlayerState(0);
+            }
+            
+        }
+        if (state != 0)
         {
             if (onEdge)
                 moveToEdge(playersOnSpace);
@@ -64,7 +95,7 @@ public class Player : MonoBehaviour {
                     nextSpace = getNextSpace();
                     if (toMove == 0)
                     {
-                        state = 0;
+                        state = 6;
                         stopSpace();
                     }
                 }
@@ -203,7 +234,9 @@ public class Player : MonoBehaviour {
     public int getToMove() { return toMove; }
     public int getState() { return state; }
     public int getPlayersOnSpace() { return playersOnSpace; }
-    public bool getInitiative() { return hasInitiative; }
+    public bool getInitiative() {
+        return hasInitiative;
+    }
     public void wonMiniGame() { coins += 10; }
     public void addStar() { stars++; }
     public void setRank(int i) { rank = i; }
@@ -211,4 +244,16 @@ public class Player : MonoBehaviour {
     public void setPlayersOnSpace(int i) { playersOnSpace = i; }
     public void setTurnOrder(int i) { turnOrder = i; }
 
+    public int getInitativeNum()
+    {
+        return initiative;
+    }
+    public void setPlayerState(int x)
+    {
+        state = x;
+    }
+    public void setListOfPlayers(GameObject[] x)
+    {
+        players = x;
+    }
 }

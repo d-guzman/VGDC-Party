@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour {
     // Use this for initialization
     GameObject cam;
     GameObject[] players;
+    GameObject currentPlayer;
     int gameState;
     private const int MAIN_MENU = 0;
     private const int GAME_BOARD = 1;
@@ -22,15 +23,21 @@ public class GameController : MonoBehaviour {
     private const int NEW_TURN = 2;
     private const int PLAYERS_TURN = 3;
     private const int DECIDE_MINIGAME = 4;
-    
-    
+
+    private int playerTurn;
     void Start()
     {
         DontDestroyOnLoad(transform.gameObject);
         players = GameObject.FindGameObjectsWithTag("Player");
+        for (int i = 0; i < players.Length; i++)
+        {
+            players[i].GetComponent<Player>().setListOfPlayers(players);
+        }
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         setCameraPreset(1);
-        
+        playerTurn = 0;
+        boardState = GET_INITIATIVE;
+        gameState = GAME_BOARD;
     }
     void Update()
     {
@@ -58,36 +65,54 @@ public class GameController : MonoBehaviour {
 
         if(gameState == 1)
         {
+            //print(boardState);
+            
             if(boardState == PRE_GAME)
             {
-                setCameraPreset(1);
+                
             } else if(boardState == GET_INITIATIVE)
             {
-                int i = -1;
+                int rollingPlayer = -1;
               
-                for(int j = 0; j < players.Length; i++)
+                for(int j = 0; j < players.Length; j++)
                 {
-                    /*
-                    if (!players[j].GetComponent<Player>().hasInitiative())
+                    if (!players[j].GetComponent<Player>().getInitiative())
                     {
-                        i = j;
+                        rollingPlayer = j;
                         j = 100000; //break out of loop
                     }
-                    */
+                    
                 }
-                if(i != -1)
+                if(rollingPlayer != -1)
                 {
-                    followPlayer(players[i]);
-                    //players[i].GetComponent<Player>().setPlayerState(some_num);
+                    followPlayer(players[rollingPlayer]);
+                    players[rollingPlayer].GetComponent<Player>().setPlayerState(5);
                 } else
                 {
-                    boardState = NEW_TURN;
+                    setTurnOrder();
+                    
+                    setBoardState(NEW_TURN);
                 }
             } else if(boardState == NEW_TURN)
             {
-
+                //display turns left and other stuff at the beginning of each round of turns.
+                setBoardState(PLAYERS_TURN);
             } else if(boardState == PLAYERS_TURN)
             {
+                currentPlayer = getCurrentPlayer(playerTurn);
+                print(":"+currentPlayer.GetComponent<Player>().getState());
+                if(currentPlayer.GetComponent<Player>().getState() == 0)
+                {
+                    currentPlayer.GetComponent<Player>().setPlayerState(1);
+                } else if(currentPlayer.GetComponent<Player>().getState() == 6)
+                {
+                    currentPlayer.GetComponent<Player>().setPlayerState(0);
+                    playerTurn++;
+                }
+                if(playerTurn > 4)
+                {
+                    setGameState(DECIDE_MINIGAME);
+                }
 
             } else if(boardState == DECIDE_MINIGAME)
             {
@@ -100,9 +125,10 @@ public class GameController : MonoBehaviour {
         /*
            1: Wide view of entire map
            2: StartSpace
-           3:
+           3: StarSpace
 
         */
+        
         cam.GetComponentInParent<CamBehavior>().setFollowPlayer(false);
         if(x == 1){
             cam.GetComponentInParent<CamBehavior>().setTargetLocation(new Vector3(300, 200, 275));
@@ -151,6 +177,10 @@ public class GameController : MonoBehaviour {
         gameState = GAME_BOARD;
         SceneManager.LoadScene("GameBoard");
         players = GameObject.FindGameObjectsWithTag("Player");
+        for(int i = 0; i < players.Length; i++)
+        {
+            players[i].GetComponent<Player>().setListOfPlayers(players);
+        }
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         setCameraPreset(1);
 
@@ -171,5 +201,67 @@ public class GameController : MonoBehaviour {
         gameState = MAIN_MENU;
         SceneManager.LoadScene("MainMenu");
 
+    }
+    public void setGameState(int x)
+    {
+        gameState = x;
+        if(gameState == GAME_BOARD)
+        {
+            loadGameBoard();
+        }
+    }
+    public void setBoardState(int x)
+    {
+        boardState = x;
+        if(boardState == PRE_GAME)
+        {
+            setCameraPreset(1);
+        } else if(boardState == GET_INITIATIVE)
+        {
+            setCameraPreset(2);
+        } else if(boardState == NEW_TURN)
+        {
+
+        } else if(boardState == PLAYERS_TURN)
+        {
+            playerTurn = 0;
+        } else if(boardState == DECIDE_MINIGAME)
+        {
+
+        }
+    }
+    public void setTurnOrder()
+    {
+        
+        for(int i = 0; i < players.Length; i++)
+        {
+            int max = 0;
+            int index = 0;
+            for(int j = 0; j < players.Length; j++)
+            {
+                if(max < players[j].GetComponent<Player>().getInitativeNum() && players[j].GetComponent<Player>().getTurnOrder() == -1)
+                {
+                    max = players[j].GetComponent<Player>().getInitativeNum();
+                    index = j;
+                }
+            }
+            players[index].GetComponent<Player>().setTurnOrder(i);
+        }
+        for(int i = 0; i < players.Length; i++)
+        {
+            print(players[i].GetComponent<Player>().getTurnOrder());
+        }
+    }
+    public GameObject getCurrentPlayer(int x)
+    {
+        GameObject result = null;
+        for(int i = 0; i < 4; i++)
+        {
+            if (players[i].GetComponent<Player>().getTurnOrder() == x)
+            {
+                result = players[i];
+            }
+        }
+        return result;
     }
 }
