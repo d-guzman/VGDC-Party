@@ -46,7 +46,7 @@ public class PlayerController : MonoBehaviour {
             punching = true;
             RaycastHit enemy;
            
-            Vector3 half = new Vector3(.2f, .2f, .2f);
+            Vector3 half = new Vector3(.5f, .5f, .5f);
             if (Physics.BoxCast(transform.position, half, transform.forward, out enemy,Quaternion.identity, .7f))
             {
                 print("hited");
