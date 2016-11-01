@@ -3,12 +3,14 @@ using System.Collections;
 
 public class Player : MonoBehaviour {
     
-    public string playerName;
-    public int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder,toMove,state=0,playersOnSpace=0;
-    public bool onEdge=false,onAltPath=false,hasInitiative=false;
+    private string playerName;
+    private int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder = -1,toMove,state=0,playersOnSpace=0;
+    private int initiative = 0;
+
+    private bool onEdge=false,onAltPath=false,hasInitiative=false;
     private GameObject currentSpace,nextSpace;
-    
-    //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star
+    private GameObject[] players;
+    //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star 5=roll for initiative 6 = turn over
 
 	// Use this for initialization
 	void Start () {
@@ -27,7 +29,36 @@ public class Player : MonoBehaviour {
         {
             state=1;
         }
-        if (state > 0)
+        if(state == 5)
+        {
+            bool validRoll = false;
+            if (Input.GetKeyDown("up"))
+            {
+                while (!validRoll)
+                {
+                    bool duplicateRoll = false;
+                    int tempInitative = Random.Range(1, 6);
+                    for(int i = 0; i < players.Length; i++)
+                    {
+                        if(tempInitative == players[i].GetComponent<Player>().getInitativeNum())
+                        {
+                            duplicateRoll = true;
+                        }
+                    }
+                    if (!duplicateRoll)
+                    {
+                        initiative = tempInitative;
+                        validRoll = true;
+                        setInitiative(true);
+                    }
+                }
+
+
+                setPlayerState(0);
+            }
+            
+        }
+        if (state != 0)
         {
             if (onEdge)
                 moveToEdge(playersOnSpace);
@@ -64,10 +95,11 @@ public class Player : MonoBehaviour {
                     nextSpace = getNextSpace();
                     if (toMove == 0)
                     {
-                        state = 0;
+                        state = 6;
                         stopSpace();
                     }
                 }
+                if (state == 0) { moveToEdge(playersOnSpace); }
             }
             if (state == 3)
             {
@@ -120,7 +152,6 @@ public class Player : MonoBehaviour {
         if (s.transform.position.z < transform.position.z)
             transform.Translate(Vector3.back*5);
     }
-    public void setTurnOrder(int i) { turnOrder = i; }
     public bool isOnNextSpace()
     {
         return (transform.position.x == nextSpace.transform.position.x && transform.position.z == nextSpace.transform.position.z);
@@ -166,7 +197,6 @@ public class Player : MonoBehaviour {
         {
             coins += 3;
             blueCount++;
-            moveToEdge(playersOnSpace);
         }
         if (currentSpace.CompareTag("RedSpace"))
         {
@@ -175,10 +205,10 @@ public class Player : MonoBehaviour {
             else
                 coins = 0;
             redCount++;
-            moveToEdge(playersOnSpace);
         }
         if (currentSpace.CompareTag("StarSpace"))
         {
+            //better to do this in the update section (like with junctions)
         }
         //setRank(other players go here);
         if (coins > highestCoins)
@@ -191,11 +221,39 @@ public class Player : MonoBehaviour {
         else
             return currentSpace.GetComponent<getJunction>().getPrimarySpace();
     }
+    //get methods and set/changing methods
     public int getCoins() { return coins; }
+    public int getHighestCoins() { return highestCoins; }
     public int getStars() { return stars; }
     public int getRoll() { return toMove; }
+    public int getMinigamesWon() { return mgWon; }
+    public int getBlueCount() { return blueCount; }
+    public int getRedCount() { return redCount; }
+    public int getRank() { return rank; }
+    public int getTurnOrder() { return turnOrder; }
+    public int getToMove() { return toMove; }
+    public int getState() { return state; }
     public int getPlayersOnSpace() { return playersOnSpace; }
+    public bool getInitiative() {
+        return hasInitiative;
+    }
     public void wonMiniGame() { coins += 10; }
+    public void addStar() { stars++; }
+    public void setRank(int i) { rank = i; }
+    public void setInitiative(bool b) { hasInitiative = b; }
     public void setPlayersOnSpace(int i) { playersOnSpace = i; }
+    public void setTurnOrder(int i) { turnOrder = i; }
 
+    public int getInitativeNum()
+    {
+        return initiative;
+    }
+    public void setPlayerState(int x)
+    {
+        state = x;
+    }
+    public void setListOfPlayers(GameObject[] x)
+    {
+        players = x;
+    }
 }
