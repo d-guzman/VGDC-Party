@@ -3,9 +3,9 @@ using System.Collections;
 
 public class Player : MonoBehaviour {
     
-    public string playerName;
-    public int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder,toMove,state=0,playersOnSpace=0;
-    public bool onEdge=false,onAltPath=false,hasInitiative=false;
+    private string playerName;
+    private int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder,toMove,state=0,playersOnSpace=0;
+    private bool onEdge=false,onAltPath=false,hasInitiative=false;
     private GameObject currentSpace,nextSpace;
     
     //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star
@@ -68,6 +68,7 @@ public class Player : MonoBehaviour {
                         stopSpace();
                     }
                 }
+                if (state == 0) { moveToEdge(playersOnSpace); }
             }
             if (state == 3)
             {
@@ -120,7 +121,6 @@ public class Player : MonoBehaviour {
         if (s.transform.position.z < transform.position.z)
             transform.Translate(Vector3.back*5);
     }
-    public void setTurnOrder(int i) { turnOrder = i; }
     public bool isOnNextSpace()
     {
         return (transform.position.x == nextSpace.transform.position.x && transform.position.z == nextSpace.transform.position.z);
@@ -166,7 +166,6 @@ public class Player : MonoBehaviour {
         {
             coins += 3;
             blueCount++;
-            moveToEdge(playersOnSpace);
         }
         if (currentSpace.CompareTag("RedSpace"))
         {
@@ -175,10 +174,10 @@ public class Player : MonoBehaviour {
             else
                 coins = 0;
             redCount++;
-            moveToEdge(playersOnSpace);
         }
         if (currentSpace.CompareTag("StarSpace"))
         {
+            //better to do this in the update section (like with junctions)
         }
         //setRank(other players go here);
         if (coins > highestCoins)
@@ -191,11 +190,25 @@ public class Player : MonoBehaviour {
         else
             return currentSpace.GetComponent<getJunction>().getPrimarySpace();
     }
+    //get methods and set/changing methods
     public int getCoins() { return coins; }
+    public int getHighestCoins() { return highestCoins; }
     public int getStars() { return stars; }
     public int getRoll() { return toMove; }
+    public int getMinigamesWon() { return mgWon; }
+    public int getBlueCount() { return blueCount; }
+    public int getRedCount() { return redCount; }
+    public int getRank() { return rank; }
+    public int getTurnOrder() { return turnOrder; }
+    public int getToMove() { return toMove; }
+    public int getState() { return state; }
     public int getPlayersOnSpace() { return playersOnSpace; }
+    public bool getInitiative() { return hasInitiative; }
     public void wonMiniGame() { coins += 10; }
+    public void addStar() { stars++; }
+    public void setRank(int i) { rank = i; }
+    public void setInitiative(bool b) { hasInitiative = b; }
     public void setPlayersOnSpace(int i) { playersOnSpace = i; }
+    public void setTurnOrder(int i) { turnOrder = i; }
 
 }
