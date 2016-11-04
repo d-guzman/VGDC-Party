@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Player : MonoBehaviour {
     
@@ -14,28 +15,41 @@ public class Player : MonoBehaviour {
 
     private GameObject currentSpace,nextSpace;
     private GameObject[] players;
+    private Vector3 heightOffset;
     //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star 5=roll for initiative 6 = turn over
-
+    private const int NOTTURN = 0;
+    private const int ONTURN = 1;
+    private const int MOVING = 2;
+    private const int ONJUNCTION = 3;
+    private const int ONSTAR = 4;
+    private const int GETINITATIVE = 5;
+    private const int TURNOVER = 6;
 	// Use this for initialization
-	void Start () {
+    void Awake()
+    {
         currentSpace = GameObject.Find("StartSpace");
         nextSpace = GameObject.Find("Space 0");
+
+    }
+	void Start () {
+        players = GameObject.FindGameObjectsWithTag("Player");
         coins = 10;
         highestCoins = 10;
-        state = 0;
-        moveToEdge(playersOnSpace);
+        setPlayerState(0);
+        heightOffset = Vector3.up * 7;
+        moveToCorner();
+        transform.position = destination;
+
+
         spaceType = 0;
-        destination = transform.position;
+        forceDistributePlayers(currentSpace);
     }
     	
 	// Update is called once per frame  
 	void Update () {
         //testing movement - hit up twice:
-        if (Input.GetKeyDown("down"))
-        {
-            state=1;
-        }
-        if(state == 5)
+        
+        if(state == GETINITATIVE)
         {
             bool validRoll = false;
             if (Input.GetKeyDown("up"))
@@ -60,39 +74,42 @@ public class Player : MonoBehaviour {
                 }
 
 
-                setPlayerState(0);
+                setPlayerState(NOTTURN);
             }
             
         }
-        if (state != 0)
+        moveToPoint(destination);//player will move to any destination specified
+                                 //you can just change the destination once and the player will reach it
+        if (state != NOTTURN)
         {
-            if (onEdge)
-                moveToEdge(playersOnSpace);
-            if (state==1)
+
+              
+
+            if (state==ONTURN)
             {
                 if (Input.GetKeyDown("up"))
                 {
                     toMove = Random.Range(1, 6);
-                    state++;
-                    destination = nextSpace.transform.position;
+                    setPlayerState(MOVING);
+                    destination = nextSpace.transform.position + heightOffset;
 
                 }
             }
-            if (state==2)
+            if (state==MOVING)
             {
                 //move(getNextSpace(nextSpace));
                 //move(nextSpace);
-                moveToPoint(destination);
+                
                 if (isOnNextSpace())
                 {
                     if (nextSpace.CompareTag("JunctionSpace"))
                     {
-                        state = 3;
+                        setPlayerState(ONJUNCTION);
                         stopSpace();
                     }
                     else if (nextSpace.CompareTag("StarSpace"))
                     {
-                        state = 4;
+                        setPlayerState(ONSTAR);
                         stopSpace();
                     }
                     else
@@ -102,31 +119,45 @@ public class Player : MonoBehaviour {
                     //currentSpace = getNextSpace();
                     currentSpace = nextSpace;
                     nextSpace = getNextSpace();
-                    destination = nextSpace.transform.position;
+                    destination = nextSpace.transform.position+heightOffset;
 
                     if (toMove == 0)
                     {
-                        state = 6;
+                        setPlayerState(TURNOVER);   //signals gamecontroller that this turn is over, gamecontroller will set this back to 0
+                        moveToCorner();
                         stopSpace();
                     }
                 }
                 
             }
-            if (state == 3)
+            if (state == ONJUNCTION)
             {
                 if (Input.GetKeyDown("left") || Input.GetKeyDown("right"))
-                { onAltPath = !onAltPath; }
+                {
+                    onAltPath = !onAltPath;
+                }
+
                 if (Input.GetKeyDown("up"))
                 {
-                    if (onAltPath) { nextSpace = currentSpace.GetComponent<getJunction>().getSecondarySpace(); }
-                    else { nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace(); }
-                    state = 2;
+                    if (onAltPath) {
+                        nextSpace = currentSpace.GetComponent<getJunction>().getSecondarySpace();
+                    }
+                    else {
+                        nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace();
+                    }
+                    setPlayerState(MOVING);
                 }
             }
-            if (state == 4)
+            if (state == ONSTAR)
             {
-                state = 2;
+                setPlayerState(MOVING);
+                //get star stuff
             }
+        }
+        else
+        {
+            //this code runs when it's not a player's turn
+           
         }
 	}
 
@@ -183,6 +214,26 @@ public class Player : MonoBehaviour {
     {
         return (transform.position.x == nextSpace.transform.position.x && transform.position.z == nextSpace.transform.position.z);
     }
+    public void forceDistributePlayers(GameObject space)
+    {
+        //move to corner only works if players reach a location sequentially
+        //aka everyone goes to the "4 player" position when the game starts
+        //this will distribute anyone on a given spot
+        List<GameObject> playerList = new List<GameObject>();
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].GetComponent<Player>().onSpace(currentSpace))
+            {
+                playerList.Add(players[i]);
+            }
+        }
+        int spaceRadius = 10;
+        Vector3 tempDestination = currentSpace.transform.position + heightOffset;
+        playerList[0].GetComponent<Player>().setDestination(tempDestination + (Vector3.left + Vector3.forward) * spaceRadius);
+        playerList[1].GetComponent<Player>().setDestination(tempDestination + (Vector3.right + Vector3.forward) * spaceRadius);
+        playerList[2].GetComponent<Player>().setDestination(tempDestination + (Vector3.left + Vector3.back) * spaceRadius);
+        playerList[3].GetComponent<Player>().setDestination(tempDestination + (Vector3.right + Vector3.back) * spaceRadius);
+    }
     public void moveToCorner()
     {
         int playersOnCurrentSpace = 0;
@@ -193,27 +244,30 @@ public class Player : MonoBehaviour {
                 playersOnCurrentSpace++;
             }
         }
-        destination = currentSpace.transform.position;
-        int spaceRadius = 1;
+        print(playersOnCurrentSpace);
+        Vector3 tempDestination = currentSpace.transform.position + heightOffset;
+        int spaceRadius = 10;
         //remember this player is on the space as well
-        if(playersOnCurrentSpace == 0)
+        if(playersOnCurrentSpace == 1)
         {
-            destination += (Vector3.left + Vector3.forward) * spaceRadius;
-        } else if(playersOnCurrentSpace == 1)
-        {
-            destination += (Vector3.right + Vector3.forward) * spaceRadius;
+            tempDestination += (Vector3.left + Vector3.forward) * spaceRadius;
         } else if(playersOnCurrentSpace == 2)
         {
-            destination += (Vector3.left + Vector3.back) * spaceRadius;
+            tempDestination += (Vector3.right + Vector3.forward) * spaceRadius;
+        } else if(playersOnCurrentSpace == 3)
+        {
+            tempDestination += (Vector3.left + Vector3.back) * spaceRadius;
         } else
         {
-            destination += (Vector3.right + Vector3.back) * spaceRadius;
+            tempDestination += (Vector3.right + Vector3.back) * spaceRadius;
         }
+        destination = tempDestination;
     }
     public void moveToCenter()
     {
-        destination = currentSpace.transform.position;
+        destination = currentSpace.transform.position + heightOffset;
     }
+    /*   //Replaced by moveToCorner() and moveToCenter(), which only have to be called once
     public void moveToEdge(int i)
     {
         //snaps the player above its current space when its not its turn, snaps it back to center when it is its turn
@@ -247,7 +301,7 @@ public class Player : MonoBehaviour {
             onEdge = false;
         }
     }
-
+    */
     public void stopSpace()
     {
         if (currentSpace.CompareTag("BlueSpace"))
@@ -299,6 +353,10 @@ public class Player : MonoBehaviour {
     public void setInitiative(bool b) { hasInitiative = b; }
     public void setPlayersOnSpace(int i) { playersOnSpace = i; }
     public void setTurnOrder(int i) { turnOrder = i; }
+    public void setDestination(Vector3 dest)
+    {
+        destination = dest;
+    }
     public bool onSpace(GameObject space)
     {
         return currentSpace.GetInstanceID() == space.GetInstanceID();
@@ -317,10 +375,10 @@ public class Player : MonoBehaviour {
         state = x;
         if(state == 0)
         {
-
+            
         } else if(state == 1)
         {
-
+            moveToCenter();
         } else if(state == 2)
         {
 
@@ -335,7 +393,7 @@ public class Player : MonoBehaviour {
 
         } else if(state == 6)
         {
-
+            
         }
     }
     public void setListOfPlayers(GameObject[] x)

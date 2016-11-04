@@ -109,7 +109,7 @@ public class GameController : MonoBehaviour {
                 if(playerTurn < players.Length)
                 {
                     currentPlayer = getCurrentPlayer(playerTurn);
-                    print(":" + currentPlayer.GetComponent<Player>().getState());
+                   
                     if (currentPlayer.GetComponent<Player>().getState() == 0)
                     {
                         currentPlayer.GetComponent<Player>().setPlayerState(1);
