@@ -4,10 +4,14 @@ using System.Collections;
 public class Player : MonoBehaviour {
     
     private string playerName;
-    private int stars = 0,coins,highestCoins=0,mgWon=0,blueCount=0,redCount=0,rank=1,turnOrder = -1,toMove,state=0,playersOnSpace=0;
+    private int stars = 0,coins,highestCoins=0,mgWon=0,rank=1,turnOrder = -1,toMove,state=0,playersOnSpace=0;
     private int initiative = 0;
 
     private bool onEdge=false,onAltPath=false,hasInitiative=false;
+    private int spaceType;
+    public float playerSpeed;
+    private Vector3 destination;
+
     private GameObject currentSpace,nextSpace;
     private GameObject[] players;
     //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star 5=roll for initiative 6 = turn over
@@ -20,6 +24,8 @@ public class Player : MonoBehaviour {
         highestCoins = 10;
         state = 0;
         moveToEdge(playersOnSpace);
+        spaceType = 0;
+        destination = transform.position;
     }
     	
 	// Update is called once per frame  
@@ -68,12 +74,15 @@ public class Player : MonoBehaviour {
                 {
                     toMove = Random.Range(1, 6);
                     state++;
+                    destination = nextSpace.transform.position;
+
                 }
             }
             if (state==2)
             {
                 //move(getNextSpace(nextSpace));
-                move(nextSpace);
+                //move(nextSpace);
+                moveToPoint(destination);
                 if (isOnNextSpace())
                 {
                     if (nextSpace.CompareTag("JunctionSpace"))
@@ -93,13 +102,15 @@ public class Player : MonoBehaviour {
                     //currentSpace = getNextSpace();
                     currentSpace = nextSpace;
                     nextSpace = getNextSpace();
+                    destination = nextSpace.transform.position;
+
                     if (toMove == 0)
                     {
                         state = 6;
                         stopSpace();
                     }
                 }
-                if (state == 0) { moveToEdge(playersOnSpace); }
+                
             }
             if (state == 3)
             {
@@ -140,23 +151,69 @@ public class Player : MonoBehaviour {
         if (rankCompare(c))
             rank--;
     }
-
+    /*  obsolete, use moveToPoint(Vector3 target) instead
     public void move(GameObject s)
     {
+        
         if (s.transform.position.x > transform.position.x)
-            transform.Translate(Vector3.right*5);
+            transform.Translate(Vector3.right*playerSpeed);
         if (s.transform.position.x < transform.position.x)
-            transform.Translate(Vector3.left*5);
+            transform.Translate(Vector3.left*playerSpeed);
         if (s.transform.position.z > transform.position.z)
-            transform.Translate(Vector3.forward*5);
+            transform.Translate(Vector3.forward*playerSpeed);
         if (s.transform.position.z < transform.position.z)
-            transform.Translate(Vector3.back*5);
+            transform.Translate(Vector3.back*playerSpeed);
+    }
+    */
+    public void moveToPoint(Vector3 target)
+    {
+        Vector3 directionVector = (target - transform.position);
+        directionVector.Normalize();
+        if(Vector3.Distance(target, transform.position) < playerSpeed)
+        {
+            transform.position = target;
+        } else
+        {
+            transform.Translate(directionVector * playerSpeed);
+        }
+        
+
     }
     public bool isOnNextSpace()
     {
         return (transform.position.x == nextSpace.transform.position.x && transform.position.z == nextSpace.transform.position.z);
     }
-
+    public void moveToCorner()
+    {
+        int playersOnCurrentSpace = 0;
+        for(int i = 0; i < players.Length; i++)
+        {
+            if (players[i].GetComponent<Player>().onSpace(currentSpace))
+            {
+                playersOnCurrentSpace++;
+            }
+        }
+        destination = currentSpace.transform.position;
+        int spaceRadius = 1;
+        //remember this player is on the space as well
+        if(playersOnCurrentSpace == 0)
+        {
+            destination += (Vector3.left + Vector3.forward) * spaceRadius;
+        } else if(playersOnCurrentSpace == 1)
+        {
+            destination += (Vector3.right + Vector3.forward) * spaceRadius;
+        } else if(playersOnCurrentSpace == 2)
+        {
+            destination += (Vector3.left + Vector3.back) * spaceRadius;
+        } else
+        {
+            destination += (Vector3.right + Vector3.back) * spaceRadius;
+        }
+    }
+    public void moveToCenter()
+    {
+        destination = currentSpace.transform.position;
+    }
     public void moveToEdge(int i)
     {
         //snaps the player above its current space when its not its turn, snaps it back to center when it is its turn
@@ -196,7 +253,7 @@ public class Player : MonoBehaviour {
         if (currentSpace.CompareTag("BlueSpace"))
         {
             coins += 3;
-            blueCount++;
+            spaceType = 0;
         }
         if (currentSpace.CompareTag("RedSpace"))
         {
@@ -204,7 +261,7 @@ public class Player : MonoBehaviour {
                 coins -= 3;
             else
                 coins = 0;
-            redCount++;
+            spaceType = 1;
         }
         if (currentSpace.CompareTag("StarSpace"))
         {
@@ -227,8 +284,7 @@ public class Player : MonoBehaviour {
     public int getStars() { return stars; }
     public int getRoll() { return toMove; }
     public int getMinigamesWon() { return mgWon; }
-    public int getBlueCount() { return blueCount; }
-    public int getRedCount() { return redCount; }
+   
     public int getRank() { return rank; }
     public int getTurnOrder() { return turnOrder; }
     public int getToMove() { return toMove; }
@@ -243,17 +299,51 @@ public class Player : MonoBehaviour {
     public void setInitiative(bool b) { hasInitiative = b; }
     public void setPlayersOnSpace(int i) { playersOnSpace = i; }
     public void setTurnOrder(int i) { turnOrder = i; }
-
+    public bool onSpace(GameObject space)
+    {
+        return currentSpace.GetInstanceID() == space.GetInstanceID();
+    }
     public int getInitativeNum()
     {
         return initiative;
     }
     public void setPlayerState(int x)
     {
+        //this code runs once whenever a state is changed
+        //use this for initializing values for a player state
+        //so you don't need to keep recalculating certain things or repeating actions
+        //USE THIS CONSISTENTLY PLEASE
+
         state = x;
+        if(state == 0)
+        {
+
+        } else if(state == 1)
+        {
+
+        } else if(state == 2)
+        {
+
+        } else if(state == 3)
+        {
+
+        } else if(state == 4)
+        {
+
+        } else if(state == 5)
+        {
+
+        } else if(state == 6)
+        {
+
+        }
     }
     public void setListOfPlayers(GameObject[] x)
     {
         players = x;
+    }
+    public int getSpaceType()
+    {
+        return spaceType;
     }
 }

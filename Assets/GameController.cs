@@ -25,6 +25,15 @@ public class GameController : MonoBehaviour {
     private const int DECIDE_MINIGAME = 4;
 
     private int playerTurn;
+
+    private int minigameType;
+
+    public string[] minigamesFFA;     //scene names go in here
+    public string[] minigames2v2;   //scene names go in here
+    public string[] minigames1v3;   //scene names go in here
+
+    private string[][] minigameList;
+
     void Start()
     {
         DontDestroyOnLoad(transform.gameObject);
@@ -38,6 +47,10 @@ public class GameController : MonoBehaviour {
         playerTurn = 0;
         boardState = GET_INITIATIVE;
         gameState = GAME_BOARD;
+        
+        minigameList = new string[3][] { minigamesFFA, minigames2v2, minigames1v3 };
+        
+
     }
     void Update()
     {
@@ -49,16 +62,9 @@ public class GameController : MonoBehaviour {
         } else if (Input.GetKeyDown("3"))
         {
             setCameraPreset(3);
-        } else if (Input.GetKeyDown("4"))
-        {
-            for(int i = 0; i < players.Length; i++)
-            {
-                if (players[i].GetComponent<Player>().isActiveAndEnabled)
-                {
-                    followPlayer(players[i]);
-                }
-            }
-        }
+        } 
+
+        
 
 
         //game flow is under this
@@ -99,24 +105,29 @@ public class GameController : MonoBehaviour {
                 setBoardState(PLAYERS_TURN);
             } else if(boardState == PLAYERS_TURN)
             {
-                currentPlayer = getCurrentPlayer(playerTurn);
-                print(":"+currentPlayer.GetComponent<Player>().getState());
-                if(currentPlayer.GetComponent<Player>().getState() == 0)
+               
+                if(playerTurn < players.Length)
                 {
-                    currentPlayer.GetComponent<Player>().setPlayerState(1);
-                } else if(currentPlayer.GetComponent<Player>().getState() == 6)
+                    currentPlayer = getCurrentPlayer(playerTurn);
+                    print(":" + currentPlayer.GetComponent<Player>().getState());
+                    if (currentPlayer.GetComponent<Player>().getState() == 0)
+                    {
+                        currentPlayer.GetComponent<Player>().setPlayerState(1);
+                        followPlayer(currentPlayer);
+                    }
+                    else if (currentPlayer.GetComponent<Player>().getState() == 6)
+                    {
+                        currentPlayer.GetComponent<Player>().setPlayerState(0);
+                        playerTurn++;
+                    }
+                } else
                 {
-                    currentPlayer.GetComponent<Player>().setPlayerState(0);
-                    playerTurn++;
-                }
-                if(playerTurn > 4)
-                {
-                    setGameState(DECIDE_MINIGAME);
+                    setBoardState(DECIDE_MINIGAME);
                 }
 
             } else if(boardState == DECIDE_MINIGAME)
             {
-
+                startMinigame(minigameType);
             }
         }
     }
@@ -159,17 +170,53 @@ public class GameController : MonoBehaviour {
     {
        
     }
-    public void start_minigame(int x)
+    public int getMinigameType()
     {
-        gameState = MINIGAME;
-        if(x == 0)
+        int result = -1;
+        int redCount = 0;
+        int blueCount = 0;
+        for(int i = 0; i < players.Length; i++)
         {
-            for(int i = 0; i < players.Length; i++)
+            if(players[i].GetComponent<Player>().getSpaceType() == 0)
             {
-                players[i].SetActive(false);
+                blueCount++;
+            } else if(players[i].GetComponent<Player>().getSpaceType() == 1)
+            {
+                redCount++;
             }
-            SceneManager.LoadScene("mini_arena");
+            else
+            {
+                print("player on unknown space type");
+            }
         }
+        if(blueCount == 4 || redCount == 4)
+        {
+            result = 0;   //FFA
+        } else if(blueCount == 3 || redCount == 3)
+        {
+            result = 1;  //1v3
+        } else if(blueCount == 2 || redCount == 2)
+        {
+            result = 2; //2v2
+        } else
+        {
+            print("Unusual amount of blue and red spaces");
+        }
+        return result;
+    }
+    public void startMinigame(int type)
+    {
+        setGameState(MINIGAME);
+        
+        int rngGame = Random.Range(0, minigameList[type].Length);
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            players[i].SetActive(false);
+        }
+
+        //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
+        SceneManager.LoadScene("mini_arena");
 
     }
     public void loadGameBoard()
@@ -204,6 +251,10 @@ public class GameController : MonoBehaviour {
     }
     public void setGameState(int x)
     {
+        //this code runs once whenever a state is changed
+        //use this for initializing values for a game state
+        //so you don't need to keep recalculating certain things or repeating actions
+        //USE THIS CONSISTENTLY PLEASE
         gameState = x;
         if(gameState == GAME_BOARD)
         {
@@ -212,6 +263,10 @@ public class GameController : MonoBehaviour {
     }
     public void setBoardState(int x)
     {
+        //this code runs once whenever a state is changed
+        //use this for initializing values for a board state
+        //so you don't need to keep recalculating certain things or repeating actions
+        //USE THIS CONSISTENTLY PLEASE
         boardState = x;
         if(boardState == PRE_GAME)
         {
@@ -227,7 +282,8 @@ public class GameController : MonoBehaviour {
             playerTurn = 0;
         } else if(boardState == DECIDE_MINIGAME)
         {
-
+            minigameType = getMinigameType();
+           
         }
     }
     public void setTurnOrder()
@@ -247,10 +303,7 @@ public class GameController : MonoBehaviour {
             }
             players[index].GetComponent<Player>().setTurnOrder(i);
         }
-        for(int i = 0; i < players.Length; i++)
-        {
-            print(players[i].GetComponent<Player>().getTurnOrder());
-        }
+        
     }
     public GameObject getCurrentPlayer(int x)
     {
@@ -264,4 +317,5 @@ public class GameController : MonoBehaviour {
         }
         return result;
     }
+    
 }
