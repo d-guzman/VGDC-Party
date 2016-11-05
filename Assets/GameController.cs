@@ -11,6 +11,7 @@ public class GameController : MonoBehaviour {
     GameObject cam;
     GameObject[] players;
     GameObject currentPlayer;
+    GameObject turnCounter;
     int gameState;
     private const int MAIN_MENU = 0;
     private const int GAME_BOARD = 1;
@@ -49,8 +50,9 @@ public class GameController : MonoBehaviour {
         gameState = GAME_BOARD;
         
         minigameList = new string[3][] { minigamesFFA, minigames2v2, minigames1v3 };
+        turnCounter = GameObject.Find("TurnCounter");
+        setPlayerRanks();
         
-
     }
     void Update()
     {
@@ -122,6 +124,7 @@ public class GameController : MonoBehaviour {
                     }
                 } else
                 {
+                    turnCounter.GetComponent<TurnCounter>().decrementTurnCount();
                     setBoardState(DECIDE_MINIGAME);
                 }
 
@@ -338,7 +341,14 @@ public class GameController : MonoBehaviour {
         }
         for(int i = 0; i < players.Length; i++)
         {
-            players[i].GetComponent<Player>().setRank(i);
+            if(i != 0 && players[i-1].GetComponent<Player>().getScore() == players[i].GetComponent<Player>().getScore())
+            {
+                players[i].GetComponent<Player>().setRank(players[i - 1].GetComponent<Player>().getRank());
+            }else
+            {
+                players[i].GetComponent<Player>().setRank(i);
+
+            }
         }
 
 

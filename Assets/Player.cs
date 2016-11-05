@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Player : MonoBehaviour {
     
     private string playerName;
-    private int stars = 0,coins,highestCoins=0,mgWon=0,rank=1,turnOrder = -1,toMove,state=0,playersOnSpace=0;
+    private int stars = 0,coins,highestCoins=0,mgWon=0,rank=0,turnOrder = -1,toMove,state=0,playersOnSpace=0;
     private int initiative = 0;
 
     private bool onEdge=false,onAltPath=false,hasInitiative=false;
