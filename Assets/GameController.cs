@@ -12,6 +12,8 @@ public class GameController : MonoBehaviour {
     GameObject[] players;
     GameObject currentPlayer;
     GameObject turnCounter;
+    UIRevealer[] playerTabs;
+
     UIRevealer lowerScreenUI;
     LowerScreenTextScript lowerScreenText;
     int gameState;
@@ -57,6 +59,11 @@ public class GameController : MonoBehaviour {
         setPlayerRanks();
         lowerScreenUI = GameObject.Find("LowerScreen").GetComponent<UIRevealer>();
         lowerScreenText = GameObject.Find("LowerScreen").GetComponentInChildren<LowerScreenTextScript>();
+        playerTabs = new UIRevealer[4];
+        playerTabs[0] = GameObject.Find("Player1Tab").GetComponent<UIRevealer>();
+        playerTabs[1] = GameObject.Find("Player2Tab").GetComponent<UIRevealer>();
+        playerTabs[2] = GameObject.Find("Player3Tab").GetComponent<UIRevealer>();
+        playerTabs[3] = GameObject.Find("Player4Tab").GetComponent<UIRevealer>();
 
         beforePlayerTurnTimer = 0f;
         afterPlayerTurnTimer = 0f;
@@ -112,20 +119,23 @@ public class GameController : MonoBehaviour {
             {
                 //display turns left and other stuff at the beginning of each round of turns.
                 setBoardState(PLAYERS_TURN);
+                revealPlayerTabs();
+                
             } else if(boardState == PLAYERS_TURN)
             {
                 if (beforePlayerTurnTimer > 0)
                 {
                     if(playerTurn < players.Length)
                     {
-                        lowerScreenUI.revealForTime(2);
-                        lowerScreenText.setText(playerTurn);
+                        currentPlayer = getCurrentPlayer(playerTurn);
+                        lowerScreenUI.revealForTime(1.2f);
+                        lowerScreenText.setText(currentPlayer.GetComponent<Player>().getPlayerNum());
                     }
                     
                     beforePlayerTurnTimer -= Time.deltaTime; //this is so we can zoom the camera out before moving to the next player
                 } else
                 {
-                    
+               
                     if (playerTurn < players.Length)
                     {
                         currentPlayer = getCurrentPlayer(playerTurn);
@@ -320,6 +330,7 @@ public class GameController : MonoBehaviour {
             beforePlayerTurnTimer = 1.2f;
             afterPlayerTurnTimer = 1.2f;
             playerTurn = 0;
+            //cam.GetComponentInParent<CamBehavior>().setTargetRotation(new Vector3(120, 0, 0));
         } else if(boardState == DECIDE_MINIGAME)
         {
             minigameType = getMinigameType();
@@ -389,5 +400,19 @@ public class GameController : MonoBehaviour {
         }
 
 
+    }
+    public void revealPlayerTabs()
+    {
+        for (int i = 0; i < playerTabs.Length; i++)
+        {
+            playerTabs[i].revealUI();
+        }
+    }
+    public void hidePlayerTabs()
+    {
+        for (int i = 0; i < playerTabs.Length; i++)
+        {
+            playerTabs[i].hideUI();
+        }
     }
 }

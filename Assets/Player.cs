@@ -12,7 +12,7 @@ public class Player : MonoBehaviour {
     private int spaceType;
     public float playerSpeed;
     private Vector3 destination;
-
+    public int playerNum;
     private GameObject currentSpace,nextSpace;
     private GameObject[] players;
     private Vector3 heightOffset;
@@ -352,4 +352,9 @@ public class Player : MonoBehaviour {
         //coin count must remain under 1000 to be valid (this shouldn't happen, right?)
         return stars * 1000 + coins;
     }
+    public int getPlayerNum()
+    {
+        return playerNum;
+    }
+
 }

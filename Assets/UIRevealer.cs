@@ -12,6 +12,8 @@ public class UIRevealer : MonoBehaviour {
     private Vector3 revealedPosition;
     private bool moving;
     private float timer;
+    private bool timerActive;
+
     private bool waitingForInput;
     void Start() {
 
@@ -67,15 +69,17 @@ public class UIRevealer : MonoBehaviour {
 
         hiddenPosition = getHiddenPosition();
         moving = false;
+        timerActive = false;
     }
 
     void Update() {
-        if(timer > 0)
+        if(timer > 0 && timerActive)
         {
             timer -= Time.deltaTime;
-        } else
+        } else if(timerActive)
         {
             hideUI();
+            timerActive = false;
         }
         if (waitingForInput)
         {
@@ -205,10 +209,12 @@ public class UIRevealer : MonoBehaviour {
     {
         timer = seconds;
         revealUI();
+        timerActive = true;
     }
     public void revealUntilButton()
     {
         revealUI();
         waitingForInput = true;
+        timerActive = true;
     }
 }
