@@ -211,7 +211,7 @@ public class Player : MonoBehaviour {
                 playersOnCurrentSpace++;
             }
         }
-        print(playersOnCurrentSpace);
+
         Vector3 tempDestination = currentSpace.transform.position + heightOffset;
         int spaceRadius = 10;
         //remember this player is on the space as well

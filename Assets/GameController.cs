@@ -12,6 +12,8 @@ public class GameController : MonoBehaviour {
     GameObject[] players;
     GameObject currentPlayer;
     GameObject turnCounter;
+    LowerScreenTextScript lowerScreenUI;
+
     int gameState;
     private const int MAIN_MENU = 0;
     private const int GAME_BOARD = 1;
@@ -52,6 +54,7 @@ public class GameController : MonoBehaviour {
         minigameList = new string[3][] { minigamesFFA, minigames2v2, minigames1v3 };
         turnCounter = GameObject.Find("TurnCounter");
         setPlayerRanks();
+        lowerScreenUI = GameObject.Find("LowerScreen").GetComponent<LowerScreenTextScript>();
         
     }
     void Update()

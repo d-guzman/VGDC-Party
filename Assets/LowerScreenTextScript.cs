@@ -8,6 +8,7 @@ public class LowerScreenTextScript : MonoBehaviour {
     Text text;
     public string[] textList;
     private int textIndex;
+    private int timer;
 
 	void Start () {
         text = GetComponent<Text>();
@@ -17,23 +18,16 @@ public class LowerScreenTextScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetKeyDown("right"))
-        {
-            textIndex++;
-            if(textIndex >= textList.Length)
-            {
-                textIndex = 0;
-            }
-        } else if (Input.GetKeyDown("left"))
-        {
-            textIndex--;
-            if (textIndex < 0)
-            {
-                textIndex = textList.Length-1;
-            }
-        }
-        text.text = textList[textIndex];
+        
 	}
+    public void timedReveal(float seconds)
+    {
+
+    }
+    public void revealUntilButton()
+    {
+
+    }
     public void setText(int x)
     {
         textIndex = x;
