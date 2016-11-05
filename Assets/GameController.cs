@@ -12,8 +12,8 @@ public class GameController : MonoBehaviour {
     GameObject[] players;
     GameObject currentPlayer;
     GameObject turnCounter;
-    LowerScreenTextScript lowerScreenUI;
-
+    UIRevealer lowerScreenUI;
+    LowerScreenTextScript lowerScreenText;
     int gameState;
     private const int MAIN_MENU = 0;
     private const int GAME_BOARD = 1;
@@ -36,7 +36,8 @@ public class GameController : MonoBehaviour {
     public string[] minigames1v3;   //scene names go in here
 
     private string[][] minigameList;
-
+    private float beforePlayerTurnTimer;
+    private float afterPlayerTurnTimer;
     void Start()
     {
         DontDestroyOnLoad(transform.gameObject);
@@ -54,8 +55,11 @@ public class GameController : MonoBehaviour {
         minigameList = new string[3][] { minigamesFFA, minigames2v2, minigames1v3 };
         turnCounter = GameObject.Find("TurnCounter");
         setPlayerRanks();
-        lowerScreenUI = GameObject.Find("LowerScreen").GetComponent<LowerScreenTextScript>();
-        
+        lowerScreenUI = GameObject.Find("LowerScreen").GetComponent<UIRevealer>();
+        lowerScreenText = GameObject.Find("LowerScreen").GetComponentInChildren<LowerScreenTextScript>();
+
+        beforePlayerTurnTimer = 0f;
+        afterPlayerTurnTimer = 0f;
     }
     void Update()
     {
@@ -110,26 +114,53 @@ public class GameController : MonoBehaviour {
                 setBoardState(PLAYERS_TURN);
             } else if(boardState == PLAYERS_TURN)
             {
-               
-                if(playerTurn < players.Length)
+                if (beforePlayerTurnTimer > 0)
                 {
-                    currentPlayer = getCurrentPlayer(playerTurn);
-                   
-                    if (currentPlayer.GetComponent<Player>().getState() == 0)
+                    if(playerTurn < players.Length)
                     {
-                        currentPlayer.GetComponent<Player>().setPlayerState(1);
-                        followPlayer(currentPlayer);
+                        lowerScreenUI.revealForTime(2);
+                        lowerScreenText.setText(playerTurn);
                     }
-                    else if (currentPlayer.GetComponent<Player>().getState() == 6)
-                    {
-                        currentPlayer.GetComponent<Player>().setPlayerState(0);
-                        playerTurn++;
-                    }
+                    
+                    beforePlayerTurnTimer -= Time.deltaTime; //this is so we can zoom the camera out before moving to the next player
                 } else
                 {
-                    turnCounter.GetComponent<TurnCounter>().decrementTurnCount();
-                    setBoardState(DECIDE_MINIGAME);
+                    
+                    if (playerTurn < players.Length)
+                    {
+                        currentPlayer = getCurrentPlayer(playerTurn);
+
+                        if (currentPlayer.GetComponent<Player>().getState() == 0)
+                        {
+                            currentPlayer.GetComponent<Player>().setPlayerState(1);
+                            followPlayer(currentPlayer);
+                        }
+                        else if (currentPlayer.GetComponent<Player>().getState() == 6)
+                        {
+                            
+                            if(afterPlayerTurnTimer > 0)
+                            {
+                                afterPlayerTurnTimer -= Time.deltaTime;
+                            } else
+                            {
+                                afterPlayerTurnTimer = 1.2f;
+                                beforePlayerTurnTimer = 1.2f;
+                                playerTurn++;
+                                currentPlayer.GetComponent<Player>().setPlayerState(0);
+                                setCameraPreset(1);
+                            }
+                            
+                            
+                            
+                        }
+                    }
+                    else
+                    {
+                        turnCounter.GetComponent<TurnCounter>().decrementTurnCount();
+                        setBoardState(DECIDE_MINIGAME);
+                    }
                 }
+               
 
             } else if(boardState == DECIDE_MINIGAME)
             {
@@ -285,6 +316,9 @@ public class GameController : MonoBehaviour {
 
         } else if(boardState == PLAYERS_TURN)
         {
+            setCameraPreset(1);
+            beforePlayerTurnTimer = 1.2f;
+            afterPlayerTurnTimer = 1.2f;
             playerTurn = 0;
         } else if(boardState == DECIDE_MINIGAME)
         {

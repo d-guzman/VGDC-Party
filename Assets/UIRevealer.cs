@@ -11,17 +11,19 @@ public class UIRevealer : MonoBehaviour {
     private Vector3 hiddenPosition;
     private Vector3 revealedPosition;
     private bool moving;
-   
-
+    private float timer;
+    private bool waitingForInput;
     void Start() {
 
-        
+
         /* use speedfactor of 100 for instant movement
          * This doesn't correlate to pixels or time or anything because I'm
          * just done with this script. 
          * 
          * Major resizing of the game window WILL break this 
          * */
+        waitingForInput = false;
+        timer = 0;
         if (speedFactor == 0)
         {
             speedFactor = 1;
@@ -68,8 +70,21 @@ public class UIRevealer : MonoBehaviour {
     }
 
     void Update() {
-        
-        
+        if(timer > 0)
+        {
+            timer -= Time.deltaTime;
+        } else
+        {
+            hideUI();
+        }
+        if (waitingForInput)
+        {
+            //need to access xboxctrlrinput.cs to check the state of a given button
+            if (false)  //temporary
+            {
+                hideUI();
+            }
+        }
         if (revealed && moving)
         {
             moveToLocation(revealedPosition);
@@ -186,5 +201,14 @@ public class UIRevealer : MonoBehaviour {
             return transform.localPosition;
         }
     }
-    
+    public void revealForTime(float seconds)
+    {
+        timer = seconds;
+        revealUI();
+    }
+    public void revealUntilButton()
+    {
+        revealUI();
+        waitingForInput = true;
+    }
 }
