@@ -24,6 +24,8 @@ public class Player : MonoBehaviour {
     private const int ONSTAR = 4;
     private const int GETINITATIVE = 5;
     private const int TURNOVER = 6;
+
+    private int score; //used to determine ranking
 	// Use this for initialization
     void Awake()
     {
@@ -40,7 +42,7 @@ public class Player : MonoBehaviour {
         moveToCorner();
         transform.position = destination;
 
-
+        score = 0;
         spaceType = 0;
         forceDistributePlayers(currentSpace);
     }
@@ -159,43 +161,8 @@ public class Player : MonoBehaviour {
             //this code runs when it's not a player's turn
            
         }
-	}
-
-    private bool rankCompare(Player a)
-    {
-        //returns true if this player is tied or higher rank compared to another player
-        if (stars == a.stars)
-        { return coins >= a.coins; }
-        else
-        { return stars >= a.stars; }
-
-    }
-
-    public void setRank(Player a, Player b, Player c)
-    {
-        //Lowers rank (thus making them higher ranking) every time the player is tied or higher ranked compared to another player
-        rank = 4;
-        if (rankCompare(a))
-            rank--;
-        if (rankCompare(b))
-            rank--;
-        if (rankCompare(c))
-            rank--;
-    }
-    /*  obsolete, use moveToPoint(Vector3 target) instead
-    public void move(GameObject s)
-    {
-        
-        if (s.transform.position.x > transform.position.x)
-            transform.Translate(Vector3.right*playerSpeed);
-        if (s.transform.position.x < transform.position.x)
-            transform.Translate(Vector3.left*playerSpeed);
-        if (s.transform.position.z > transform.position.z)
-            transform.Translate(Vector3.forward*playerSpeed);
-        if (s.transform.position.z < transform.position.z)
-            transform.Translate(Vector3.back*playerSpeed);
-    }
-    */
+	}    
+   
     public void moveToPoint(Vector3 target)
     {
         Vector3 directionVector = (target - transform.position);
@@ -267,41 +234,7 @@ public class Player : MonoBehaviour {
     {
         destination = currentSpace.transform.position + heightOffset;
     }
-    /*   //Replaced by moveToCorner() and moveToCenter(), which only have to be called once
-    public void moveToEdge(int i)
-    {
-        //snaps the player above its current space when its not its turn, snaps it back to center when it is its turn
-        if (!onEdge)
-        {
-            //Moves the player to a different corner depending on its playersOnSpace value. Each player on the space increases playersOnSpace for the next player to land by 1
-            if (i == 0)
-            {
-                transform.position = new Vector3(currentSpace.transform.position.x - 15, 0, currentSpace.transform.position.z + 15);
-                onEdge = true;
-            }
-            else if (i == 1)
-            {
-                transform.position = new Vector3(currentSpace.transform.position.x + 15, 0, currentSpace.transform.position.z + 15);
-                onEdge = true;
-            }
-            else if (i == 2)
-            {
-                transform.position = new Vector3(currentSpace.transform.position.x - 15, 0, currentSpace.transform.position.z - 15);
-                onEdge = true;
-            }
-            else if (i == 3)
-            {
-                transform.position = new Vector3(currentSpace.transform.position.x + 15, 0, currentSpace.transform.position.z - 15);
-                onEdge = true;
-            }
-        }
-        else
-        {
-            transform.position = new Vector3(currentSpace.transform.position.x,0,currentSpace.transform.position.z);
-            onEdge = false;
-        }
-    }
-    */
+    
     public void stopSpace()
     {
         if (currentSpace.CompareTag("BlueSpace"))
@@ -339,7 +272,7 @@ public class Player : MonoBehaviour {
     public int getRoll() { return toMove; }
     public int getMinigamesWon() { return mgWon; }
    
-    public int getRank() { return rank; }
+
     public int getTurnOrder() { return turnOrder; }
     public int getToMove() { return toMove; }
     public int getState() { return state; }
@@ -349,7 +282,6 @@ public class Player : MonoBehaviour {
     }
     public void wonMiniGame() { coins += 10; }
     public void addStar() { stars++; }
-    public void setRank(int i) { rank = i; }
     public void setInitiative(bool b) { hasInitiative = b; }
     public void setPlayersOnSpace(int i) { playersOnSpace = i; }
     public void setTurnOrder(int i) { turnOrder = i; }
@@ -365,6 +297,16 @@ public class Player : MonoBehaviour {
     {
         return initiative;
     }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int x)
+    {
+        rank = x;
+    }
+
     public void setPlayerState(int x)
     {
         //this code runs once whenever a state is changed
@@ -403,5 +345,11 @@ public class Player : MonoBehaviour {
     public int getSpaceType()
     {
         return spaceType;
+    }
+    public int getScore()
+    {
+        //whoever has more stars WILL win, but in the case of a star tie, whoever has more coins will win
+        //coin count must remain under 1000 to be valid (this shouldn't happen, right?)
+        return stars * 1000 + coins;
     }
 }

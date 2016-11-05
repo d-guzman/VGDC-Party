@@ -317,5 +317,30 @@ public class GameController : MonoBehaviour {
         }
         return result;
     }
-    
+    public void setPlayerRanks()
+    {
+        for(int i = 0; i < players.Length; i++)
+        {
+            int max = 0;
+            int index = 0;
+            for(int j = i; j < players.Length; j++)
+            {
+                if(Mathf.Max(max,players[j].GetComponent<Player>().getScore()) > max)
+                {
+                    max = players[j].GetComponent<Player>().getScore();
+                    index = j;
+                }
+            }
+            GameObject temp = players[0];
+            players[0] = players[index];
+            players[index] = temp;
+
+        }
+        for(int i = 0; i < players.Length; i++)
+        {
+            players[i].GetComponent<Player>().setRank(i);
+        }
+
+
+    }
 }
