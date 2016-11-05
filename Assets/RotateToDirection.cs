@@ -3,21 +3,45 @@ using System.Collections;
 
 public class RotateToDirection : MonoBehaviour
 {
-    private float playerSpeed = 10.0f;
-    // Update is called once per frame
+    public GameObject player;
+
     void Update()
     {
-        //Get the input from the joystick
-        float moveHori = Input.GetAxisRaw("Horizontal");
-        float moveVert = Input.GetAxisRaw("Vertical");
-
-        //Create a vector to apply to the player model based on the joystick input
-        Vector3 playerMove = new Vector3(moveHori * playerSpeed * Time.deltaTime, 0.0f, moveVert * playerSpeed * Time.deltaTime);
-
-        //If the player moves the joystick, rotate the character model to be aligned with the movement.
-        if (playerMove != Vector3.zero) {
-            Quaternion playerRotate = Quaternion.LookRotation(playerMove);
-            transform.rotation = Quaternion.Slerp(transform.rotation, playerRotate, playerSpeed * Time.deltaTime);
+        if (player.name == "P1_Model")
+        {
+            var VectorManager = player.GetComponentInParent<PlayerTranslations>();
+            if (VectorManager.getPlayer1Move() != Vector3.zero)
+            {
+                Quaternion player1_Rotate = Quaternion.LookRotation(VectorManager.getPlayer1Move());
+                player.transform.rotation = Quaternion.Slerp(player.transform.rotation, player1_Rotate, 10.0f * Time.deltaTime);
+            }
+        }
+        if (player.name == "P2_Model")
+        {
+            var VectorManager = player.GetComponentInParent<PlayerTranslations>();
+            if (VectorManager.getPlayer2Move() != Vector3.zero)
+            {
+                Quaternion player2_Rotate = Quaternion.LookRotation(VectorManager.getPlayer2Move());
+                player.transform.rotation = Quaternion.Slerp(player.transform.rotation, player2_Rotate, 10.0f * Time.deltaTime);
+            }
+        }
+        if (player.name == "P3_Model")
+        {
+            var VectorManager = player.GetComponentInParent<PlayerTranslations>();
+            if (VectorManager.getPlayer3Move() != Vector3.zero)
+            {
+                Quaternion player3_Rotate = Quaternion.LookRotation(VectorManager.getPlayer3Move());
+                player.transform.rotation = Quaternion.Slerp(player.transform.rotation, player3_Rotate, 10.0f * Time.deltaTime);
+            }
+        }
+        if (player.name == "P4_Model")
+        {
+            var VectorManager = player.GetComponentInParent<PlayerTranslations>();
+            if (VectorManager.getPlayer4Move() != Vector3.zero)
+            {
+                Quaternion player4_Rotate = Quaternion.LookRotation(VectorManager.getPlayer4Move());
+                player.transform.rotation = Quaternion.Slerp(player.transform.rotation, player4_Rotate, 10.0f * Time.deltaTime);
+            }
         }
     }
 }
