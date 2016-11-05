@@ -179,7 +179,7 @@ public class GameController : MonoBehaviour {
         
         cam.GetComponentInParent<CamBehavior>().setFollowPlayer(false);
         if(x == 1){
-            cam.GetComponentInParent<CamBehavior>().setTargetLocation(new Vector3(300, 200, 275));
+            cam.GetComponentInParent<CamBehavior>().setTargetLocation(new Vector3(300, 270, 0));
         } else if(x == 2)
         {
             cam.GetComponentInParent<CamBehavior>().setTargetLocation(new Vector3(500, 80, 0));

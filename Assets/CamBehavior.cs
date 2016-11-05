@@ -19,7 +19,7 @@ public class CamBehavior : MonoBehaviour {
     private bool followPlayer;
     private GameObject targetPlayer;
     private Vector3 targetLocation;
-    private Vector3 heightOffset;
+    private Vector3 offset;
 
     public bool closed
     {
@@ -56,7 +56,7 @@ public class CamBehavior : MonoBehaviour {
         players = GameObject.FindGameObjectsWithTag("Player");
         //targetPlayer = players[0];
         targetLocation = new Vector3();
-        heightOffset = Vector3.up * 80;
+        offset = new Vector3(0,90,-50);
 
     }
 
@@ -65,7 +65,7 @@ public class CamBehavior : MonoBehaviour {
     {
         if (followPlayer)
         {
-            transform.position = transform.position + (targetPlayer.transform.position+heightOffset - transform.position) * closeBy(targetPlayer.transform.position + heightOffset);
+            transform.position = transform.position + (targetPlayer.transform.position+offset - transform.position) * closeBy(targetPlayer.transform.position + offset);
         } else
         {
             transform.position = transform.position + (targetLocation - transform.position) * closeBy(targetLocation);
