@@ -40,6 +40,7 @@ public class GameController : MonoBehaviour {
     private string[][] minigameList;
     private float beforePlayerTurnTimer;
     private float afterPlayerTurnTimer;
+    private float genericDelay;
     void Start()
     {
         DontDestroyOnLoad(transform.gameObject);
@@ -67,6 +68,7 @@ public class GameController : MonoBehaviour {
 
         beforePlayerTurnTimer = 0f;
         afterPlayerTurnTimer = 0f;
+        genericDelay = 0;
     }
     void Update()
     {
@@ -84,8 +86,10 @@ public class GameController : MonoBehaviour {
 
 
         //game flow is under this
-
-        if(gameState == 1)
+        if(genericDelay > 0)
+        {
+            genericDelay -= Time.deltaTime;
+        } else if(gameState == 1)
         {
             //print(boardState);
             
@@ -95,7 +99,7 @@ public class GameController : MonoBehaviour {
             } else if(boardState == GET_INITIATIVE)
             {
                 int rollingPlayer = -1;
-              
+                
                 for(int j = 0; j < players.Length; j++)
                 {
                     if (!players[j].GetComponent<Player>().getInitiative())
@@ -105,6 +109,7 @@ public class GameController : MonoBehaviour {
                     }
                     
                 }
+
                 if(rollingPlayer != -1)
                 {
                     followPlayer(players[rollingPlayer]);

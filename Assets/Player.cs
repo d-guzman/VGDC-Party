@@ -15,6 +15,7 @@ public class Player : MonoBehaviour {
     public int playerNum;
     private GameObject currentSpace,nextSpace;
     private GameObject[] players;
+    private DiceScript dice;
     private Vector3 heightOffset;
     //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star 5=roll for initiative 6 = turn over
     private const int NOTTURN = 0;
@@ -26,15 +27,19 @@ public class Player : MonoBehaviour {
     private const int TURNOVER = 6;
 
     private int score; //used to determine ranking
-	// Use this for initialization
+                       // Use this for initialization
+    private bool hasRolled;
+    private float afterRollDelay;
+
     void Awake()
     {
         currentSpace = GameObject.Find("StartSpace");
         nextSpace = GameObject.Find("Space 0");
-
+        
     }
 	void Start () {
         players = GameObject.FindGameObjectsWithTag("Player");
+        dice = GameObject.Find("Dice").GetComponent<DiceScript>();
         coins = 10;
         highestCoins = 10;
         setPlayerState(0);
@@ -45,6 +50,8 @@ public class Player : MonoBehaviour {
         score = 0;
         spaceType = 0;
         forceDistributePlayers(currentSpace);
+        hasRolled = false;
+        afterRollDelay = 0;
     }
     	
 	// Update is called once per frame  
@@ -53,8 +60,12 @@ public class Player : MonoBehaviour {
         
         if(state == GETINITATIVE)
         {
+            if (!dice.isRevealed())
+            {
+                dice.revealDice(gameObject);
+            }
             bool validRoll = false;
-            if (Input.GetKeyDown("up"))
+            if (Input.GetKeyDown("up") && !hasInitiative && !dice.rolling())
             {
                 while (!validRoll)
                 {
@@ -71,14 +82,25 @@ public class Player : MonoBehaviour {
                     {
                         initiative = tempInitative;
                         validRoll = true;
-                        setInitiative(true);
+                        hasRolled = true;
                     }
                 }
-
-
-                setPlayerState(NOTTURN);
+                dice.rollDice(initiative, 3.5f);
             }
-            
+            if(hasRolled && !dice.rolling())
+            {
+                if(afterRollDelay > 0)
+                {
+                    afterRollDelay -= Time.deltaTime;
+                } else
+                {
+                    setInitiative(true);
+                    setPlayerState(NOTTURN);
+                    dice.hideDice();
+                    
+                }
+                
+            }
         }
         moveToPoint(destination);//player will move to any destination specified
                                  //you can just change the destination once and the player will reach it
@@ -89,12 +111,22 @@ public class Player : MonoBehaviour {
 
             if (state==ONTURN)
             {
-                if (Input.GetKeyDown("up"))
+                if (!dice.isRevealed())
+                {
+                    dice.revealDice(gameObject);
+                }
+                if (Input.GetKeyDown("up") && !hasRolled)
                 {
                     toMove = Random.Range(1, 6);
-                    setPlayerState(MOVING);
-                    destination = nextSpace.transform.position + heightOffset;
-
+                    dice.rollDice(toMove,3.5f);
+                                        
+                }
+                else if(Input.GetKeyDown("up") && hasRolled)
+                {
+                 
+                        setPlayerState(MOVING);
+                        destination = nextSpace.transform.position + heightOffset;
+                    
                 }
             }
             if (state==MOVING)
@@ -315,29 +347,44 @@ public class Player : MonoBehaviour {
         //USE THIS CONSISTENTLY PLEASE
 
         state = x;
-        if(state == 0)
+        if(state == NOTTURN)
         {
             
-        } else if(state == 1)
+        } else if(state == ONTURN)
         {
+            hasRolled = false;
             moveToCenter();
-        } else if(state == 2)
-        {
-
-        } else if(state == 3)
-        {
-
-        } else if(state == 4)
-        {
-
-        } else if(state == 5)
-        {
-
-        } else if(state == 6)
+            dice.hideDice();
+            afterRollDelay = 0.5f;
+        } else if(state == MOVING)
         {
             
+        } else if(state == ONJUNCTION)
+        {
+
+        } else if(state == ONSTAR)
+        {
+
+        } else if(state == GETINITATIVE)
+        {
+            dice.hideDice();
+            hasRolled = false;
+            afterRollDelay = 0.5f;
+        } else if(state == TURNOVER)
+        {
+
+
         }
-    }
+        /*
+     NOTTURN = 0;
+     ONTURN = 1;
+     MOVING = 2;
+     ONJUNCTION = 3;
+     ONSTAR = 4;
+     GETINITATIVE = 5;
+     TURNOVER = 6;
+     */
+}
     public void setListOfPlayers(GameObject[] x)
     {
         players = x;
