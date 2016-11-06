@@ -33,9 +33,12 @@ public class PlayerController : MonoBehaviour {
       
 
             if (player.name == "P1_Model")
-        {
+            {
+            
             if (stunned == false)
             {
+                jumpHit();
+                Debug.DrawRay(player.transform.position, player.transform.TransformDirection(Vector3.forward) * 10, Color.green);
 
                 float moveHorizontal = Input.GetAxis("P1" + "_Horizontal");
                 float moveVerticle = Input.GetAxis("P1" + "_Vertical");
@@ -62,8 +65,10 @@ public class PlayerController : MonoBehaviour {
         if (player.name == "P2_Model")
         {
             
+
             if (stunned == false)
             {
+                jumpHit();
 
                 float moveHorizontal = Input.GetAxis("P2" + "_Horizontal");
                 float moveVerticle = Input.GetAxis("P2" + "_Vertical");
@@ -79,6 +84,7 @@ public class PlayerController : MonoBehaviour {
             }
             else
             {
+
                 player.GetComponent<Collider>().attachedRigidbody.AddForce(-player.transform.forward, ForceMode.VelocityChange);
                 stunned = false;
                 punching = false;
@@ -93,6 +99,7 @@ public class PlayerController : MonoBehaviour {
         {
             if (stunned == false)
             {
+                jumpHit();
 
                 float moveHorizontal = Input.GetAxis("P3" + "_Horizontal");
                 float moveVerticle = Input.GetAxis("P3" + "_Vertical");
@@ -123,6 +130,7 @@ public class PlayerController : MonoBehaviour {
             
             if (stunned == false)
             {
+                jumpHit();
 
                 float moveHorizontal = Input.GetAxis("P4" + "_Horizontal");
                 float moveVerticle = Input.GetAxis("P4" + "_Vertical");
@@ -183,10 +191,16 @@ public class PlayerController : MonoBehaviour {
        
     }
 
-    void jumpHit(string x)
+    void jumpHit()
     {
-        
+        RaycastHit enemy;
+        if (Physics.Raycast(player.transform.position, Vector3.up, out enemy,.7f))
+        {
+            enemy.collider.attachedRigidbody.AddForce((enemy.transform.up)*4+enemy.transform.forward, ForceMode.VelocityChange);
+            stun();
+        }
     }
+    
 
 	
  
