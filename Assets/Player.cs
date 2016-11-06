@@ -63,6 +63,7 @@ public class Player : MonoBehaviour {
         state = x;
         if (state == NOTTURN)
         {
+            
 
         }
         else if (state == ONTURN)
@@ -221,11 +222,11 @@ public class Player : MonoBehaviour {
                     nextSpace = getNextSpace();
                     destination = nextSpace.transform.position+heightOffset;
 
-                    if (toMove == 0)
+                    if (toMove <= 0)
                     {
                         setPlayerState(TURNOVER);   //signals gamecontroller that this turn is over, gamecontroller will set this back to 0
-                        moveToCorner();
                         stopSpace();
+                        destination = currentSpace.transform.position + heightOffset;
                     }
                 }
                 

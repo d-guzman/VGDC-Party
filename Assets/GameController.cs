@@ -163,6 +163,7 @@ public class GameController : MonoBehaviour {
                                 beforePlayerTurnTimer = 1.2f;
                                 playerTurn++;
                                 currentPlayer.GetComponent<Player>().setPlayerState(0);
+                                currentPlayer.GetComponent<Player>().moveToCorner();
                                 setCameraPreset(1);
                             }
                             
