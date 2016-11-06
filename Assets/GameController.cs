@@ -86,13 +86,9 @@ public class GameController : MonoBehaviour {
 
 
         //game flow is under this
-        if(genericDelay > 0)
-        {
-            genericDelay -= Time.deltaTime;
-        } else if(gameState == 1)
+       if(gameState == 1)
         {
             //print(boardState);
-            
             if(boardState == PRE_GAME)
             {
                 
@@ -113,7 +109,10 @@ public class GameController : MonoBehaviour {
                 if(rollingPlayer != -1)
                 {
                     followPlayer(players[rollingPlayer]);
-                    players[rollingPlayer].GetComponent<Player>().setPlayerState(5);
+                    if(players[rollingPlayer].GetComponent<Player>().getState() != 5)
+                    {
+                        players[rollingPlayer].GetComponent<Player>().setPlayerState(5);
+                    }
                 } else
                 {
                     setTurnOrder();
@@ -147,7 +146,11 @@ public class GameController : MonoBehaviour {
 
                         if (currentPlayer.GetComponent<Player>().getState() == 0)
                         {
-                            currentPlayer.GetComponent<Player>().setPlayerState(1);
+                            if(currentPlayer.GetComponent<Player>().getState() != 1)
+                            {
+                                currentPlayer.GetComponent<Player>().setPlayerState(1);
+
+                            }
                             followPlayer(currentPlayer);
                         }
                         else if (currentPlayer.GetComponent<Player>().getState() == 6)

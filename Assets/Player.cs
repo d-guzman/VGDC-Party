@@ -57,32 +57,40 @@ public class Player : MonoBehaviour {
 	// Update is called once per frame  
 	void Update () {
         //testing movement - hit up twice:
-        
         if(state == GETINITATIVE)
         {
             if (!dice.isRevealed())
             {
                 dice.revealDice(gameObject);
             }
-            bool validRoll = false;
-            if (Input.GetKeyDown("up") && !hasInitiative && !dice.rolling())
+
+            
+            if (Input.GetKeyDown("up") && !hasInitiative && !dice.rolling() && !hasRolled)
             {
+
+                bool validRoll = false;
                 while (!validRoll)
                 {
+
                     bool duplicateRoll = false;
-                    int tempInitative = Random.Range(1, 6);
+                    int tempInitiative = Random.Range(1, 6);
+                    initiative = 0;
                     for(int i = 0; i < players.Length; i++)
                     {
-                        if(tempInitative == players[i].GetComponent<Player>().getInitativeNum())
+                        
+                        if(tempInitiative == players[i].GetComponent<Player>().getInitativeNum())
                         {
                             duplicateRoll = true;
                         }
+                        
                     }
+
                     if (!duplicateRoll)
                     {
-                        initiative = tempInitative;
+                        initiative = tempInitiative;
                         validRoll = true;
                         hasRolled = true;
+                        break;
                     }
                 }
                 dice.rollDice(initiative, 3.5f);
@@ -352,9 +360,7 @@ public class Player : MonoBehaviour {
             
         } else if(state == ONTURN)
         {
-            hasRolled = false;
             moveToCenter();
-            dice.hideDice();
             afterRollDelay = 0.5f;
         } else if(state == MOVING)
         {

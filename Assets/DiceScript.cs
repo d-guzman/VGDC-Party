@@ -75,14 +75,14 @@ public class DiceScript : MonoBehaviour {
                 if(counter > 0.08f)
                 {
                     counter = 0;
-                    displayNewNum(-1);
+                    displayNewNum();
                 }
             } else if(diceTimer > 2.5)
             {
                 if (counter > 0.1f)
                 {
                     counter = 0;
-                    displayNewNum(-1);
+                    displayNewNum();
                 }
             
             }else if(diceTimer > 1.5)
@@ -90,7 +90,7 @@ public class DiceScript : MonoBehaviour {
                 if (counter > 0.2f)
                 {
                     counter = 0;
-                    displayNewNum(-1);
+                    displayNewNum();
                 }
             }
             else if(diceTimer > 0.25f)
@@ -98,7 +98,7 @@ public class DiceScript : MonoBehaviour {
                 if (counter > 0.25f)
                 {
                     counter = 0;
-                    displayNewNum(result);
+                    displayNewNum();
                 }
             }  else if(diceTimer < 0)
             {
@@ -108,7 +108,7 @@ public class DiceScript : MonoBehaviour {
         }
         
     }
-    public void displayNewNum(int blackListNum)
+    public void displayNewNum()
     {
         //random number can't be the blacklist num
         //this is for the very rare occurance that the last random
@@ -117,7 +117,7 @@ public class DiceScript : MonoBehaviour {
         while (true)
         {
             tempNum = ""+Random.Range(1, 6);
-            if (!diceText.text.Equals(tempNum) && !diceText.text.Equals(""+blackListNum))
+            if (!diceText.text.Equals(tempNum))
             {
                 break;
             }
