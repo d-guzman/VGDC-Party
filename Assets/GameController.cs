@@ -146,11 +146,9 @@ public class GameController : MonoBehaviour {
 
                         if (currentPlayer.GetComponent<Player>().getState() == 0)
                         {
-                            if(currentPlayer.GetComponent<Player>().getState() != 1)
-                            {
-                                currentPlayer.GetComponent<Player>().setPlayerState(1);
-
-                            }
+                            
+                            currentPlayer.GetComponent<Player>().setPlayerState(1);
+                            
                             followPlayer(currentPlayer);
                         }
                         else if (currentPlayer.GetComponent<Player>().getState() == 6)

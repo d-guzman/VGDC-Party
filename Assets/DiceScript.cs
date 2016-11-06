@@ -10,12 +10,13 @@ public class DiceScript : MonoBehaviour {
     bool revealed;
     float scaler;
     public float revealedSize;
-    private float diceTimer;
-    private float totalTime;
-    private int result;
+    private bool jumping;
     private bool isRolling;
     private float counter;
-
+    private float timeBetweenNums;
+    private float jumpTimer;
+    private float jumpVelocity;
+    private float gravity;
 	void Start () {
         diceText = GetComponentInChildren<TextMesh>();
         myRenderer = GetComponent<MeshRenderer>();
@@ -31,6 +32,11 @@ public class DiceScript : MonoBehaviour {
         }
         scaler = revealedSize/0.1f;
         counter = 0;
+        jumping = false;
+        timeBetweenNums = 0.05f;
+        jumpTimer = 0f;
+        jumpVelocity = 0;
+        gravity = 360f;
 	}
 	
 	// Update is called once per frame
@@ -46,25 +52,72 @@ public class DiceScript : MonoBehaviour {
         {
             hideDice();
         }
+        if (Input.GetKeyDown("u"))
+        {
+            rollDice();
+        }
         if (Input.GetKeyDown("i"))
         {
-            rollDice(6, 5);
+            stopDice(2);
         }
         scaleDice();
         if (isRolling)
         {
             displayRng();
         }
+        if (jumping)
+        {
+            jump();
+        }
 	}   
-    public void rollDice(int result, float duration)
+    public void rollDice()
     {
-        totalTime = duration;
-        diceTimer = duration;
-        this.result = result;
         isRolling = true;
+    }
+    public void stopDice(int result)
+    {
+        isRolling = false;
+        diceText.text = "" + result;
+        jumping = true;
+        jumpTimer = 0.3f;
+        jumpVelocity = 60f;
+    }
+    public void jump()
+    {
+        jumpTimer -= Time.deltaTime;
+        /*
+        if (jumpTimer > 0.05f)
+        {
+            transform.Translate(Vector3.up * 120 * Time.deltaTime);
+        } else if(jumpTimer > 0)
+        {
+            transform.Translate(Vector3.down * 120 * Time.deltaTime);
+        }
+        else
+        {
+            jumpTimer = 0;
+            jumping = false;
+        }
+        */
+        if(jumpTimer > 0)
+        {
+            jumpVelocity -= gravity * Time.deltaTime;
+            transform.Translate(Vector3.up * jumpVelocity * Time.deltaTime);
+        } else
+        {
+            jumping = false;
+        }
+        
     }
     public void displayRng()
     {
+        counter += Time.deltaTime;
+        if(counter > timeBetweenNums)
+        {
+            counter = 0;
+            displayNewNum();
+        }
+        /*
         if(diceTimer > 0)
         {
             counter += Time.deltaTime;
@@ -106,6 +159,8 @@ public class DiceScript : MonoBehaviour {
                 isRolling = false;
             }
         }
+        */
+        
         
     }
     public void displayNewNum()
@@ -151,12 +206,12 @@ public class DiceScript : MonoBehaviour {
 
         }
     }
-    public void revealDice(GameObject player)
+    public void revealDice(Vector3 pos)
     {
         revealed = true;
         myRenderer.enabled = true;
         childRenderer.enabled = true;
-        transform.position = player.transform.position + Vector3.up * 35;
+        transform.position = pos + Vector3.up * 35;
         transform.localScale = new Vector3(0, 0, 0);
     }
     public void hideDice()

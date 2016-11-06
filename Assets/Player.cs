@@ -53,25 +53,76 @@ public class Player : MonoBehaviour {
         hasRolled = false;
         afterRollDelay = 0;
     }
-    	
-	// Update is called once per frame  
-	void Update () {
+    public void setPlayerState(int x)
+    {
+        //this code runs once whenever a state is changed
+        //use this for initializing values for a player state
+        //so you don't need to keep recalculating certain things or repeating actions
+        //USE THIS CONSISTENTLY PLEASE
+
+        state = x;
+        if (state == NOTTURN)
+        {
+
+        }
+        else if (state == ONTURN)
+        {
+            moveToCenter();
+            afterRollDelay = 0.5f;
+            hasRolled = false;
+            dice.rollDice();
+            dice.revealDice(currentSpace.transform.position);
+        }
+        else if (state == MOVING)
+        {
+            dice.hideDice();
+        }
+        else if (state == ONJUNCTION)
+        {
+
+        }
+        else if (state == ONSTAR)
+        {
+
+        }
+        else if (state == GETINITATIVE)
+        {
+            dice.hideDice();
+            dice.rollDice();
+            hasRolled = false;
+            afterRollDelay = 0.5f;
+        }
+        else if (state == TURNOVER)
+        {
+
+
+        }
+        /*
+     NOTTURN = 0;
+     ONTURN = 1;
+     MOVING = 2;
+     ONJUNCTION = 3;
+     ONSTAR = 4;
+     GETINITATIVE = 5;
+     TURNOVER = 6;
+     */
+    }
+    // Update is called once per frame  
+    void Update () {
         //testing movement - hit up twice:
         if(state == GETINITATIVE)
         {
             if (!dice.isRevealed())
             {
-                dice.revealDice(gameObject);
+                dice.revealDice(transform.position);
             }
 
             
-            if (Input.GetKeyDown("up") && !hasInitiative && !dice.rolling() && !hasRolled)
+            if (Input.GetKeyDown("up") && !hasInitiative && !hasRolled)
             {
-
                 bool validRoll = false;
                 while (!validRoll)
                 {
-
                     bool duplicateRoll = false;
                     int tempInitiative = Random.Range(1, 6);
                     initiative = 0;
@@ -90,12 +141,11 @@ public class Player : MonoBehaviour {
                         initiative = tempInitiative;
                         validRoll = true;
                         hasRolled = true;
-                        break;
                     }
                 }
-                dice.rollDice(initiative, 3.5f);
+                dice.stopDice(initiative);
             }
-            if(hasRolled && !dice.rolling())
+            if(hasRolled)
             {
                 if(afterRollDelay > 0)
                 {
@@ -119,23 +169,31 @@ public class Player : MonoBehaviour {
 
             if (state==ONTURN)
             {
-                if (!dice.isRevealed())
-                {
-                    dice.revealDice(gameObject);
-                }
+                
                 if (Input.GetKeyDown("up") && !hasRolled)
                 {
                     toMove = Random.Range(1, 6);
-                    dice.rollDice(toMove,3.5f);
-                                        
+                    dice.stopDice(toMove);
+                    hasRolled = true;
                 }
-                else if(Input.GetKeyDown("up") && hasRolled)
+
+                if (hasRolled)
                 {
-                 
+                    if (afterRollDelay > 0)
+                    {
+                        afterRollDelay -= Time.deltaTime;
+                    }
+                    else
+                    {
                         setPlayerState(MOVING);
                         destination = nextSpace.transform.position + heightOffset;
-                    
+                    }
                 }
+                
+                 
+                      
+                    
+                
             }
             if (state==MOVING)
             {
@@ -347,50 +405,7 @@ public class Player : MonoBehaviour {
         rank = x;
     }
 
-    public void setPlayerState(int x)
-    {
-        //this code runs once whenever a state is changed
-        //use this for initializing values for a player state
-        //so you don't need to keep recalculating certain things or repeating actions
-        //USE THIS CONSISTENTLY PLEASE
-
-        state = x;
-        if(state == NOTTURN)
-        {
-            
-        } else if(state == ONTURN)
-        {
-            moveToCenter();
-            afterRollDelay = 0.5f;
-        } else if(state == MOVING)
-        {
-            
-        } else if(state == ONJUNCTION)
-        {
-
-        } else if(state == ONSTAR)
-        {
-
-        } else if(state == GETINITATIVE)
-        {
-            dice.hideDice();
-            hasRolled = false;
-            afterRollDelay = 0.5f;
-        } else if(state == TURNOVER)
-        {
-
-
-        }
-        /*
-     NOTTURN = 0;
-     ONTURN = 1;
-     MOVING = 2;
-     ONJUNCTION = 3;
-     ONSTAR = 4;
-     GETINITATIVE = 5;
-     TURNOVER = 6;
-     */
-}
+   
     public void setListOfPlayers(GameObject[] x)
     {
         players = x;
