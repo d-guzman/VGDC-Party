@@ -30,14 +30,15 @@ public class Player : MonoBehaviour {
                        // Use this for initialization
     private bool hasRolled;
     private float afterRollDelay;
-
+    private GameObject junctionArrow;
     void Awake()
     {
         currentSpace = GameObject.Find("StartSpace");
         nextSpace = GameObject.Find("Space 0");
-        
+        junctionArrow = GameObject.Find("JunctionArrow");
+
     }
-	void Start () {
+    void Start () {
         players = GameObject.FindGameObjectsWithTag("Player");
         dice = GameObject.Find("Dice").GetComponent<DiceScript>();
         coins = 10;
@@ -52,6 +53,7 @@ public class Player : MonoBehaviour {
         forceDistributePlayers(currentSpace);
         hasRolled = false;
         afterRollDelay = 0;
+        junctionArrow.SetActive(false);
     }
     public void setPlayerState(int x)
     {
@@ -80,7 +82,10 @@ public class Player : MonoBehaviour {
         }
         else if (state == ONJUNCTION)
         {
-
+            if (!junctionArrow.activeSelf)
+            {
+                junctionArrow.SetActive(true);
+            }
         }
         else if (state == ONSTAR)
         {
@@ -173,7 +178,8 @@ public class Player : MonoBehaviour {
                 
                 if (Input.GetKeyDown("up") && !hasRolled)
                 {
-                    toMove = Random.Range(1, 6);
+                    toMove = Random.Range(1, 7);
+                    toMove = 7; //debug, remove later;
                     dice.stopDice(toMove);
                     hasRolled = true;
                 }
@@ -200,17 +206,22 @@ public class Player : MonoBehaviour {
             {
                 //move(getNextSpace(nextSpace));
                 //move(nextSpace);
-                
+                print(toMove);
                 if (isOnNextSpace())
                 {
-                    if (nextSpace.CompareTag("JunctionSpace"))
+                    currentSpace = nextSpace;
+                    nextSpace = getNextSpace();
+                    destination = nextSpace.transform.position + heightOffset;
+                    if (currentSpace.CompareTag("JunctionSpace"))
                     {
                         setPlayerState(ONJUNCTION);
+                        destination = currentSpace.transform.position + heightOffset;
                         stopSpace();
                     }
-                    else if (nextSpace.CompareTag("StarSpace"))
+                    else if (currentSpace.CompareTag("StarSpace"))
                     {
                         setPlayerState(ONSTAR);
+                        destination = currentSpace.transform.position + heightOffset;
                         stopSpace();
                     }
                     else
@@ -218,9 +229,7 @@ public class Player : MonoBehaviour {
                         toMove--;
                     }
                     //currentSpace = getNextSpace();
-                    currentSpace = nextSpace;
-                    nextSpace = getNextSpace();
-                    destination = nextSpace.transform.position+heightOffset;
+                    
 
                     if (toMove <= 0)
                     {
@@ -233,6 +242,7 @@ public class Player : MonoBehaviour {
             }
             if (state == ONJUNCTION)
             {
+                
                 if (Input.GetKeyDown("left") || Input.GetKeyDown("right"))
                 {
                     onAltPath = !onAltPath;
@@ -246,8 +256,31 @@ public class Player : MonoBehaviour {
                     else {
                         nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace();
                     }
-                    setPlayerState(MOVING);
+                    state = MOVING;
+                    destination = nextSpace.transform.position + heightOffset;
+                    junctionArrow.SetActive(false);
                 }
+                Vector3 arrowLocation = new Vector3(0, 0, 0);
+                Quaternion arrowRotation;
+                float arrowOffset = 5;
+                if (onAltPath)
+                {
+                    junctionArrow.transform.position = currentSpace.transform.position;
+
+                    junctionArrow.transform.LookAt(currentSpace.GetComponent<getJunction>().getSecondarySpace().transform.position);
+                    junctionArrow.transform.position = currentSpace.transform.position;
+                    junctionArrow.transform.position += junctionArrow.transform.forward * 30 + Vector3.up;
+                } else
+                {
+                    junctionArrow.transform.position = currentSpace.transform.position;
+
+                    junctionArrow.transform.LookAt(currentSpace.GetComponent<getJunction>().getPrimarySpace().transform.position);
+                    junctionArrow.transform.position = currentSpace.transform.position;
+                    junctionArrow.transform.position += junctionArrow.transform.forward * 30 + Vector3.up;
+
+                }
+                print(arrowLocation);
+                
             }
             if (state == ONSTAR)
             {

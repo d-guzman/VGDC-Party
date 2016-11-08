@@ -143,13 +143,17 @@ public class GameController : MonoBehaviour {
                     if (playerTurn < players.Length)
                     {
                         currentPlayer = getCurrentPlayer(playerTurn);
-
+                        followPlayer(currentPlayer);
                         if (currentPlayer.GetComponent<Player>().getState() == 0)
                         {
                             
                             currentPlayer.GetComponent<Player>().setPlayerState(1);
                             
-                            followPlayer(currentPlayer);
+                            
+                        }
+                        else if(currentPlayer.GetComponent<Player>().getState() == 4)
+                        {
+                            setCameraPreset(3);
                         }
                         else if (currentPlayer.GetComponent<Player>().getState() == 6)
                         {
@@ -181,7 +185,15 @@ public class GameController : MonoBehaviour {
 
             } else if(boardState == DECIDE_MINIGAME)
             {
-                startMinigame(minigameType);
+                bool tempDisable = true;
+                if (!tempDisable)
+                {
+                    startMinigame(minigameType);
+
+                } else
+                {
+                    setBoardState(NEW_TURN);
+                }
             }
         }
     }
@@ -203,7 +215,7 @@ public class GameController : MonoBehaviour {
         } else if(x == 3)
         {
             GameObject starSpace = GameObject.FindGameObjectWithTag("StarSpace");
-            cam.GetComponentInParent<CamBehavior>().setTargetLocation(new Vector3(starSpace.transform.position.x, 80, starSpace.transform.position.z));
+            cam.GetComponentInParent<CamBehavior>().setTargetLocation(new Vector3(starSpace.transform.position.x, 80, starSpace.transform.position.z-100));
         }
     }
     public void followPlayer(GameObject player)

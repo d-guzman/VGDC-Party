@@ -41,6 +41,7 @@ public class DiceScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        
         if (Input.GetKeyDown("o"))
         {
             revealed = true;
@@ -81,6 +82,7 @@ public class DiceScript : MonoBehaviour {
         jumping = true;
         jumpTimer = 0.3f;
         jumpVelocity = 60f;
+
     }
     public void jump()
     {
