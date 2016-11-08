@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerTranslations : MonoBehaviour
 {
-    private float playerSpeed = 6.0f;
+    public float playerSpeed = 6.0f;
     private Vector3 player1_Move;
     private Vector3 player2_Move;
     private Vector3 player3_Move;

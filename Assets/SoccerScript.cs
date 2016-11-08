@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class soccerScript : MonoBehaviour {
+public class SoccerScript : MonoBehaviour {
 
     private Player[] leftTeam, rightTeam;
     private Vector3 leftBound, rightBound;
