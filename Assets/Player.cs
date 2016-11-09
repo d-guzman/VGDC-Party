@@ -16,6 +16,7 @@ public class Player : MonoBehaviour {
     private GameObject currentSpace,nextSpace;
     private GameObject[] players;
     private DiceScript dice;
+    private GameObject starPrompt;
     private Vector3 heightOffset;
     //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star 5=roll for initiative 6 = turn over
     private const int NOTTURN = 0;
@@ -41,6 +42,7 @@ public class Player : MonoBehaviour {
     void Start () {
         players = GameObject.FindGameObjectsWithTag("Player");
         dice = GameObject.Find("Dice").GetComponent<DiceScript>();
+        starPrompt = GameObject.Find("StarPrompt");
         coins = 10;
         highestCoins = 10;
         setPlayerState(0);
