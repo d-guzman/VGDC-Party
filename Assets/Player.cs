@@ -128,7 +128,7 @@ public class Player : MonoBehaviour {
     // Update is called once per frame  
     void Update () {
         //testing movement - hit up twice:
-        if(state == GETINITATIVE)
+        if (state == GETINITATIVE)
         {
             if (!dice.isRevealed())
             {
@@ -191,7 +191,7 @@ public class Player : MonoBehaviour {
                 if (Input.GetKeyDown("up") && !hasRolled)
                 {
                     toMove = Random.Range(1, 7);
-                    toMove = 7; //debug, remove later;
+                    toMove = 20; //debug, remove later;
                     dice.stopDice(toMove);
                     hasRolled = true;
                 }
@@ -218,7 +218,6 @@ public class Player : MonoBehaviour {
             {
                 //move(getNextSpace(nextSpace));
                 //move(nextSpace);
-                print(toMove);
                 if (isOnNextSpace())
                 {
                     currentSpace = nextSpace;
@@ -294,7 +293,6 @@ public class Player : MonoBehaviour {
             }
             if (state == ONSTAR)
             {
-                
                 if(getCoins() >= 20)
                 {
                     starUI[0].GetComponent<Text>().text = "Would you like to buy a BYTE?";
@@ -326,11 +324,13 @@ public class Player : MonoBehaviour {
                     }
                     if (starSelection == 1)
                     {
-                        starUI[4].transform.position = starUI[1].transform.position + Vector3.left * 25;
+                        starUI[4].transform.position = starUI[1].transform.position + Vector3.left 
+                            * starUI[1].GetComponent<Text>().preferredWidth;
                     }
                     else
                     {
-                        starUI[4].transform.position = starUI[2].transform.position + Vector3.left * 20;
+                        starUI[4].transform.position = starUI[2].transform.position + Vector3.left 
+                            * starUI[2].GetComponent<Text>().preferredWidth;
                     }
                     if (Input.GetKeyDown("up"))
                     {
@@ -346,7 +346,8 @@ public class Player : MonoBehaviour {
                     }
                 } else
                 {
-                    starUI[4].transform.position = starUI[3].transform.position + Vector3.left * 25;
+                    starUI[4].transform.position = starUI[3].transform.position + Vector3.left 
+                        * starUI[3].GetComponent<Text>().preferredWidth;
                     if (Input.GetKeyDown("up"))
                     {
                         starPrompt.GetComponent<UIRevealer>().hideUI();
