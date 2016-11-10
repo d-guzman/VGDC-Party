@@ -47,7 +47,7 @@ public class Player : MonoBehaviour {
         dice = GameObject.Find("Dice").GetComponent<DiceScript>();
         starPrompt = GameObject.Find("StarPrompt");
         starUI = new GameObject[5];
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < starUI.Length; i++)
         {
             starUI[i] = starPrompt.transform.GetChild(i).gameObject;
         }
