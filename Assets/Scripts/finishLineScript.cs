@@ -16,4 +16,13 @@ public class finishLineScript : MonoBehaviour
 
         
     }
+
+    void Update()
+    {
+        if(placement.Count==4)
+        {
+            print("game done");
+        }
+    }
+
 }
