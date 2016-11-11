@@ -1,30 +1,39 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class cart : MonoBehaviour {
-    public GameObject player;
-   public string keyword1="Fire1";
-    public string keyword2 = "Fire2";
+public class cart : MonoBehaviour
+{
+
+
+    public GameObject train;
+    private string keyword1;
+    private string keyword2;
+
+    private string masterWord;
     private double timer;
     private double timerCounter;
-    float speed =0;
-     float SPEED_INCREASE_INTERVAL = 1f; // how often do you want the speed to change
-    
-    // Use this for initialization
-    void Start () {
-        
+    float speed = 0;
+    float SPEED_INCREASE_INTERVAL = 1f; // how often do you want the speed to change
 
+    // Use this for initialization
+    void Start()
+    {
+        string PString = train.name.Substring(0, 2);
+        keyword1 = PString + "_Fire1";
+        keyword2 = PString + "_Fire2";
+        masterWord = keyword1;
 
 
 
     }
 
     // Update is called once per frame
-    void FixedUpdate () {
+    void FixedUpdate()
+    {
 
-        player.transform.Translate(Vector3.forward*speed*Time.deltaTime);
+        train.transform.Translate(Vector3.forward * speed * Time.deltaTime);
         SPEED_INCREASE_INTERVAL -= Time.deltaTime;
-        if(Input.GetButton(keyword1))
+        if (Input.GetButton(masterWord))
         {
             timer = Time.time;
             timerCounter = Time.time;
@@ -34,37 +43,40 @@ public class cart : MonoBehaviour {
             {
                 speed += .2f;
             }
-            
 
-            if (keyword1== "Fire1")
+
+            if (masterWord == keyword1)
             {
                 timer = Time.time;
                 timerCounter = Time.time;
-                keyword1 = "Fire2";
+                masterWord = keyword2;
             }
             else
             {
-                keyword1 = "Fire1"; 
+                timer = Time.time;
+                timerCounter = Time.time;
+                masterWord = keyword1;
 
             }
-       
+
         }
-//speed interval
+        //speed interval
         if (SPEED_INCREASE_INTERVAL < 0)
         {
             speed -= .3f;
             SPEED_INCREASE_INTERVAL = .7f;
         }
-//timer decreases speed
+        //timer decreases speed
         timerCounter += 1;
         if (timerCounter >= (timer + 75))
         {
-            speed -= .7f;
+            speed -= .8f;
         }
-        if(speed < 0)
+        if (speed < 0)
         { speed = 0f; }
-        print(speed);
+        //print(speed);
 
     }
-    
+
 }
+
