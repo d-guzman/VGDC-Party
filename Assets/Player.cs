@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+using UnityEngine.UI;
 public class Player : MonoBehaviour {
     
     private string playerName;
@@ -16,6 +16,10 @@ public class Player : MonoBehaviour {
     private GameObject currentSpace,nextSpace;
     private GameObject[] players;
     private DiceScript dice;
+    private GameObject starPrompt;
+    private GameObject[] starUI;
+    private GameObject selectionArrow;
+    private int starSelection;
     private Vector3 heightOffset;
     //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star 5=roll for initiative 6 = turn over
     private const int NOTTURN = 0;
@@ -41,6 +45,13 @@ public class Player : MonoBehaviour {
     void Start () {
         players = GameObject.FindGameObjectsWithTag("Player");
         dice = GameObject.Find("Dice").GetComponent<DiceScript>();
+        starPrompt = GameObject.Find("StarPrompt");
+        starUI = new GameObject[5];
+        for(int i = 0; i < starUI.Length; i++)
+        {
+            starUI[i] = starPrompt.transform.GetChild(i).gameObject;
+        }
+        selectionArrow = GameObject.Find("SelectionArrow");
         coins = 10;
         highestCoins = 10;
         setPlayerState(0);
@@ -54,6 +65,7 @@ public class Player : MonoBehaviour {
         hasRolled = false;
         afterRollDelay = 0;
         junctionArrow.SetActive(false);
+        starSelection = 1; //1 is yes, -1 is no
     }
     public void setPlayerState(int x)
     {
@@ -116,7 +128,7 @@ public class Player : MonoBehaviour {
     // Update is called once per frame  
     void Update () {
         //testing movement - hit up twice:
-        if(state == GETINITATIVE)
+        if (state == GETINITATIVE)
         {
             if (!dice.isRevealed())
             {
@@ -179,7 +191,7 @@ public class Player : MonoBehaviour {
                 if (Input.GetKeyDown("up") && !hasRolled)
                 {
                     toMove = Random.Range(1, 7);
-                    toMove = 7; //debug, remove later;
+                    toMove = 20; //debug, remove later;
                     dice.stopDice(toMove);
                     hasRolled = true;
                 }
@@ -206,7 +218,6 @@ public class Player : MonoBehaviour {
             {
                 //move(getNextSpace(nextSpace));
                 //move(nextSpace);
-                print(toMove);
                 if (isOnNextSpace())
                 {
                     currentSpace = nextSpace;
@@ -216,13 +227,11 @@ public class Player : MonoBehaviour {
                     {
                         setPlayerState(ONJUNCTION);
                         destination = currentSpace.transform.position + heightOffset;
-                        stopSpace();
                     }
                     else if (currentSpace.CompareTag("StarSpace"))
                     {
                         setPlayerState(ONSTAR);
                         destination = currentSpace.transform.position + heightOffset;
-                        stopSpace();
                     }
                     else
                     {
@@ -284,8 +293,71 @@ public class Player : MonoBehaviour {
             }
             if (state == ONSTAR)
             {
-                setPlayerState(MOVING);
-                //get star stuff
+                if(getCoins() >= 20)
+                {
+                    starUI[0].GetComponent<Text>().text = "Would you like to buy a BYTE?";
+                    starUI[1].SetActive(true);
+                    starUI[2].SetActive(true);
+                    starUI[3].SetActive(false);
+                    starUI[4].SetActive(true);
+                } else
+                {
+                    starUI[0].GetComponent<Text>().text = "You are too poor to buy a BYTE";
+                    starUI[1].SetActive(false);
+                    starUI[2].SetActive(false);
+                    starUI[3].SetActive(true);
+                    starUI[4].SetActive(true);
+                }
+                if (!starPrompt.GetComponent<UIRevealer>().revealed)
+                {
+                    starPrompt.GetComponent<UIRevealer>().revealUI();
+                }
+                if(getCoins() >= 20)
+                {
+                    if (Input.GetKeyDown("left") && starSelection == -1)
+                    {
+                        starSelection = 1;
+                    }
+                    else if (Input.GetKeyDown("right") && starSelection == 1)
+                    {
+                        starSelection = -1;
+                    }
+                    if (starSelection == 1)
+                    {
+                        starUI[4].transform.position = starUI[1].transform.position + Vector3.left 
+                            * starUI[1].GetComponent<Text>().preferredWidth;
+                    }
+                    else
+                    {
+                        starUI[4].transform.position = starUI[2].transform.position + Vector3.left 
+                            * starUI[2].GetComponent<Text>().preferredWidth;
+                    }
+                    if (Input.GetKeyDown("up"))
+                    {
+                        if (starSelection == 1)
+                        {
+                            stars += 1;
+                            coins -= 20;
+                            GameObject.Find("BoardSpaces").GetComponent<RandomizeStarSpace>().moveStarSpace();
+                        }
+                        destination = nextSpace.transform.position + heightOffset;
+                        starPrompt.GetComponent<UIRevealer>().hideUI();
+                        state = MOVING;
+                    }
+                } else
+                {
+                    starUI[4].transform.position = starUI[3].transform.position + Vector3.left 
+                        * starUI[3].GetComponent<Text>().preferredWidth;
+                    if (Input.GetKeyDown("up"))
+                    {
+                        starPrompt.GetComponent<UIRevealer>().hideUI();
+                        state = MOVING;
+                        destination = nextSpace.transform.position + heightOffset;
+
+                    }
+
+                }
+
             }
         }
         else
@@ -382,13 +454,7 @@ public class Player : MonoBehaviour {
                 coins = 0;
             spaceType = 1;
         }
-        if (currentSpace.CompareTag("StarSpace"))
-        {
-            //better to do this in the update section (like with junctions)
-        }
-        //setRank(other players go here);
-        if (coins > highestCoins)
-            highestCoins = coins;
+       
     }
     public GameObject getNextSpace()
     {

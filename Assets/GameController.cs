@@ -12,6 +12,7 @@ public class GameController : MonoBehaviour {
     GameObject[] players;
     GameObject currentPlayer;
     GameObject turnCounter;
+    UIRevealer[] minigameUI;
     UIRevealer[] playerTabs;
 
     UIRevealer lowerScreenUI;
@@ -36,7 +37,7 @@ public class GameController : MonoBehaviour {
     public string[] minigamesFFA;     //scene names go in here
     public string[] minigames2v2;   //scene names go in here
     public string[] minigames1v3;   //scene names go in here
-
+    
     private string[][] minigameList;
     private float beforePlayerTurnTimer;
     private float afterPlayerTurnTimer;
@@ -65,7 +66,12 @@ public class GameController : MonoBehaviour {
         playerTabs[1] = GameObject.Find("Player2Tab").GetComponent<UIRevealer>();
         playerTabs[2] = GameObject.Find("Player3Tab").GetComponent<UIRevealer>();
         playerTabs[3] = GameObject.Find("Player4Tab").GetComponent<UIRevealer>();
-
+        minigameUI = new UIRevealer[3];
+        GameObject tempObject = GameObject.Find("MinigameUI");
+        for(int i = 0; i < minigameUI.Length; i++)
+        {
+            minigameUI[i] = tempObject.transform.GetChild(i).gameObject.GetComponent<UIRevealer>();
+        }
         beforePlayerTurnTimer = 0f;
         afterPlayerTurnTimer = 0f;
         genericDelay = 0;
@@ -151,9 +157,12 @@ public class GameController : MonoBehaviour {
                             
                             
                         }
-                        else if(currentPlayer.GetComponent<Player>().getState() == 4)
+                        else if(currentPlayer.GetComponent<Player>().getState() == 3)
                         {
-                            setCameraPreset(3);
+                            cam.GetComponentInParent<CamBehavior>().setFollowPlayer(false);
+                            cam.GetComponentInParent<CamBehavior>().setTargetLocation(currentPlayer.transform.position + new Vector3(0, 300, -150));
+
+
                         }
                         else if (currentPlayer.GetComponent<Player>().getState() == 6)
                         {
@@ -188,7 +197,21 @@ public class GameController : MonoBehaviour {
                 bool tempDisable = true;
                 if (!tempDisable)
                 {
-                    startMinigame(minigameType);
+                    for (int i = 0; i < minigameUI.Length; i++)
+                    {
+                        minigameUI[i].revealUI();
+                    }
+                    if(genericDelay > 0)
+                    {
+                        genericDelay -= Time.deltaTime;
+                        if (genericDelay < 1.8f)
+                        {
+                            minigameUI[minigameType].gameObject.GetComponentInChildren<Text>().color = Color.red;
+                        }
+                    } else 
+                    {
+                        startMinigame(minigameType);
+                    }
 
                 } else
                 {
@@ -258,12 +281,12 @@ public class GameController : MonoBehaviour {
         if(blueCount == 4 || redCount == 4)
         {
             result = 0;   //FFA
-        } else if(blueCount == 3 || redCount == 3)
-        {
-            result = 1;  //1v3
         } else if(blueCount == 2 || redCount == 2)
         {
-            result = 2; //2v2
+            result = 1;  //2v2
+        } else if(blueCount == 3 || redCount == 3)
+        {
+            result = 2; //1v3
         } else
         {
             print("Unusual amount of blue and red spaces");
@@ -353,7 +376,7 @@ public class GameController : MonoBehaviour {
         } else if(boardState == DECIDE_MINIGAME)
         {
             minigameType = getMinigameType();
-           
+            genericDelay = 3f;
         }
     }
     public void setTurnOrder()
