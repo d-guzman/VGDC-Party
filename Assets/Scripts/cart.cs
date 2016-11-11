@@ -3,18 +3,16 @@ using System.Collections;
 
 public class cart : MonoBehaviour
 {
-
-
     public GameObject train;
-    private string keyword1;
-    private string keyword2;
-
-    private string masterWord;
-    private double timer;
+    private string keyword1;                        //  P#_Fire1
+    private string keyword2;                        // P#_Fire2
+    private string masterWord;                      // switches between keywords
+    private double timer;                           // these two timers will be compared to see how much time has past between button press
     private double timerCounter;
-    float speed = 0;
-    float SPEED_INCREASE_INTERVAL = 1f; // how often do you want the speed to change
-
+    private float speed = 0;                        // changable speed
+    private float SPEED_INCREASE_INTERVAL = 1f;     // how often do you want the speed to change
+    public bool moveActive = true;
+    
     // Use this for initialization
     void Start()
     {
@@ -38,7 +36,7 @@ public class cart : MonoBehaviour
             timer = Time.time;
             timerCounter = Time.time;
 
-            // key change
+            // key change and speed increase
             if (speed < 10)
             {
                 speed += .2f;
@@ -72,10 +70,14 @@ public class cart : MonoBehaviour
         {
             speed -= .8f;
         }
-        if (speed < 0)
+        if (speed < 0 || moveActive==false)
         { speed = 0f; }
         //print(speed);
-
+         
+        //make movement inactive
+        if(train.tag == "Point")
+        { moveActive = false; }
+        
     }
 
 }

@@ -1,14 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
 public class finishLineScript : MonoBehaviour
 {
+    private ArrayList placement = new ArrayList(); 
+
     void OnTriggerEnter(Collider col )
     {
-        if (col.tag == "player")
-        {
-            //Do something like finishing the game or changing the scene
-            print("finish");
-        }
+        //Do something like finishing the game or changing the scene
+            col.tag = "Point";
+            print("finish" + " " +col.name);
+            placement.Add(col);
+      
+
+        
     }
 }
