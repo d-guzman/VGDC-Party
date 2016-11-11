@@ -4,8 +4,9 @@ using System.Collections;
 
 public class finishLineScript : MonoBehaviour
 {
+    
     private ArrayList placement = new ArrayList(); 
-
+    public GameObject events; 
     void OnTriggerEnter(Collider col )
     {
         //Do something like finishing the game or changing the scene
@@ -22,6 +23,12 @@ public class finishLineScript : MonoBehaviour
         if(placement.Count==4)
         {
             print("game done");
+            events.GetComponent<GameStateControl>().setGameOver(true);
+        }
+
+        if(Input.GetButtonDown("SubmitStart"))
+        {
+            events.GetComponent<GameStateControl>().startGame();
         }
     }
 
