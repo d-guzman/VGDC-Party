@@ -4,7 +4,10 @@ using System.Collections;
 
 public class finishLineScript : MonoBehaviour
 {
-    
+    public GameObject first;
+    public GameObject second;
+    public GameObject third;
+    public GameObject fourth;
     private ArrayList placement = new ArrayList(); 
     public GameObject events; 
     void OnTriggerEnter(Collider col )
@@ -29,6 +32,7 @@ public class finishLineScript : MonoBehaviour
         if(Input.GetButtonDown("SubmitStart"))
         {
             events.GetComponent<GameStateControl>().startGame();
+            //first.
         }
     }
 
