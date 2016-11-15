@@ -129,6 +129,7 @@ public class GameController : MonoBehaviour {
             {
                 //display turns left and other stuff at the beginning of each round of turns.
                 setBoardState(PLAYERS_TURN);
+                resetPlayerSpaceTypes();
                 revealPlayerTabs();
                 
             } else if(boardState == PLAYERS_TURN)
@@ -455,6 +456,13 @@ public class GameController : MonoBehaviour {
         for (int i = 0; i < playerTabs.Length; i++)
         {
             playerTabs[i].hideUI();
+        }
+    }
+    public void resetPlayerSpaceTypes()
+    {
+        for(int i = 0; i < players.Length; i++)
+        {
+            players[i].GetComponent<Player>().setSpaceType(2);
         }
     }
 }

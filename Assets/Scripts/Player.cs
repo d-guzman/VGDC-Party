@@ -38,7 +38,7 @@ public class Player : MonoBehaviour {
     private GameObject junctionArrow;
     void Awake()
     {
-        
+        DontDestroyOnLoad(transform.gameObject);
         currentSpace = GameObject.Find("StartSpace");
         nextSpace = GameObject.Find("Space 0");
         junctionArrow = GameObject.Find("JunctionArrow");
@@ -62,7 +62,7 @@ public class Player : MonoBehaviour {
         transform.position = destination;
 
         score = 0;
-        spaceType = 0;
+        spaceType = 2;
         forceDistributePlayers(currentSpace);
         hasRolled = false;
         afterRollDelay = 0;
@@ -130,6 +130,7 @@ public class Player : MonoBehaviour {
     // Update is called once per frame  
     void Update () {
         //testing movement - hit up twice:
+       
         if (state == GETINITATIVE)
         {
             if (!dice.isRevealed())
@@ -270,9 +271,7 @@ public class Player : MonoBehaviour {
                     destination = nextSpace.transform.position + heightOffset;
                     junctionArrow.SetActive(false);
                 }
-                Vector3 arrowLocation = new Vector3(0, 0, 0);
-                Quaternion arrowRotation;
-                float arrowOffset = 5;
+                
                 if (onAltPath)
                 {
                     junctionArrow.transform.position = currentSpace.transform.position;
@@ -289,7 +288,6 @@ public class Player : MonoBehaviour {
                     junctionArrow.transform.position += junctionArrow.transform.forward * 30 + Vector3.up;
 
                 }
-                print(arrowLocation);
                 
             }
             if (state == ONSTAR)
@@ -518,6 +516,10 @@ public class Player : MonoBehaviour {
     public int getSpaceType()
     {
         return spaceType;
+    }
+    public void setSpaceType(int x)
+    {
+        spaceType = x;
     }
     public int getScore()
     {
