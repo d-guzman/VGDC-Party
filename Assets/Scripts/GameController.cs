@@ -78,15 +78,7 @@ public class GameController : MonoBehaviour {
     }
     void Update()
     {
-        if (Input.GetKeyDown("1"))
-        {
-            setCameraPreset(1);
-        } else if (Input.GetKeyDown("2")){
-            setCameraPreset(2);
-        } else if (Input.GetKeyDown("3"))
-        {
-            setCameraPreset(3);
-        } 
+ 
 
         
 
@@ -94,8 +86,50 @@ public class GameController : MonoBehaviour {
         //game flow is under this
        if(gameState == 1)
         {
+            if (Input.GetKeyDown("1"))
+            {
+                players[0].GetComponent<Player>().setSpaceType(0);
+                players[1].GetComponent<Player>().setSpaceType(0);
+                players[2].GetComponent<Player>().setSpaceType(0);
+                players[3].GetComponent<Player>().setSpaceType(0);
+                for (int i = 0; i < players.Length; i++)
+                {
+                    players[i].SetActive(false);
+                }
+                gameState = MINIGAME;
+                //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
+                SceneManager.LoadScene("mini_arena");
+            }
+            if (Input.GetKeyDown("2"))
+            {
+                players[0].GetComponent<Player>().setSpaceType(0);
+                players[1].GetComponent<Player>().setSpaceType(0);
+                players[2].GetComponent<Player>().setSpaceType(1);
+                players[3].GetComponent<Player>().setSpaceType(1);
+                for (int i = 0; i < players.Length; i++)
+                {
+                    players[i].SetActive(false);
+                }
+                gameState = MINIGAME;
+                //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
+                SceneManager.LoadScene("soccerField");
+            }
+            if (Input.GetKeyDown("3"))
+            {
+                players[0].GetComponent<Player>().setSpaceType(0);
+                players[1].GetComponent<Player>().setSpaceType(0);
+                players[2].GetComponent<Player>().setSpaceType(0);
+                players[3].GetComponent<Player>().setSpaceType(0);
+                for (int i = 0; i < players.Length; i++)
+                {
+                    players[i].SetActive(false);
+                }
+                gameState = MINIGAME;
+                //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
+                SceneManager.LoadScene("hand cart");
+            }
             //print(boardState);
-            if(boardState == PRE_GAME)
+            if (boardState == PRE_GAME)
             {
                 
             } else if(boardState == GET_INITIATIVE)
