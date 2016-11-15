@@ -194,7 +194,7 @@ public class GameController : MonoBehaviour {
 
             } else if(boardState == DECIDE_MINIGAME)
             {
-                bool tempDisable = true;
+                bool tempDisable = false;
                 if (!tempDisable)
                 {
                     for (int i = 0; i < minigameUI.Length; i++)

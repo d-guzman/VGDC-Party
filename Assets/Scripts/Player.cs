@@ -19,6 +19,7 @@ public class Player : MonoBehaviour {
     private GameObject starPrompt;
     private GameObject[] starUI;
     private GameObject selectionArrow;
+    public GameObject risingText;
     private int starSelection;
     private Vector3 heightOffset;
     //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star 5=roll for initiative 6 = turn over
@@ -37,6 +38,7 @@ public class Player : MonoBehaviour {
     private GameObject junctionArrow;
     void Awake()
     {
+        
         currentSpace = GameObject.Find("StartSpace");
         nextSpace = GameObject.Find("Space 0");
         junctionArrow = GameObject.Find("JunctionArrow");
@@ -142,7 +144,7 @@ public class Player : MonoBehaviour {
                 while (!validRoll)
                 {
                     bool duplicateRoll = false;
-                    int tempInitiative = Random.Range(1, 6);
+                    int tempInitiative = Random.Range(1, 7);
                     initiative = 0;
                     for(int i = 0; i < players.Length; i++)
                     {
@@ -191,7 +193,6 @@ public class Player : MonoBehaviour {
                 if (Input.GetKeyDown("up") && !hasRolled)
                 {
                     toMove = Random.Range(1, 7);
-                    toMove = 20; //debug, remove later;
                     dice.stopDice(toMove);
                     hasRolled = true;
                 }
@@ -337,6 +338,7 @@ public class Player : MonoBehaviour {
                         if (starSelection == 1)
                         {
                             stars += 1;
+                            createFloatingText("+1");
                             coins -= 20;
                             GameObject.Find("BoardSpaces").GetComponent<RandomizeStarSpace>().moveStarSpace();
                         }
@@ -445,9 +447,12 @@ public class Player : MonoBehaviour {
         {
             coins += 3;
             spaceType = 0;
+            createFloatingText("+3");
+
         }
         if (currentSpace.CompareTag("RedSpace"))
         {
+            createFloatingText("-3");
             if (coins >= 3)
                 coins -= 3;
             else
@@ -524,5 +529,11 @@ public class Player : MonoBehaviour {
     {
         return playerNum;
     }
-
+    private void createFloatingText(string msg)
+    {
+        GameObject obj;
+        obj = Instantiate(risingText);
+        obj.GetComponent<FloatingText>().setText(msg);
+        obj.GetComponent<FloatingText>().setPlayer(this.gameObject);
+    }
 }

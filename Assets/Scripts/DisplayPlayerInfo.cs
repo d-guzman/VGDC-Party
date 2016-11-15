@@ -28,8 +28,8 @@ public class DisplayPlayerInfo : MonoBehaviour {
         stars = playerClass.getStars();
         coins = playerClass.getCoins();
         rank = playerClass.getRank();
-        starsUI.text = "Stars x" + stars;
-        coinsUI.text = "Coins x" + coins;
+        starsUI.text = "x"+stars;
+        coinsUI.text = "x" + coins;
         rankUI.text = ""+(rank+1);
     }
 }
