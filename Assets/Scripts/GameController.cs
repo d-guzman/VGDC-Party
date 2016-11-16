@@ -240,10 +240,15 @@ public class GameController : MonoBehaviour {
                     if(genericDelay > 0)
                     {
                         genericDelay -= Time.deltaTime;
-                        if (genericDelay < 1.8f)
+                        if (genericDelay < 2.2f)
                         {
                             minigameUI[minigameType].gameObject.GetComponentInChildren<Text>().color = Color.red;
                         }
+                        if (genericDelay < 0.45f)
+                        {
+                            GameObject.Find("BlackPanel").GetComponent<UIRevealer>().revealUI();
+                        }
+                        
                     } else 
                     {
                         boardState = NEW_TURN;

@@ -23,7 +23,6 @@ public class TextureController : MonoBehaviour {
         else if (gameObject.CompareTag("StarSpace"))
         {
             GetComponentInChildren<Renderer>().material = star;
-            print("THIS SHOULD NOT BE A STAR NOW");
         }
         else if (gameObject.CompareTag("JunctionSpace"))
         {

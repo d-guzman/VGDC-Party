@@ -51,7 +51,6 @@ public class Player : MonoBehaviour {
         nextSpace = GameObject.Find(gameData.getNextSpace(playerNum));
         coins = gameData.getCoins(playerNum);
         stars = gameData.getStars(playerNum);
-        print(gameData.getPos(playerNum));
         transform.position = gameData.getPos(playerNum);
         turnOrder = gameData.getTurnOrder(playerNum);
         players = GameObject.FindGameObjectsWithTag("BoardPlayer");

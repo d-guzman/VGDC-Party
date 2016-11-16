@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-
+using UnityEngine.SceneManagement;
 public class UIRevealer : MonoBehaviour {
 
     // Use this for initialization
@@ -15,6 +15,8 @@ public class UIRevealer : MonoBehaviour {
     private bool timerActive;
 
     private bool waitingForInput;
+    public bool revealOnLoad;
+    public bool hideOnLoad;
     void Start() {
 
 
@@ -24,6 +26,10 @@ public class UIRevealer : MonoBehaviour {
          * 
          * Major resizing of the game window WILL break this 
          * */
+        if (!GetComponent<Image>().enabled)
+        {
+            GetComponent<Image>().enabled = true;
+        }
         waitingForInput = false;
         timer = 0;
         if (speedFactor == 0)
@@ -68,8 +74,18 @@ public class UIRevealer : MonoBehaviour {
         }
 
         hiddenPosition = getHiddenPosition();
+        
+        
         moving = false;
         timerActive = false;
+
+        if (revealOnLoad)
+        {
+            revealUI();
+        } else if (hideOnLoad)
+        {
+            hideUI();
+        }
     }
 
     void Update() {
@@ -216,5 +232,9 @@ public class UIRevealer : MonoBehaviour {
         revealUI();
         waitingForInput = true;
         timerActive = true;
+        
     }
+
+    
+    
 }
