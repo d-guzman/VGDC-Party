@@ -6,7 +6,13 @@ public class TurnCounter : MonoBehaviour {
     private int turnCount;
     void Awake()
     {
-        turnCount = 0;
+        if(GameObject.FindGameObjectsWithTag("TurnCounter").Length > 1)
+        {
+            DestroyObject(this.gameObject);
+        } else
+        {
+            turnCount = 0;
+        }
         DontDestroyOnLoad(transform.gameObject);
     }
     public void setTurnCount(int x)

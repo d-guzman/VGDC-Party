@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using UnityEngine.SceneManagement;
 public class GameStateControl : MonoBehaviour {
 
     // Use this for initialization
     public GameObject startScreen;
     public GameObject endScreen;
+    GameData gameData;
     private bool gameOver;
     private bool gameStart;
     GameObject[] playerList;
@@ -13,7 +14,9 @@ public class GameStateControl : MonoBehaviour {
 	void Start () {
         gameOver = false;
         gameStart = false;
-        playerList = GameObject.FindGameObjectsWithTag("Player");
+        gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
+        print("gameData is type: " + gameData.GetType());
+        
 	}
 	
 	// Update is called once per frame
@@ -25,7 +28,10 @@ public class GameStateControl : MonoBehaviour {
         {
             setGameOver(true);
         }
-
+        if (Input.GetKeyDown("7"))
+        {
+            SceneManager.LoadScene("GameBoard");
+        }
     }
     public void setGameOver(bool x)
     {

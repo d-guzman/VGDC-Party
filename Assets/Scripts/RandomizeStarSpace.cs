@@ -5,9 +5,26 @@ public class RandomizeStarSpace : MonoBehaviour {
 
     // Use this for initialization
     private GameObject[] spaceList;
-	void Start () {
-        createStarSpace();
-        createSpaceList();
+    private GameData gameData;
+    void Start() {
+        gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
+        if (gameData.getStarSpace() != "")
+        {
+            createSpaceList();
+            for(int i = 0; i < spaceList.Length; i++)
+            {
+                if(gameData.getStarSpace() == spaceList[i].name)
+                {
+                    spaceList[i].tag = "StarSpace";
+                    spaceList[i].GetComponent<TextureController>().updateTexture();
+                }
+            }
+        } else
+        {
+            createStarSpace();
+            createSpaceList();
+        }
+        
         
 	}
 	
@@ -28,6 +45,7 @@ public class RandomizeStarSpace : MonoBehaviour {
         }
         int rng = Random.Range(0, list.Length);
         list[rng].tag = "StarSpace";
+        gameData.setStarSpace(list[rng].name);
         list[rng].GetComponentInChildren<TextureController>().updateTexture();
     }
     public void moveStarSpace()

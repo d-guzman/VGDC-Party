@@ -12,6 +12,7 @@ public class GameController : MonoBehaviour {
     GameObject[] players;
     GameObject currentPlayer;
     GameObject turnCounter;
+    GameData gameData;
     UIRevealer[] minigameUI;
     UIRevealer[] playerTabs;
 
@@ -44,21 +45,32 @@ public class GameController : MonoBehaviour {
     private float genericDelay;
     void Start()
     {
-        DontDestroyOnLoad(transform.gameObject);
-        players = GameObject.FindGameObjectsWithTag("Player");
+        gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
+        loadGameObjects();
+        
+        setCameraPreset(1);
+        playerTurn = 0;
+        boardState = gameData.getBoardState();
+        gameState = gameData.getGameState();
+        print("boardState: " + boardState.ToString());
+        print("gameState: " + gameState.ToString());
+        setPlayerRanks();
+        
+        
+        beforePlayerTurnTimer = 0f;
+        afterPlayerTurnTimer = 0f;
+        genericDelay = 0;
+    }
+    public void loadGameObjects()
+    {
+        players = GameObject.FindGameObjectsWithTag("BoardPlayer");
         for (int i = 0; i < players.Length; i++)
         {
             players[i].GetComponent<Player>().setListOfPlayers(players);
         }
         cam = GameObject.FindGameObjectWithTag("MainCamera");
-        setCameraPreset(1);
-        playerTurn = 0;
-        boardState = GET_INITIATIVE;
-        gameState = GAME_BOARD;
-        
-        minigameList = new string[3][] { minigamesFFA, minigames2v2, minigames1v3 };
         turnCounter = GameObject.Find("TurnCounter");
-        setPlayerRanks();
+        print(GameObject.Find("LowerScreen").name);
         lowerScreenUI = GameObject.Find("LowerScreen").GetComponent<UIRevealer>();
         lowerScreenText = GameObject.Find("LowerScreen").GetComponentInChildren<LowerScreenTextScript>();
         playerTabs = new UIRevealer[4];
@@ -67,14 +79,12 @@ public class GameController : MonoBehaviour {
         playerTabs[2] = GameObject.Find("Player3Tab").GetComponent<UIRevealer>();
         playerTabs[3] = GameObject.Find("Player4Tab").GetComponent<UIRevealer>();
         minigameUI = new UIRevealer[3];
+        minigameList = new string[3][] { minigamesFFA, minigames2v2, minigames1v3 };
         GameObject tempObject = GameObject.Find("MinigameUI");
-        for(int i = 0; i < minigameUI.Length; i++)
+        for (int i = 0; i < minigameUI.Length; i++)
         {
             minigameUI[i] = tempObject.transform.GetChild(i).gameObject.GetComponent<UIRevealer>();
         }
-        beforePlayerTurnTimer = 0f;
-        afterPlayerTurnTimer = 0f;
-        genericDelay = 0;
     }
     void Update()
     {
@@ -92,13 +102,10 @@ public class GameController : MonoBehaviour {
                 players[1].GetComponent<Player>().setSpaceType(0);
                 players[2].GetComponent<Player>().setSpaceType(0);
                 players[3].GetComponent<Player>().setSpaceType(0);
-                for (int i = 0; i < players.Length; i++)
-                {
-                    players[i].SetActive(false);
-                }
-                gameState = MINIGAME;
+                
+                gameState = 1;
                 //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
-                SceneManager.LoadScene("mini_arena");
+                loadScene("mini_arena");
             }
             if (Input.GetKeyDown("2"))
             {
@@ -106,13 +113,10 @@ public class GameController : MonoBehaviour {
                 players[1].GetComponent<Player>().setSpaceType(0);
                 players[2].GetComponent<Player>().setSpaceType(1);
                 players[3].GetComponent<Player>().setSpaceType(1);
-                for (int i = 0; i < players.Length; i++)
-                {
-                    players[i].SetActive(false);
-                }
-                gameState = MINIGAME;
+                
+                gameState = 1;
                 //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
-                SceneManager.LoadScene("soccerField");
+                loadScene("soccerField");
             }
             if (Input.GetKeyDown("3"))
             {
@@ -120,13 +124,10 @@ public class GameController : MonoBehaviour {
                 players[1].GetComponent<Player>().setSpaceType(0);
                 players[2].GetComponent<Player>().setSpaceType(0);
                 players[3].GetComponent<Player>().setSpaceType(0);
-                for (int i = 0; i < players.Length; i++)
-                {
-                    players[i].SetActive(false);
-                }
-                gameState = MINIGAME;
+                
+                gameState = 1;
                 //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
-                SceneManager.LoadScene("hand cart");
+                loadScene("hand cart");
             }
             //print(boardState);
             if (boardState == PRE_GAME)
@@ -245,6 +246,7 @@ public class GameController : MonoBehaviour {
                         }
                     } else 
                     {
+                        boardState = NEW_TURN;
                         startMinigame(minigameType);
                     }
 
@@ -328,31 +330,27 @@ public class GameController : MonoBehaviour {
         }
         return result;
     }
+    public void loadScene(string name)
+    {
+        saveData();
+        SceneManager.LoadScene(name);
+    }
     public void startMinigame(int type)
     {
-        setGameState(MINIGAME);
-        
+       
         int rngGame = Random.Range(0, minigameList[type].Length);
 
-        for (int i = 0; i < players.Length; i++)
-        {
-            players[i].SetActive(false);
-        }
+        
 
-        //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
-        SceneManager.LoadScene("mini_arena");
+        //loadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
+        loadScene("mini_arena");
 
     }
     public void loadGameBoard()
     {
         gameState = GAME_BOARD;
         SceneManager.LoadScene("GameBoard");
-        players = GameObject.FindGameObjectsWithTag("Player");
-        for(int i = 0; i < players.Length; i++)
-        {
-            players[i].GetComponent<Player>().setListOfPlayers(players);
-        }
-        cam = GameObject.FindGameObjectWithTag("MainCamera");
+        loadGameObjects();
         setCameraPreset(1);
 
     }
@@ -438,6 +436,7 @@ public class GameController : MonoBehaviour {
         GameObject result = null;
         for(int i = 0; i < 4; i++)
         {
+            print(i + ": " + players[i].GetComponent<Player>().getTurnOrder());
             if (players[i].GetComponent<Player>().getTurnOrder() == x)
             {
                 result = players[i];
@@ -498,5 +497,20 @@ public class GameController : MonoBehaviour {
         {
             players[i].GetComponent<Player>().setSpaceType(2);
         }
+    }
+    public void saveData()
+    {
+        for(int i = 0; i < players.Length; i++)
+        {
+            Player playerClass = players[i].GetComponent<Player>();
+            gameData.setCurrentSpace(playerClass.getPlayerNum(),playerClass.getCurrentSpace().name);
+            gameData.setNextSpace(playerClass.getPlayerNum(), playerClass.returnNextSpace().name);
+            gameData.setPos(playerClass.getPlayerNum(), players[i].transform.position);
+            gameData.setCoins(playerClass.getPlayerNum(),playerClass.getCoins());
+            gameData.setStars(playerClass.getPlayerNum(), playerClass.getStars());
+            gameData.setTurnOrder(playerClass.getPlayerNum(), playerClass.getTurnOrder());
+        }
+        gameData.setBoardState(boardState);
+        gameData.setGameState(gameState);
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour {
     
     private string playerName;
-    private int stars = 0,coins,highestCoins=0,mgWon=0,rank=0,turnOrder = -1,toMove,state=0,playersOnSpace=0;
+    private int stars ,coins,mgWon=0,rank=0,turnOrder = -1,toMove,state=0,playersOnSpace=0;
     private int initiative = 0;
 
     private bool onEdge=false,onAltPath=false,hasInitiative=false;
@@ -15,6 +15,7 @@ public class Player : MonoBehaviour {
     public int playerNum;
     private GameObject currentSpace,nextSpace;
     private GameObject[] players;
+    private GameData gameData;
     private DiceScript dice;
     private GameObject starPrompt;
     private GameObject[] starUI;
@@ -38,14 +39,22 @@ public class Player : MonoBehaviour {
     private GameObject junctionArrow;
     void Awake()
     {
-        DontDestroyOnLoad(transform.gameObject);
+        
         currentSpace = GameObject.Find("StartSpace");
         nextSpace = GameObject.Find("Space 0");
         junctionArrow = GameObject.Find("JunctionArrow");
 
     }
     void Start () {
-        players = GameObject.FindGameObjectsWithTag("Player");
+        gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
+        currentSpace = GameObject.Find(gameData.getCurrentSpace(playerNum));
+        nextSpace = GameObject.Find(gameData.getNextSpace(playerNum));
+        coins = gameData.getCoins(playerNum);
+        stars = gameData.getStars(playerNum);
+        print(gameData.getPos(playerNum));
+        transform.position = gameData.getPos(playerNum);
+        turnOrder = gameData.getTurnOrder(playerNum);
+        players = GameObject.FindGameObjectsWithTag("BoardPlayer");
         dice = GameObject.Find("Dice").GetComponent<DiceScript>();
         starPrompt = GameObject.Find("StarPrompt");
         starUI = new GameObject[5];
@@ -54,8 +63,6 @@ public class Player : MonoBehaviour {
             starUI[i] = starPrompt.transform.GetChild(i).gameObject;
         }
         selectionArrow = GameObject.Find("SelectionArrow");
-        coins = 10;
-        highestCoins = 10;
         setPlayerState(0);
         heightOffset = Vector3.up * 7;
         moveToCorner();
@@ -390,6 +397,13 @@ public class Player : MonoBehaviour {
         //move to corner only works if players reach a location sequentially
         //aka everyone goes to the "4 player" position when the game starts
         //this will distribute anyone on a given spot
+        int spaceRadius = 10;
+
+        Vector3[] offset = new Vector3[4];
+        offset[0] = (Vector3.left + Vector3.forward) * spaceRadius;
+        offset[1] = (Vector3.right + Vector3.forward) * spaceRadius;
+        offset[2] = (Vector3.left + Vector3.back) * spaceRadius;
+        offset[3] = (Vector3.right + Vector3.back) * spaceRadius;
         List<GameObject> playerList = new List<GameObject>();
         for (int i = 0; i < players.Length; i++)
         {
@@ -398,12 +412,12 @@ public class Player : MonoBehaviour {
                 playerList.Add(players[i]);
             }
         }
-        int spaceRadius = 10;
         Vector3 tempDestination = currentSpace.transform.position + heightOffset;
-        playerList[0].GetComponent<Player>().setDestination(tempDestination + (Vector3.left + Vector3.forward) * spaceRadius);
-        playerList[1].GetComponent<Player>().setDestination(tempDestination + (Vector3.right + Vector3.forward) * spaceRadius);
-        playerList[2].GetComponent<Player>().setDestination(tempDestination + (Vector3.left + Vector3.back) * spaceRadius);
-        playerList[3].GetComponent<Player>().setDestination(tempDestination + (Vector3.right + Vector3.back) * spaceRadius);
+        for(int i = 0; i < playerList.Count; i++)
+        {
+            playerList[i].GetComponent<Player>().setDestination(tempDestination + offset[i]);
+        }
+        
     }
     public void moveToCorner()
     {
@@ -468,7 +482,6 @@ public class Player : MonoBehaviour {
     }
     //get methods and set/changing methods
     public int getCoins() { return coins; }
-    public int getHighestCoins() { return highestCoins; }
     public int getStars() { return stars; }
     public int getRoll() { return toMove; }
     public int getMinigamesWon() { return mgWon; }
@@ -537,5 +550,13 @@ public class Player : MonoBehaviour {
         obj = Instantiate(risingText);
         obj.GetComponent<FloatingText>().setText(msg);
         obj.GetComponent<FloatingText>().setPlayer(this.gameObject);
+    }
+    public GameObject getCurrentSpace()
+    {
+        return currentSpace;
+    }
+    public GameObject returnNextSpace()
+    {
+        return nextSpace;
     }
 }
