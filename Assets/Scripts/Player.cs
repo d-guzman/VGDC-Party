@@ -24,6 +24,8 @@ public class Player : MonoBehaviour {
     private int starSelection;
     private Vector3 heightOffset;
     public Text moveCounter;
+    private GenericRotateToDirection rotationScript;
+
     //For state: 0=not their turn, 1=their turn, rolling, 2=moving,3=on junction, 4=on star 5=roll for initiative 6 = turn over
     private const int NOTTURN = 0;
     private const int ONTURN = 1;
@@ -75,6 +77,7 @@ public class Player : MonoBehaviour {
         afterRollDelay = 0;
         junctionArrow.SetActive(false);
         moveCounter.enabled = false;
+        rotationScript = GetComponentInChildren<GenericRotateToDirection>();
         starSelection = 1; //1 is yes, -1 is no
     }
     public void setPlayerState(int x)
@@ -116,6 +119,7 @@ public class Player : MonoBehaviour {
         else if (state == GETINITATIVE)
         {
             dice.hideDice();
+            dice.revealDice(destination);
             dice.rollDice();
             hasRolled = false;
             afterRollDelay = 0.5f;
@@ -226,6 +230,7 @@ public class Player : MonoBehaviour {
             }
             if (state==MOVING)
             {
+                rotationScript.setTargetDirection(nextSpace.transform.position-currentSpace.transform.position);
                 moveCounter.enabled = true;
                 moveCounter.text = ""+toMove;
                 //move(getNextSpace(nextSpace));
@@ -254,7 +259,6 @@ public class Player : MonoBehaviour {
 
                     if (toMove <= 0)
                     {
-                        forceDistributePlayers(currentSpace);
                         moveCounter.enabled = false;
                         setPlayerState(TURNOVER);   //signals gamecontroller that this turn is over, gamecontroller will set this back to 0
                         stopSpace();
@@ -265,7 +269,6 @@ public class Player : MonoBehaviour {
             }
             if (state == ONJUNCTION)
             {
-                
                 if (Input.GetKeyDown("left") || Input.GetKeyDown("right"))
                 {
                     onAltPath = !onAltPath;
@@ -291,17 +294,20 @@ public class Player : MonoBehaviour {
                     junctionArrow.transform.LookAt(currentSpace.GetComponent<getJunction>().getSecondarySpace().transform.position);
                     junctionArrow.transform.position = currentSpace.transform.position;
                     junctionArrow.transform.position += junctionArrow.transform.forward * 30 + Vector3.up * 3 ;
-                    
-                } else
+                    rotationScript.setTargetDirection(currentSpace.GetComponent<getJunction>().getSecondarySpace().transform.position - currentSpace.transform.position);
+
+                }
+                else
                 {
                     junctionArrow.transform.position = currentSpace.transform.position;
 
                     junctionArrow.transform.LookAt(currentSpace.GetComponent<getJunction>().getPrimarySpace().transform.position);
                     junctionArrow.transform.position = currentSpace.transform.position;
                     junctionArrow.transform.position += junctionArrow.transform.forward * 30 + Vector3.up * 3;
+                    rotationScript.setTargetDirection(currentSpace.GetComponent<getJunction>().getPrimarySpace().transform.position - currentSpace.transform.position);
 
                 }
-                
+
             }
             if (state == ONSTAR)
             {

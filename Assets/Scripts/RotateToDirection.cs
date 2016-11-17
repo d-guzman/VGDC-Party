@@ -12,6 +12,7 @@ public class RotateToDirection : MonoBehaviour
             var VectorManager = player.GetComponentInParent<PlayerTranslations>();
             if (VectorManager.getPlayer1Move() != Vector3.zero)
             {
+                
                 Quaternion player1_Rotate = Quaternion.LookRotation(VectorManager.getPlayer1Move());
                 player.transform.rotation = Quaternion.Slerp(player.transform.rotation, player1_Rotate, 10.0f * Time.deltaTime);
             }

@@ -48,7 +48,6 @@ public class FloatingText : MonoBehaviour {
     {
         this.player = player;
         this.hasTarget = true;
-        print("HEY");
-        print(hasTarget);
+
     }
 }
