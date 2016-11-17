@@ -13,6 +13,7 @@ public class GameData : MonoBehaviour {
     int gameState;
     int boardState;
     string starSpace;
+
     void Awake () {
         if(GameObject.FindGameObjectsWithTag("GameData").Length > 1)
         {

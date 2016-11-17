@@ -180,12 +180,7 @@ public class GameController : MonoBehaviour {
             }
             else if (boardState == NEW_TURN)
             {
-                //display turns left and other stuff at the beginning of each round of turns.
-                
-               
                 setBoardState(PLAYERS_TURN);
-                
-
                 resetPlayerSpaceTypes();
                 revealPlayerTabs();
 
@@ -483,24 +478,30 @@ public class GameController : MonoBehaviour {
     }
     public void setPlayerRanks()
     {
-        for(int i = 0; i < players.Length; i++)
+        List<int> scores = new List<int>();
+        int[] result = new int[4];
+        for(int i = 0; i < 4; i++)
         {
-            int max = 0;
+            scores.Add(players[i].GetComponent<Player>().getScore());
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            int max = -1;
             int index = 0;
-            for(int j = i; j < players.Length; j++)
+            for (int j = scores.Count - 1; j >= 0; j--)
             {
-                if(Mathf.Max(max,players[j].GetComponent<Player>().getScore()) > max)
+                if (Mathf.Max(max, scores[j]) > max)
                 {
-                    max = players[j].GetComponent<Player>().getScore();
+                    max = scores[j];
                     index = j;
+
                 }
             }
-            GameObject temp = players[0];
-            players[0] = players[index];
-            players[index] = temp;
-
+            print(index);
+            result[i] = index;
+            scores.RemoveAt(index);
         }
-        for(int i = 0; i < players.Length; i++)
+        for (int i = 0; i < players.Length; i++)
         {
             if(i != 0 && players[i-1].GetComponent<Player>().getScore() == players[i].GetComponent<Player>().getScore())
             {
