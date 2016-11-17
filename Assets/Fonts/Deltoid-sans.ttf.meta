@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 05af0c7907e1f824db74101be32a18a5
-timeCreated: 1478386755
+guid: f46b7b08921a3454396327da6f7aac54
+timeCreated: 1479360099
 licenseType: Free
 TrueTypeFontImporter:
   serializedVersion: 4
@@ -10,7 +10,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Minecraft
+  - Deltoid-sans
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
