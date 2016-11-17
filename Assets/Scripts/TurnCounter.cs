@@ -3,21 +3,21 @@ using System.Collections;
 
 public class TurnCounter : MonoBehaviour {
 
-    private int turnCount;
+    public int turnCount;
     void Awake()
     {
         if(GameObject.FindGameObjectsWithTag("TurnCounter").Length > 1)
         {
             DestroyObject(this.gameObject);
-        } else
-        {
-            turnCount = 0;
         }
-        DontDestroyOnLoad(transform.gameObject);
+        else
+        {
+            DontDestroyOnLoad(transform.gameObject);
+        }
     }
     public void setTurnCount(int x)
     {
-        turnCount = 0;
+        turnCount = x;
     }
     public int getTurnCount()
     {

@@ -11,7 +11,7 @@ public class GameController : MonoBehaviour {
     GameObject cam;
     GameObject[] players;
     GameObject currentPlayer;
-    GameObject turnCounter;
+    TurnCounter turnCounter;
     GameData gameData;
     UIRevealer[] minigameUI;
     UIRevealer[] playerTabs;
@@ -53,8 +53,7 @@ public class GameController : MonoBehaviour {
         boardState = gameData.getBoardState();
         gameState = gameData.getGameState();
         setBoardState(boardState);
-        print("boardState: " + boardState.ToString());
-        print("gameState: " + gameState.ToString());
+
         setPlayerRanks();
         
         
@@ -70,8 +69,7 @@ public class GameController : MonoBehaviour {
             players[i].GetComponent<Player>().setListOfPlayers(players);
         }
         cam = GameObject.FindGameObjectWithTag("MainCamera");
-        turnCounter = GameObject.Find("TurnCounter");
-        print(GameObject.Find("LowerScreen").name);
+        turnCounter = GameObject.Find("TurnCounter").GetComponent<TurnCounter>();
         lowerScreenUI = GameObject.Find("LowerScreen").GetComponent<UIRevealer>();
         lowerScreenText = GameObject.Find("LowerScreen").GetComponentInChildren<LowerScreenTextScript>();
         playerTabs = new UIRevealer[4];
@@ -242,7 +240,7 @@ public class GameController : MonoBehaviour {
                     }
                     else
                     {
-                        turnCounter.GetComponent<TurnCounter>().decrementTurnCount();
+                        turnCounter.decrementTurnCount();
                         setBoardState(DECIDE_MINIGAME);
                     }
                 }
@@ -468,7 +466,6 @@ public class GameController : MonoBehaviour {
         GameObject result = null;
         for(int i = 0; i < 4; i++)
         {
-            print(i + ": " + players[i].GetComponent<Player>().getTurnOrder());
             if (players[i].GetComponent<Player>().getTurnOrder() == x)
             {
                 result = players[i];
@@ -497,7 +494,6 @@ public class GameController : MonoBehaviour {
 
                 }
             }
-            print(index);
             result[i] = index;
             scores.RemoveAt(index);
         }
