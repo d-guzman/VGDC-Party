@@ -63,7 +63,7 @@ public class Player : MonoBehaviour {
         }
         selectionArrow = GameObject.Find("SelectionArrow");
         setPlayerState(0);
-        heightOffset = Vector3.up * 7;
+        heightOffset = Vector3.up * 6.5f;
         moveToCorner();
         transform.position = destination;
 

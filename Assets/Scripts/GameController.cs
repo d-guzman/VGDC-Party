@@ -15,7 +15,7 @@ public class GameController : MonoBehaviour {
     GameData gameData;
     UIRevealer[] minigameUI;
     UIRevealer[] playerTabs;
-
+    UIRevealer turnCounterUI;
     UIRevealer lowerScreenUI;
     LowerScreenTextScript lowerScreenText;
     int gameState;
@@ -30,7 +30,7 @@ public class GameController : MonoBehaviour {
     private const int NEW_TURN = 2;
     private const int PLAYERS_TURN = 3;
     private const int DECIDE_MINIGAME = 4;
-
+    private const int BACK_FROM_MINIGAME = 5;
     private int playerTurn;
 
     private int minigameType;
@@ -52,6 +52,7 @@ public class GameController : MonoBehaviour {
         playerTurn = 0;
         boardState = gameData.getBoardState();
         gameState = gameData.getGameState();
+        setBoardState(boardState);
         print("boardState: " + boardState.ToString());
         print("gameState: " + gameState.ToString());
         setPlayerRanks();
@@ -59,7 +60,7 @@ public class GameController : MonoBehaviour {
         
         beforePlayerTurnTimer = 0f;
         afterPlayerTurnTimer = 0f;
-        genericDelay = 0;
+        genericDelay = 2f;
     }
     public void loadGameObjects()
     {
@@ -85,6 +86,7 @@ public class GameController : MonoBehaviour {
         {
             minigameUI[i] = tempObject.transform.GetChild(i).gameObject.GetComponent<UIRevealer>();
         }
+        turnCounterUI = GameObject.Find("TurnUIUpper").GetComponent<UIRevealer>();
     }
     void Update()
     {
@@ -132,68 +134,90 @@ public class GameController : MonoBehaviour {
             //print(boardState);
             if (boardState == PRE_GAME)
             {
-                
-            } else if(boardState == GET_INITIATIVE)
+
+            }
+            else if (boardState == GET_INITIATIVE)
             {
                 int rollingPlayer = -1;
-                
-                for(int j = 0; j < players.Length; j++)
+
+                for (int j = 0; j < players.Length; j++)
                 {
                     if (!players[j].GetComponent<Player>().getInitiative())
                     {
                         rollingPlayer = j;
                         j = 100000; //break out of loop
                     }
-                    
+
                 }
 
-                if(rollingPlayer != -1)
+                if (rollingPlayer != -1)
                 {
                     followPlayer(players[rollingPlayer]);
-                    if(players[rollingPlayer].GetComponent<Player>().getState() != 5)
+                    if (players[rollingPlayer].GetComponent<Player>().getState() != 5)
                     {
                         players[rollingPlayer].GetComponent<Player>().setPlayerState(5);
                     }
-                } else
+                }
+                else
                 {
                     setTurnOrder();
-                    
+
                     setBoardState(NEW_TURN);
                 }
-            } else if(boardState == NEW_TURN)
+            }
+            else if (boardState == BACK_FROM_MINIGAME)
+            {
+                if (genericDelay > 0)
+                {
+                    genericDelay -= Time.deltaTime;
+                    turnCounterUI.revealUI();
+                }
+                else
+                {
+                    turnCounterUI.hideUI();
+                    setBoardState(NEW_TURN);
+                }
+            }
+            else if (boardState == NEW_TURN)
             {
                 //display turns left and other stuff at the beginning of each round of turns.
+                
+               
                 setBoardState(PLAYERS_TURN);
+                
+
                 resetPlayerSpaceTypes();
                 revealPlayerTabs();
-                
-            } else if(boardState == PLAYERS_TURN)
+
+            }
+            else if (boardState == PLAYERS_TURN)
             {
                 if (beforePlayerTurnTimer > 0)
                 {
-                    if(playerTurn < players.Length)
+                    if (playerTurn < players.Length)
                     {
                         currentPlayer = getCurrentPlayer(playerTurn);
                         lowerScreenUI.revealForTime(1.2f);
                         lowerScreenText.setText(currentPlayer.GetComponent<Player>().getPlayerNum());
                     }
-                    
+
                     beforePlayerTurnTimer -= Time.deltaTime; //this is so we can zoom the camera out before moving to the next player
-                } else
+                }
+                else
                 {
-               
+
                     if (playerTurn < players.Length)
                     {
                         currentPlayer = getCurrentPlayer(playerTurn);
                         followPlayer(currentPlayer);
                         if (currentPlayer.GetComponent<Player>().getState() == 0)
                         {
-                            
+
                             currentPlayer.GetComponent<Player>().setPlayerState(1);
-                            
-                            
+
+
                         }
-                        else if(currentPlayer.GetComponent<Player>().getState() == 3)
+                        else if (currentPlayer.GetComponent<Player>().getState() == 3)
                         {
                             cam.GetComponentInParent<CamBehavior>().setFollowPlayer(false);
                             cam.GetComponentInParent<CamBehavior>().setTargetLocation(currentPlayer.transform.position + new Vector3(0, 300, -150));
@@ -202,11 +226,12 @@ public class GameController : MonoBehaviour {
                         }
                         else if (currentPlayer.GetComponent<Player>().getState() == 6)
                         {
-                            
-                            if(afterPlayerTurnTimer > 0)
+
+                            if (afterPlayerTurnTimer > 0)
                             {
                                 afterPlayerTurnTimer -= Time.deltaTime;
-                            } else
+                            }
+                            else
                             {
                                 afterPlayerTurnTimer = 1.2f;
                                 beforePlayerTurnTimer = 1.2f;
@@ -215,9 +240,9 @@ public class GameController : MonoBehaviour {
                                 currentPlayer.GetComponent<Player>().moveToCorner();
                                 setCameraPreset(1);
                             }
-                            
-                            
-                            
+
+
+
                         }
                     }
                     else
@@ -226,9 +251,10 @@ public class GameController : MonoBehaviour {
                         setBoardState(DECIDE_MINIGAME);
                     }
                 }
-               
 
-            } else if(boardState == DECIDE_MINIGAME)
+
+            }
+            else if (boardState == DECIDE_MINIGAME)
             {
                 bool tempDisable = false;
                 if (!tempDisable)
@@ -237,25 +263,27 @@ public class GameController : MonoBehaviour {
                     {
                         minigameUI[i].revealUI();
                     }
-                    if(genericDelay > 0)
+                    if (genericDelay > 0)
                     {
                         genericDelay -= Time.deltaTime;
                         if (genericDelay < 2.2f)
                         {
                             minigameUI[minigameType].gameObject.GetComponentInChildren<Text>().color = Color.red;
                         }
-                        if (genericDelay < 0.45f)
+                        if (genericDelay < 0.5f)
                         {
                             GameObject.Find("BlackPanel").GetComponent<UIRevealer>().revealUI();
                         }
-                        
-                    } else 
+
+                    }
+                    else
                     {
                         boardState = NEW_TURN;
                         startMinigame(minigameType);
                     }
 
-                } else
+                }
+                else
                 {
                     setBoardState(NEW_TURN);
                 }
@@ -337,6 +365,7 @@ public class GameController : MonoBehaviour {
     }
     public void loadScene(string name)
     {
+        boardState = BACK_FROM_MINIGAME;
         saveData();
         SceneManager.LoadScene(name);
     }
@@ -414,7 +443,10 @@ public class GameController : MonoBehaviour {
         } else if(boardState == DECIDE_MINIGAME)
         {
             minigameType = getMinigameType();
-            genericDelay = 3f;
+            genericDelay = 3.5f;
+        } else if(boardState == BACK_FROM_MINIGAME)
+        {
+            genericDelay = 2f;
         }
     }
     public void setTurnOrder()
