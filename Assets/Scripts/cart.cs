@@ -31,7 +31,7 @@ public class cart : MonoBehaviour
 
         train.transform.Translate(Vector3.forward * speed * Time.deltaTime);
         SPEED_INCREASE_INTERVAL -= Time.deltaTime;
-        if (Input.GetButton(masterWord))
+        if (Input.GetButtonDown(masterWord))
         {
             timer = Time.time;
             timerCounter = Time.time;
@@ -58,6 +58,8 @@ public class cart : MonoBehaviour
             }
 
         }
+        if ( Input.GetButtonDown(keyword1)&&Input.GetButtonDown(keyword2))
+        { speed = 0; }
         //speed interval
         if (SPEED_INCREASE_INTERVAL < 0)
         {
