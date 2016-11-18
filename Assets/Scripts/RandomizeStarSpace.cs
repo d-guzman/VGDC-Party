@@ -59,8 +59,8 @@ public class RandomizeStarSpace : MonoBehaviour {
         previousStar.GetComponentInChildren<TextureController>().applyOriginalTextureAndTag();
         spaceList[rng].tag = "StarSpace";
         spaceList[rng].GetComponentInChildren<TextureController>().updateTexture();
-        spaceList[rng] = previousStar;
         starSpace = spaceList[rng];
+        spaceList[rng] = previousStar;
     }
     public void createSpaceList()
     {

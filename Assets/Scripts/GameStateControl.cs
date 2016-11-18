@@ -16,7 +16,6 @@ public class GameStateControl : MonoBehaviour {
         gameOver = false;
         gameStart = false;
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
-        print("gameData is type: " + gameData.GetType());
 
 	}
 	
@@ -42,7 +41,6 @@ public class GameStateControl : MonoBehaviour {
             int[] playerRanks = getPlayerRanks();
             for(int i = 0; i < 4; i++)
             {
-                //print(playerRanks[i]);
                 results[i].GetComponent<GetResultsStats>().setPlayerNum(playerRanks[i]);
             }
             endScreen.GetComponent<UIRevealer>().revealUI();
@@ -71,15 +69,7 @@ public class GameStateControl : MonoBehaviour {
         int[][] scores = new int[4][];
 
 
-        string stuff = "Scores: ";
-        for(int i = 0; i < 4; i++)
-        {
-            scores[i] = new int[2];
-            stuff += getScore(i) + ", ";
-            scores[i][0] = getScore(i);
-            scores[i][1] = i;
-        }
-        print(stuff);
+        
         for (int i = 0; i < 4; i++)
         {
             int max = -1;
@@ -102,12 +92,7 @@ public class GameStateControl : MonoBehaviour {
         {
             result[i] = scores[i][1];
         }
-        string temp = "RESULT: ";
-        for(int i = 0; i < result.Length; i++)
-        {
-            temp += result[i] + ", ";
-        }
-        print(temp);
+        
         return result;
     }
     public int getScore(int playerNum)

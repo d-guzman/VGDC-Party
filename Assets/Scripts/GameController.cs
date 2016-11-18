@@ -492,7 +492,6 @@ public class GameController : MonoBehaviour {
             scores[i] = new int[2];
             scores[i][0] = getScore(i);
             scores[i][1] = i;
-            print(i + ": " + players[i].GetComponent<Player>().getPlayerNum());
         }
         
         for (int i = 0; i < 4; i++)
@@ -522,34 +521,13 @@ public class GameController : MonoBehaviour {
             players[result[i]].GetComponent<Player>().setRank(i);
 
         }
-        string z = "initialranks ";
-        for (int i = 0; i < 4; i++)
-        {
-            z += players[i].GetComponent<Player>().getRank() + ", ";
-        }
-        print(z);
-        string x = "scores ";
-        for(int i = 0; i < 4; i++)
-        {
-            x += scores[i][0] + ", ";
-        }
-        print(x);
-        string y = "players ";
-        for (int i = 0; i < 4; i++)
-        {
-            y += scores[i][1] + ", ";
-        }
-        print(y);
+       
         for (int i = 1; i < result.Length; i++)
         {
-            print("scores[" + i+"][0] = " + scores[i][0] + ", scores["+(i-1)+"][0] = " + scores[i-1][0]);
 
             if (scores[i][0] == scores[i-1][0]) //worse rank player has identical score to higher rank player
             {
-                print(scores[i][0] + " = " + scores[i - 1][0]);
-                print("player " + result[i] + " tied with player " + result[i - 1]);
                 players[result[i]].GetComponent<Player>().setRank(players[result[i-1]].GetComponent<Player>().getRank());
-                print("player " + result[i] +" new rank " + players[result[i]].GetComponent<Player>().getRank());
             }
         }
 

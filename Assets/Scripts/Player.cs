@@ -41,7 +41,9 @@ public class Player : MonoBehaviour {
     private float afterRollDelay;
     private GameObject junctionArrow;
     private bool ignoreNextJunction;
-
+    private string aButton, bButton;
+    private string baseControllerName;
+    private bool stopRepeat;
     void Awake()
     {
         
@@ -82,6 +84,10 @@ public class Player : MonoBehaviour {
         rotationScript = GetComponentInChildren<GenericRotateToDirection>();
         starSelection = 1; //1 is yes, -1 is no
         ignoreNextJunction = false;
+        baseControllerName = "P" + (playerNum + 1);
+        aButton = baseControllerName + "_Fire1";
+        bButton = baseControllerName + "_Fire2";
+        stopRepeat = false;
     }
     public void setPlayerState(int x)
     {
@@ -154,7 +160,7 @@ public class Player : MonoBehaviour {
             }
 
             
-            if (Input.GetKeyDown("up") && !hasInitiative && !hasRolled)
+            if ((Input.GetKeyDown("up") || Input.GetButtonDown(aButton)) && !hasInitiative && !hasRolled)
             {
                 bool validRoll = false;
                 while (!validRoll)
@@ -206,9 +212,10 @@ public class Player : MonoBehaviour {
             if (state==ONTURN)
             {
                 
-                if (Input.GetKeyDown("up") && !hasRolled)
+                if ((Input.GetKeyDown("up") || Input.GetButtonDown(aButton)) && !hasRolled)
                 {
                     toMove = Random.Range(1, 7);
+   
                     dice.stopDice(toMove);
                     hasRolled = true;
                 }
@@ -281,12 +288,20 @@ public class Player : MonoBehaviour {
             {
                 if (!ignoreNextJunction)
                 {
-                    if (Input.GetKeyDown("left") || Input.GetKeyDown("right"))
+                    if (Input.GetKeyDown("left") || Input.GetKeyDown("right") || 
+                        (Input.GetAxisRaw(baseControllerName + "_DPad_X") == 1 || 
+                        Input.GetAxisRaw(baseControllerName + "_DPad_X") == -1))
                     {
-                        onAltPath = !onAltPath;
+                        if (!stopRepeat)
+                        { onAltPath = !onAltPath; }
+                        stopRepeat = true;
+                    }
+                    if(Input.GetAxisRaw(baseControllerName + "_DPad_X") == 0)
+                    {
+                        stopRepeat = false;
                     }
 
-                    if (Input.GetKeyDown("up"))
+                    if (Input.GetKeyDown("up") || Input.GetButtonDown(aButton))
                     {
                         ignoreNextJunction = true;
                         if (onAltPath)
@@ -335,7 +350,8 @@ public class Player : MonoBehaviour {
             }
             if (state == ONSTAR)
             {
-                if(getCoins() >= 20)
+
+                if (getCoins() >= 20)
                 {
                     starUI[0].GetComponent<Text>().text = "Would you like to buy a BYTE?";
                     starUI[1].SetActive(true);
@@ -354,13 +370,15 @@ public class Player : MonoBehaviour {
                 {
                     starPrompt.GetComponent<UIRevealer>().revealUI();
                 }
-                if(getCoins() >= 20)
+                if (getCoins() >= 20)
                 {
-                    if (Input.GetKeyDown("left") && starSelection == -1)
+                    if ((Input.GetKeyDown("left") || Input.GetAxisRaw(baseControllerName + "_DPad_X") == 1) 
+                        && starSelection == -1)
                     {
                         starSelection = 1;
                     }
-                    else if (Input.GetKeyDown("right") && starSelection == 1)
+                    else if ((Input.GetKeyDown("right") || Input.GetAxisRaw(baseControllerName + "_DPad_X") == 1) 
+                        && starSelection == 1)
                     {
                         starSelection = -1;
                     }
@@ -374,7 +392,7 @@ public class Player : MonoBehaviour {
                         starUI[4].transform.position = starUI[2].transform.position + Vector3.left 
                             * starUI[2].GetComponent<Text>().preferredWidth;
                     }
-                    if (Input.GetKeyDown("up"))
+                    if (Input.GetKeyDown("up") || Input.GetButtonDown(aButton))
                     {
                         if (starSelection == 1)
                         {
@@ -387,11 +405,17 @@ public class Player : MonoBehaviour {
                         starPrompt.GetComponent<UIRevealer>().hideUI();
                         state = MOVING;
                     }
+                    if (Input.GetButtonDown(bButton))
+                    {
+                        destination = nextSpace.transform.position + heightOffset;
+                        starPrompt.GetComponent<UIRevealer>().hideUI();
+                        state = MOVING;
+                    }
                 } else
                 {
                     starUI[4].transform.position = starUI[3].transform.position + Vector3.left 
                         * starUI[3].GetComponent<Text>().preferredWidth;
-                    if (Input.GetKeyDown("up"))
+                    if (Input.GetKeyDown("up") || Input.GetButtonDown(aButton) || Input.GetButtonDown(bButton))
                     {
                         starPrompt.GetComponent<UIRevealer>().hideUI();
                         state = MOVING;
