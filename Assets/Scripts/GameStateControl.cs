@@ -12,15 +12,30 @@ public class GameStateControl : MonoBehaviour {
     private bool gameStart;
     GameObject[] playerList;
     public GameObject[] results;
+    private bool[] playersReady;
+    private bool allowPlayersReady;
 	void Start () {
         gameOver = false;
         gameStart = false;
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
-
+        playersReady = new bool[4];
+        for(int i = 0; i < playersReady.Length; i++)
+        {
+            playersReady[i] = false;
+        }
+        allowPlayersReady = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+        if(onePlayerReady() && !gameStart)
+        {
+            startGame();
+        }
+        if(allPlayersReady() && gameOver)
+        {
+            SceneManager.LoadScene("GameBoard");
+        }
         if (Input.GetKeyDown("6") && !gameStart)
         {
             startGame();
@@ -49,6 +64,11 @@ public class GameStateControl : MonoBehaviour {
         {
             endScreen.GetComponent<UIRevealer>().hideUI();
         }
+        for (int i = 0; i < playersReady.Length; i++)
+        {
+            playersReady[i] = false;
+        }
+        allowPlayersReady = true;
     }
     public void startGame()
     {
@@ -59,6 +79,10 @@ public class GameStateControl : MonoBehaviour {
     {
         return gameOver;
     }
+    public bool getGameStarted()
+    {
+        return gameStart;
+    }
     public int numAlivePlayers()
     {
         return playerList.Length;   
@@ -68,8 +92,13 @@ public class GameStateControl : MonoBehaviour {
         int[] result = new int[4];
         int[][] scores = new int[4][];
 
+        for (int i = 0; i < 4; i++)
+        {
+            scores[i] = new int[2];
+            scores[i][0] = getScore(i);
+            scores[i][1] = i;
+        }
 
-        
         for (int i = 0; i < 4; i++)
         {
             int max = -1;
@@ -98,5 +127,63 @@ public class GameStateControl : MonoBehaviour {
     public int getScore(int playerNum)
     {
         return gameData.getStars(playerNum) * 1000 + gameData.getCoins(playerNum);
+    }
+    public bool playersCanReady()
+    {
+        return allowPlayersReady;
+    }
+    public bool allPlayersReady()
+    {
+        if (allowPlayersReady)
+        {
+            bool result = true;
+            for (int i = 0; i < playersReady.Length; i++)
+            {
+                if (!playersReady[i])
+                {
+                    result = false;
+                }
+            }
+            if (result)
+            {
+                //sets all back to unready and prevents them from readying until allowed again
+
+                for (int i = 0; i < playersReady.Length; i++)
+                {
+                    playersReady[i] = false;
+                }
+                allowPlayersReady = false;
+            }
+            return result;
+
+        } else
+        {
+            return false;
+        }
+        
+    }
+    public bool onePlayerReady()
+    {
+        bool result = false;
+
+        if (allowPlayersReady)
+        {
+            for (int i = 0; i < playersReady.Length; i++)
+            {
+                if (playersReady[i])
+                {
+                    result = true;
+                }
+            }
+        }
+        return result;
+
+    }
+    public void playerIsReady(int x)
+    {
+        if (allowPlayersReady)
+        {
+            playersReady[x] = true;
+        }
     }
 }
