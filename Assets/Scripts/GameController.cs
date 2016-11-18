@@ -50,7 +50,7 @@ public class GameController : MonoBehaviour {
         
         setCameraPreset(1);
         playerTurn = 0;
-        boardState = gameData.getBoardState();
+        boardState =  gameData.getBoardState();
         gameState = gameData.getGameState();
         setBoardState(boardState);
 
@@ -63,7 +63,11 @@ public class GameController : MonoBehaviour {
     }
     public void loadGameObjects()
     {
-        players = GameObject.FindGameObjectsWithTag("BoardPlayer");
+        players = new GameObject[4];
+        players[0] = GameObject.Find("boardPlayer1");
+        players[1] = GameObject.Find("boardPlayer2");
+        players[2] = GameObject.Find("boardPlayer3");
+        players[3] = GameObject.Find("boardPlayer4");
         for (int i = 0; i < players.Length; i++)
         {
             players[i].GetComponent<Player>().setListOfPlayers(players);
@@ -71,7 +75,7 @@ public class GameController : MonoBehaviour {
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         turnCounter = GameObject.Find("TurnCounter").GetComponent<TurnCounter>();
         lowerScreenUI = GameObject.Find("LowerScreen").GetComponent<UIRevealer>();
-        lowerScreenText = GameObject.Find("LowerScreen").GetComponentInChildren<LowerScreenTextScript>();
+        lowerScreenText = GameObject.Find("LowerScreenText").GetComponent<LowerScreenTextScript>();
         playerTabs = new UIRevealer[4];
         playerTabs[0] = GameObject.Find("Player1Tab").GetComponent<UIRevealer>();
         playerTabs[1] = GameObject.Find("Player2Tab").GetComponent<UIRevealer>();
@@ -165,6 +169,7 @@ public class GameController : MonoBehaviour {
             }
             else if (boardState == BACK_FROM_MINIGAME)
             {
+                setPlayerRanks();
                 if (genericDelay > 0)
                 {
                     genericDelay -= Time.deltaTime;
@@ -219,7 +224,10 @@ public class GameController : MonoBehaviour {
                         }
                         else if (currentPlayer.GetComponent<Player>().getState() == 6)
                         {
-
+                            if(afterPlayerTurnTimer == 1.2f)
+                            {
+                                setPlayerRanks();
+                            }
                             if (afterPlayerTurnTimer > 0)
                             {
                                 afterPlayerTurnTimer -= Time.deltaTime;
@@ -475,41 +483,81 @@ public class GameController : MonoBehaviour {
     }
     public void setPlayerRanks()
     {
-        List<int> scores = new List<int>();
         int[] result = new int[4];
-        for(int i = 0; i < 4; i++)
+        int[][] scores = new int[4][];
+
+
+        for (int i = 0; i < 4; i++)
         {
-            scores.Add(players[i].GetComponent<Player>().getScore());
+            scores[i] = new int[2];
+            scores[i][0] = getScore(i);
+            scores[i][1] = i;
+            print(i + ": " + players[i].GetComponent<Player>().getPlayerNum());
         }
+        
         for (int i = 0; i < 4; i++)
         {
             int max = -1;
             int index = 0;
-            for (int j = scores.Count - 1; j >= 0; j--)
+            for (int j = i; j < 4; j++)
             {
-                if (Mathf.Max(max, scores[j]) > max)
+                if (Mathf.Max(max, scores[j][0]) > max)
                 {
-                    max = scores[j];
+                    max = scores[j][0];
                     index = j;
 
                 }
             }
-            result[i] = index;
-            scores.RemoveAt(index);
-        }
-        for (int i = 0; i < players.Length; i++)
-        {
-            if(i != 0 && players[i-1].GetComponent<Player>().getScore() == players[i].GetComponent<Player>().getScore())
-            {
-                players[i].GetComponent<Player>().setRank(players[i - 1].GetComponent<Player>().getRank());
-            }else
-            {
-                players[i].GetComponent<Player>().setRank(i);
+            int[] thing = scores[index];
+            scores[index] = scores[i];
+            scores[i] = thing;
 
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            result[i] = scores[i][1];
+        }
+        for(int i = 0; i < result.Length; i++)
+        {
+            players[result[i]].GetComponent<Player>().setRank(i);
+
+        }
+        string z = "initialranks ";
+        for (int i = 0; i < 4; i++)
+        {
+            z += players[i].GetComponent<Player>().getRank() + ", ";
+        }
+        print(z);
+        string x = "scores ";
+        for(int i = 0; i < 4; i++)
+        {
+            x += scores[i][0] + ", ";
+        }
+        print(x);
+        string y = "players ";
+        for (int i = 0; i < 4; i++)
+        {
+            y += scores[i][1] + ", ";
+        }
+        print(y);
+        for (int i = 1; i < result.Length; i++)
+        {
+            print("scores[" + i+"][0] = " + scores[i][0] + ", scores["+(i-1)+"][0] = " + scores[i-1][0]);
+
+            if (scores[i][0] == scores[i-1][0]) //worse rank player has identical score to higher rank player
+            {
+                print(scores[i][0] + " = " + scores[i - 1][0]);
+                print("player " + result[i] + " tied with player " + result[i - 1]);
+                players[result[i]].GetComponent<Player>().setRank(players[result[i-1]].GetComponent<Player>().getRank());
+                print("player " + result[i] +" new rank " + players[result[i]].GetComponent<Player>().getRank());
             }
         }
 
 
+    }
+    public int getScore(int playerNum)
+    {
+        return players[playerNum].GetComponent<Player>().getStars() * 1000 + players[playerNum].GetComponent<Player>().getCoins();
     }
     public void revealPlayerTabs()
     {

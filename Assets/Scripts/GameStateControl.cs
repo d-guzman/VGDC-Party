@@ -67,30 +67,47 @@ public class GameStateControl : MonoBehaviour {
     }
     public int[] getPlayerRanks()
     {
-        List<int> scores = new List<int>();
         int[] result = new int[4];
+        int[][] scores = new int[4][];
+
+
+        string stuff = "Scores: ";
         for(int i = 0; i < 4; i++)
         {
-            scores.Add(getScore(i));
+            scores[i] = new int[2];
+            stuff += getScore(i) + ", ";
+            scores[i][0] = getScore(i);
+            scores[i][1] = i;
         }
+        print(stuff);
         for (int i = 0; i < 4; i++)
         {
             int max = -1;
             int index = 0;
-            for (int j = scores.Count-1; j >= 0; j--)
+            for (int j = i; j < 4; j++)
             {
-                if (Mathf.Max(max, scores[j]) > max)
+                if (Mathf.Max(max, scores[j][0]) > max)
                 {
-                    max = scores[j];
+                    max = scores[j][0];
                     index = j;
 
                 }
             }
-            print(index);
-            result[i] = index;
-            scores.RemoveAt(index);
+            int[] thing = scores[index];
+            scores[index] = scores[i];
+            scores[i] = thing;
+            
         }
-
+        for(int i = 0; i < 4; i++)
+        {
+            result[i] = scores[i][1];
+        }
+        string temp = "RESULT: ";
+        for(int i = 0; i < result.Length; i++)
+        {
+            temp += result[i] + ", ";
+        }
+        print(temp);
         return result;
     }
     public int getScore(int playerNum)

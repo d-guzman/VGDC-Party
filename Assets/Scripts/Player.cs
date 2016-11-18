@@ -326,6 +326,7 @@ public class Player : MonoBehaviour {
                 }
                 else
                 {
+                    junctionArrow.SetActive(false);
                     nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace();
                     state = MOVING;
                     destination = nextSpace.transform.position + heightOffset;
