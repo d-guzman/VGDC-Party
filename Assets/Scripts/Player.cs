@@ -40,6 +40,8 @@ public class Player : MonoBehaviour {
     private bool hasRolled;
     private float afterRollDelay;
     private GameObject junctionArrow;
+    private bool ignoreNextJunction;
+
     void Awake()
     {
         
@@ -79,6 +81,7 @@ public class Player : MonoBehaviour {
         moveCounter.enabled = false;
         rotationScript = GetComponentInChildren<GenericRotateToDirection>();
         starSelection = 1; //1 is yes, -1 is no
+        ignoreNextJunction = false;
     }
     public void setPlayerState(int x)
     {
@@ -230,6 +233,7 @@ public class Player : MonoBehaviour {
             }
             if (state==MOVING)
             {
+                print(ignoreNextJunction);
                 rotationScript.setTargetDirection(nextSpace.transform.position-currentSpace.transform.position);
                 moveCounter.enabled = true;
                 moveCounter.text = ""+toMove;
@@ -247,11 +251,17 @@ public class Player : MonoBehaviour {
                     }
                     else if (currentSpace.CompareTag("StarSpace"))
                     {
+                       
+                        ignoreNextJunction = false;
+                      
                         setPlayerState(ONSTAR);
                         destination = currentSpace.transform.position + heightOffset;
                     }
                     else
                     {
+                       
+                        ignoreNextJunction = false;
+                       
                         toMove--;
                     }
                     //currentSpace = getNextSpace();
@@ -269,43 +279,56 @@ public class Player : MonoBehaviour {
             }
             if (state == ONJUNCTION)
             {
-                if (Input.GetKeyDown("left") || Input.GetKeyDown("right"))
+                if (!ignoreNextJunction)
                 {
-                    onAltPath = !onAltPath;
-                }
-
-                if (Input.GetKeyDown("up"))
-                {
-                    if (onAltPath) {
-                        nextSpace = currentSpace.GetComponent<getJunction>().getSecondarySpace();
+                    if (Input.GetKeyDown("left") || Input.GetKeyDown("right"))
+                    {
+                        onAltPath = !onAltPath;
                     }
-                    else {
-                        nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace();
-                    }
-                    state = MOVING;
-                    destination = nextSpace.transform.position + heightOffset;
-                    junctionArrow.SetActive(false);
-                }
-                
-                if (onAltPath)
-                {
-                    junctionArrow.transform.position = currentSpace.transform.position;
 
-                    junctionArrow.transform.LookAt(currentSpace.GetComponent<getJunction>().getSecondarySpace().transform.position);
-                    junctionArrow.transform.position = currentSpace.transform.position;
-                    junctionArrow.transform.position += junctionArrow.transform.forward * 30 + Vector3.up * 3 ;
-                    rotationScript.setTargetDirection(currentSpace.GetComponent<getJunction>().getSecondarySpace().transform.position - currentSpace.transform.position);
+                    if (Input.GetKeyDown("up"))
+                    {
+                        ignoreNextJunction = true;
+                        if (onAltPath)
+                        {
+                            nextSpace = currentSpace.GetComponent<getJunction>().getSecondarySpace();
+                        }
+                        else
+                        {
+                            nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace();
+                        }
+                        state = MOVING;
+                        destination = nextSpace.transform.position + heightOffset;
+                        junctionArrow.SetActive(false);
+                    }
+
+                    if (onAltPath)
+                    {
+                        junctionArrow.transform.position = currentSpace.transform.position;
+
+                        junctionArrow.transform.LookAt(currentSpace.GetComponent<getJunction>().getSecondarySpace().transform.position);
+                        junctionArrow.transform.position = currentSpace.transform.position;
+                        junctionArrow.transform.position += junctionArrow.transform.forward * 30 + Vector3.up * 5;
+                        rotationScript.setTargetDirection(currentSpace.GetComponent<getJunction>().getSecondarySpace().transform.position - currentSpace.transform.position);
+
+                    }
+                    else
+                    {
+                        junctionArrow.transform.position = currentSpace.transform.position;
+
+                        junctionArrow.transform.LookAt(currentSpace.GetComponent<getJunction>().getPrimarySpace().transform.position);
+                        junctionArrow.transform.position = currentSpace.transform.position;
+                        junctionArrow.transform.position += junctionArrow.transform.forward * 30 + Vector3.up * 5;
+                        rotationScript.setTargetDirection(currentSpace.GetComponent<getJunction>().getPrimarySpace().transform.position - currentSpace.transform.position);
+
+                    }
 
                 }
                 else
                 {
-                    junctionArrow.transform.position = currentSpace.transform.position;
-
-                    junctionArrow.transform.LookAt(currentSpace.GetComponent<getJunction>().getPrimarySpace().transform.position);
-                    junctionArrow.transform.position = currentSpace.transform.position;
-                    junctionArrow.transform.position += junctionArrow.transform.forward * 30 + Vector3.up * 3;
-                    rotationScript.setTargetDirection(currentSpace.GetComponent<getJunction>().getPrimarySpace().transform.position - currentSpace.transform.position);
-
+                    nextSpace = currentSpace.GetComponent<getJunction>().getPrimarySpace();
+                    state = MOVING;
+                    destination = nextSpace.transform.position + heightOffset;
                 }
 
             }
