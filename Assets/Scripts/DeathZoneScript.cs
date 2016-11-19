@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DeathZoneScript : MonoBehaviour {
+public class DeathZoneScript : MonoBehaviour
+{
     // Connect the Player objects to make it easier to deactivate them, and
     // create corresponding boolean values to make sure that we know when they
     // are out of play.
@@ -17,14 +18,30 @@ public class DeathZoneScript : MonoBehaviour {
     public GameObject player4;
     private bool P4_Out = false;
 
+    private GameObject[] playerList;
+
+    public GameObject eventHandler;
+
     // If the the player model enters the death zone, the player GameObject will 
     // become deactivated.
+    void Start()
+    {
+        playerList = GetActivePlayers();
+    }
+    void Update()
+    {
+        if (playerList.Length == 1)
+        {
+            eventHandler.GetComponent<GameStateControl>().setGameOver(true);
+        }
+    }
     void OnTriggerEnter(Collider other)
     {
         if (other.name == "P1_Model")
         {
             player1.SetActive(false);
             P1_Out = true;
+            playerList = GetActivePlayers();
             Debug.Log("Player 1 is out!");
         }
 
@@ -32,6 +49,7 @@ public class DeathZoneScript : MonoBehaviour {
         {
             player2.SetActive(false);
             P2_Out = true;
+            playerList = GetActivePlayers();
             Debug.Log("Player 2 is out!");
         }
 
@@ -39,6 +57,7 @@ public class DeathZoneScript : MonoBehaviour {
         {
             player3.SetActive(false);
             P3_Out = true;
+            playerList = GetActivePlayers();
             Debug.Log("Player 3 is out!");
         }
 
@@ -46,6 +65,7 @@ public class DeathZoneScript : MonoBehaviour {
         {
             player4.SetActive(false);
             P4_Out = true;
+            playerList = GetActivePlayers();
             Debug.Log("Player 4 is out!");
         }
     }
@@ -77,7 +97,7 @@ public class DeathZoneScript : MonoBehaviour {
     {
         return P4_Out;
     }
-} 
+}
 
 
 

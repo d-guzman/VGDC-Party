@@ -21,7 +21,7 @@ public class GetResultsStats : MonoBehaviour
         }
         catch
         {
-            
+
         }
         stars = gameData.getStars(playerNum);
         coins = gameData.getCoins(playerNum);
@@ -51,7 +51,7 @@ public class GetResultsStats : MonoBehaviour
         }
         else if (playerNum == 2)
         {
-            avatar.color = new Color(0, 0, 0, 1);
+            avatar.color = new Color(1, 1, 1, 1);
         }
         else if (playerNum == 3)
         {
