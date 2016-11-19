@@ -13,7 +13,10 @@ public class finishLineScript : MonoBehaviour
     private int n = 0;
 
     void Start() {
+        
         placement = new GameObject[4];
+        //events.GetComponent<GameStateControl>();
+
     }
     //collider
     void OnTriggerEnter(Collider col )
@@ -31,8 +34,10 @@ public class finishLineScript : MonoBehaviour
     //update checks to see if race is done
     void Update()
     {
-        if(placement.Length==1)
+        if(placement[0]!=null)
         {
+            print(placement[0]);
+
             print("game done");
             events.GetComponent<GameStateControl>().setGameOver(true);
         }
