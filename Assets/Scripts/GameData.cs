@@ -15,14 +15,9 @@ public class GameData : MonoBehaviour {
     string starSpace;
 
     void Awake () {
-        if(GameObject.FindGameObjectsWithTag("GameData").Length > 1)
-        {
-            DestroyObject(this.gameObject);
-        }
-        else
-        {
-            DontDestroyOnLoad(transform.gameObject);
-        }
+        
+       
+        
         GameObject[] playerList = GameObject.FindGameObjectsWithTag("BoardPlayer");
 
         currentSpace = new string[4];
@@ -32,7 +27,7 @@ public class GameData : MonoBehaviour {
         pos = new Vector3[4];
         turnOrder = new int[4];
 
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < playerList.Length; i++)
         {
             currentSpace[i] = "StartSpace";
             coins[i] = 10;

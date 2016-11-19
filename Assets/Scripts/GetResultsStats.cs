@@ -15,6 +15,14 @@ public class GetResultsStats : MonoBehaviour
     void Start()
     {
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
+        try
+        {
+            gameData.getStars(0);
+        }
+        catch
+        {
+            
+        }
         stars = gameData.getStars(playerNum);
         coins = gameData.getCoins(playerNum);
         starText = transform.FindChild("StarCount").gameObject.GetComponent<Text>();

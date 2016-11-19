@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PreventClones : MonoBehaviour {
+public class makeDontDestroyOnLoad : MonoBehaviour {
 
     // Use this for initialization
     public string tag;
@@ -10,7 +10,10 @@ public class PreventClones : MonoBehaviour {
         {
             DestroyObject(this.gameObject);
         }
-        
+        else
+        {
+            DontDestroyOnLoad(transform.gameObject);
+        }
     }
 	
 	// Update is called once per frame
