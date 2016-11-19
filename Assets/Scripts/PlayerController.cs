@@ -49,10 +49,29 @@ public class PlayerController : MonoBehaviour {
 
                     if (Input.GetButtonDown("P1" + "_Fire1") && isFalling == false)
                     {
-                        Vector3 movementjump = new Vector3(moveHorizontal * speed * Time.deltaTime, jumpH / 1.1f, moveVerticle * speed * Time.deltaTime);
+                        Vector3 movementjump = new Vector3(moveHorizontal * speed * Time.deltaTime, jumpH * 1.1f, moveVerticle * speed * Time.deltaTime);
                         player.GetComponent<Rigidbody>().velocity = movementjump;
                         isFalling = true;
+                        print(player.GetComponent<Rigidbody>().velocity[1]);
+                        //print(player.GetComponent<Rigidbody>().velocity[2]);
+                        print(player.GetComponent<Rigidbody>().velocity[0]);
+
+
+
                     }
+
+                    // if (player.GetComponent<Rigidbody>().velocity[1] == 7.7)
+                    //{
+                    //  Vector3 moveDown = new Vector3(moveHorizontal * speed * Time.deltaTime, -jumpH / 1.1f, moveVerticle * speed * Time.deltaTime);
+
+                    //player.GetComponent<Rigidbody>().velocity = moveDown;
+                    // }
+                    if (Input.GetButtonUp("P1" + "_Fire1") && isFalling == true)
+                         {
+                         Vector3 moveDown = new Vector3(moveHorizontal * speed * Time.deltaTime, -jumpH / 1.1f, moveVerticle * speed * Time.deltaTime);
+                         player.GetComponent<Rigidbody>().velocity = Vector3.down;
+                         isFalling = false;
+                         }
                     if (player.GetComponent<Rigidbody>().velocity[1] == 0)
                     { isFalling = false; }
                 }
