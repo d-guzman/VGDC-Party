@@ -26,7 +26,8 @@ public class UIRevealer : MonoBehaviour {
          * 
          * Major resizing of the game window WILL break this 
          * */
-        if (!GetComponent<Image>().enabled)
+        
+        if (GetComponent<Image>() != null && !GetComponent<Image>().enabled)
         {
             GetComponent<Image>().enabled = true;
         }
