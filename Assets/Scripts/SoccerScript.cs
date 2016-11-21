@@ -41,7 +41,7 @@ public class SoccerScript : MonoBehaviour
         }
         int l = 0;
         int r = 0;
-        if (a.Length == 4)
+        if (a[0]!=null)
         {
             for (int i = 0; i < 4; i++)
             {
