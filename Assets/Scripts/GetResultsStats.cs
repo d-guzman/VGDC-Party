@@ -24,7 +24,7 @@ public class GetResultsStats : MonoBehaviour
         }
         catch
         {
-            
+            print("no gamedata found");
         }
         stars = gameData.getStars(playerNum);
         coins = gameData.getCoins(playerNum);
@@ -32,6 +32,7 @@ public class GetResultsStats : MonoBehaviour
         coinText = transform.FindChild("CoinCount").gameObject.GetComponent<Text>();
         avatar = transform.FindChild("PlayerAvatar").gameObject.GetComponent<Image>();
         addText = GameObject.Find("+10Text" + playerNum).GetComponent<UIRevealer>();
+        updateData();
     }
 
     // Update is called once per frame

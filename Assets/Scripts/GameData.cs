@@ -130,4 +130,8 @@ public class GameData : MonoBehaviour {
     {
         starSpace = x;
     }
+    public void resetData()
+    {
+
+    }
 }

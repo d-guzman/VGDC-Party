@@ -7,11 +7,13 @@ public class addDownwardForce : MonoBehaviour {
     Rigidbody body;
 	void Start () {
         body = GetComponent<Rigidbody>();
+        Physics.gravity = new Vector3(0, -50f, 0);
 	}
 	
 	// Update is called once per frame
     void Update()
     {
+        /*
         if(transform.position.y > 75 && transform.position.y < 350)
         {
             body.AddForce(new Vector3(0, -10000f, 0));
@@ -21,6 +23,6 @@ public class addDownwardForce : MonoBehaviour {
 
         }
 
-
+    */
     }
 }
