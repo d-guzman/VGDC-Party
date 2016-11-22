@@ -497,14 +497,20 @@ public class GameController : MonoBehaviour {
             loadGameBoard();
         } else if(gameState == GAME_OVER)
         {
-            genericDelay = 2f;
+            genericDelay = 3f;
         } else if(gameState == NO_MORE_TURNS)
-        {
+        {   
+            
             for (int i = 0; i < players.Length; i++)
             {
                 players[i].GetComponent<Player>().setPlayerState(7);
             }
             genericDelay = 2.5f;
+            for (int i = 0; i < playerTabs.Length; i++)
+            {
+                playerTabs[i].hideUI();
+            }
+            lowerScreenUI.hideUI();
             turnCounterUI.revealUI();
             noMoreTurnsUI.revealUI();
         } else if(gameState == TIE_BREAKER)

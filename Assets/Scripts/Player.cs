@@ -151,7 +151,10 @@ public class Player : MonoBehaviour {
     // Update is called once per frame  
     void Update () {
         //testing movement - hit up twice:
-       
+        if(state == GAME_OVER)
+        {
+            dice.hideDice();
+        }
         if (state == GETINITATIVE)
         {
             if (!dice.isRevealed())
@@ -431,6 +434,7 @@ public class Player : MonoBehaviour {
             //this code runs when it's not a player's turn
            
         }
+        
 	}    
    
     public void moveToPoint(Vector3 target)

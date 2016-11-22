@@ -4,10 +4,11 @@ using UnityEngine.UI;
 public class printTurns : MonoBehaviour {
 
     // Use this for initialization
-    public TurnCounter turnCounter;
+    private TurnCounter turnCounter;
     Text myText;
 	void Start () {
         myText = gameObject.GetComponent<Text>();
+        turnCounter = GameObject.FindGameObjectWithTag("TurnCounter").GetComponent<TurnCounter>();
 	}
 	
 	// Update is called once per frame

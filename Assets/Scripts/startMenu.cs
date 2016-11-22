@@ -13,12 +13,14 @@ public class startMenu : MonoBehaviour {
     public Button exitText;
     public Button increaseTurns;
     public Button decreaseTurns;
-    public TurnCounter turnCounter;
+    private TurnCounter turnCounter;
+    public UIRevealer blackPanel;
     public UIRevealer[] mainMenuElements;
     public UIRevealer[] creditsElements;
     public UIRevealer[] minigameElements;
     public UIRevealer[] turnSelectElements;
     public UIRevealer[] menuScreens;
+
     private EventSystem eventSystem;
 
     private bool[] playersReady;
@@ -32,13 +34,18 @@ public class startMenu : MonoBehaviour {
     private bool resetScreen = false;
     private int screenToReset = 0;
     private float afterPressDelay = 0.5f;
+
+    bool loadBoard;
+
     // Use this for initialization
     void Start () {
         menuState = 0;
         startText =startText.GetComponent<Button>();
         exitText = exitText.GetComponent<Button>();
         eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
+        turnCounter = GameObject.FindGameObjectWithTag("TurnCounter").GetComponent<TurnCounter>();
         animationTimer = 2.3f;
+        afterPressDelay = 2f;
     }
 
     public void ExitPress()
@@ -48,15 +55,22 @@ public class startMenu : MonoBehaviour {
 
     public void PartyPress()
     {
-        menuState = TURN_SELECT;
-        eventSystem.SetSelectedGameObject(GameObject.Find("BackButton1"));
-        menuScreens[0].revealUI();
-        animationTimer = 0.5f;
-        afterPressDelay = 0.3f;
+        if (afterPressDelay <= 0)
+        {
+
+
+            menuState = TURN_SELECT;
+            eventSystem.SetSelectedGameObject(GameObject.Find("BackButton1"));
+            menuScreens[0].revealUI();
+            animationTimer = 0.5f;
+            afterPressDelay = 0.3f;
+        }
     }
     public void startPress()
     {
-        SceneManager.LoadScene("gameBoard");
+        loadBoard = true;
+        afterPressDelay = 0.5f;
+        blackPanel.revealUI();
     }
     public void backPress()
     {
@@ -146,9 +160,12 @@ public class startMenu : MonoBehaviour {
         {
             afterPressDelay -= Time.deltaTime;
             //prevents clicking while screen is moving
+        } else if(loadBoard && afterPressDelay <= 0)
+        {
+            SceneManager.LoadScene("gameBoard");
         }
-        
-	    if(menuState == MAIN_MENU)
+
+        if (menuState == MAIN_MENU)
         {
             //reveal UI sequentially
             if(animationTimer > 0)

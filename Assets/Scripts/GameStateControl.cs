@@ -8,22 +8,23 @@ public class GameStateControl : MonoBehaviour {
     // Use this for initialization
     public GameObject startScreen;
     public GameObject endScreen;
+    public UIRevealer blackPanel;
     GameData gameData;
     private bool gameOver;
     private bool gameStart;
     GameObject[] playerList;
     public GameObject[] results;
-
+    
     public ReadyGate readyGate;
-
-
+    float transitionTimer;
+    bool loadScene;
 	void Start () {
         gameOver = false;
         gameStart = false;
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
         readyGate.allowReadying(true);
-        
-
+        transitionTimer = 0.5f;
+        loadScene = false;
 	}
 	
 	// Update is called once per frame
@@ -34,7 +35,10 @@ public class GameStateControl : MonoBehaviour {
         }
         if(readyGate.allPlayersReady() && gameOver)
         {
-            SceneManager.LoadScene("GameBoard");
+            loadScene = true;
+            transitionTimer = 0.5f;
+            blackPanel.revealUI();
+
         }
         if (Input.GetKeyDown("6") && !gameStart)
         {
@@ -45,9 +49,21 @@ public class GameStateControl : MonoBehaviour {
         }
         if (Input.GetKeyDown("7"))
         {
-            SceneManager.LoadScene("GameBoard");
+            loadScene = true;
+            transitionTimer = 0.5f;
+            blackPanel.revealUI();
         }
-        
+        if (loadScene)
+        {
+            if(transitionTimer > 0)
+            {
+                transitionTimer -= Time.deltaTime;
+            } else
+            {
+                SceneManager.LoadScene("GameBoard");
+
+            }
+        }
     }
     public void setGameOver(bool x)
     {
