@@ -14,10 +14,12 @@ public class startMenu : MonoBehaviour {
     public Button increaseTurns;
     public Button decreaseTurns;
     private TurnCounter turnCounter;
-    public UIRevealer blackPanel;
+    public UIRevealer blackPanelUp;
+    public UIRevealer blackPanelDown;
     public UIRevealer[] mainMenuElements;
     public UIRevealer[] creditsElements;
     public UIRevealer[] minigameElements;
+    public UIScroller[] minigameList;
     public UIRevealer[] turnSelectElements;
     public UIRevealer[] menuScreens;
 
@@ -34,7 +36,9 @@ public class startMenu : MonoBehaviour {
     private bool resetScreen = false;
     private int screenToReset = 0;
     private float afterPressDelay = 0.5f;
-
+    int minigameSelected;
+    bool revealMinigame;
+    bool loadMinigame;
     bool loadBoard;
 
     // Use this for initialization
@@ -46,6 +50,8 @@ public class startMenu : MonoBehaviour {
         turnCounter = GameObject.FindGameObjectWithTag("TurnCounter").GetComponent<TurnCounter>();
         animationTimer = 2.3f;
         afterPressDelay = 2f;
+        minigameSelected = 0;
+        loadMinigame = false;
     }
 
     public void ExitPress()
@@ -70,7 +76,7 @@ public class startMenu : MonoBehaviour {
     {
         loadBoard = true;
         afterPressDelay = 0.5f;
-        blackPanel.revealUI();
+        blackPanelUp.revealUI();
     }
     public void backPress()
     {
@@ -82,11 +88,20 @@ public class startMenu : MonoBehaviour {
                 screenResetDelay = 0.3f;
                 resetScreen = true;
                 screenToReset = CREDITS;
-            } else if(menuState == TURN_SELECT)
+            } else if (menuState == TURN_SELECT)
             {
                 screenResetDelay = 0.3f;
                 resetScreen = true;
                 screenToReset = TURN_SELECT;
+            } else if (menuState == MINIGAME_SELECT)
+            {
+                screenResetDelay = 0.3f;
+                resetScreen = true;
+                screenToReset = MINIGAME_SELECT;
+                for (int i = 0; i < minigameList.Length; i++)
+                {
+                    minigameList[i].resetToOriginalPosition();
+                }
             }
             menuState = MAIN_MENU;
             for (int i = 0; i < menuScreens.Length; i++)
@@ -111,6 +126,7 @@ public class startMenu : MonoBehaviour {
             animationTimer = 2.3f;
             eventSystem.SetSelectedGameObject(GameObject.Find("BackButton2"));
             afterPressDelay = 0.5f;//prevents button pressing while the menu screen moves
+
         }
 
     }
@@ -119,10 +135,12 @@ public class startMenu : MonoBehaviour {
         if (afterPressDelay <= 0)
         {
             menuState = MINIGAME_SELECT;
-            eventSystem.SetSelectedGameObject(null);
             menuScreens[2].revealUI();
             eventSystem.SetSelectedGameObject(GameObject.Find("BackButton3"));
             afterPressDelay = 0.5f; //prevents button pressing while the menu screen moves
+            minigameSelected = 0;
+            revealMinigame = true;
+            animationTimer = 0.5f;
         }
 
     }
@@ -141,6 +159,45 @@ public class startMenu : MonoBehaviour {
             turnCounter.setTurnCount(turnCounter.getTurnCount() - 1);
         }
 
+    }
+    public void incrementMinigameSelection()
+    {
+        if (!loadMinigame) //don't allow players to change minigame in short time of transition
+        {
+            minigameList[minigameSelected].hideUI(1); //hide old minigame
+            minigameSelected += 1;
+            if (minigameSelected >= minigameList.Length)
+            {
+                minigameSelected = 0;
+            }
+            minigameList[minigameSelected].revealUI(1); //reveal new minigame
+        }
+        
+    }
+    public void decrementMinigameSelection()
+    {
+        if (!loadMinigame) //don't allow players to change minigame in short time of transition
+        {
+            minigameList[minigameSelected].hideUI(-1); //hide old minigame
+            minigameSelected -= 1;
+            if (minigameSelected < 0)
+            {
+                minigameSelected = minigameList.Length - 1;
+            }
+            minigameList[minigameSelected].revealUI(-1); //reveal new minigame
+        }
+        
+    }
+    public void startMinigame()
+    {
+        if (!loadMinigame)
+        {
+            loadMinigame = true;
+            afterPressDelay = 0.5f;
+            blackPanelDown.revealUI();
+        }
+        
+        
     }
     // Update is called once per frame
     void Update () {
@@ -163,6 +220,18 @@ public class startMenu : MonoBehaviour {
         } else if(loadBoard && afterPressDelay <= 0)
         {
             SceneManager.LoadScene("gameBoard");
+        } else if(loadMinigame && afterPressDelay <= 0) {
+            if(minigameSelected == 0)
+            {
+                SceneManager.LoadScene("mini_arena");
+            } else if(minigameSelected == 1)
+            {
+                SceneManager.LoadScene("soccerField");
+            } else if(minigameSelected == 2)
+            {
+                SceneManager.LoadScene("hand cart");
+            }
+
         }
 
         if (menuState == MAIN_MENU)
@@ -201,9 +270,10 @@ public class startMenu : MonoBehaviour {
             if(animationTimer > 0)
             {
                 animationTimer -= Time.deltaTime;
-            } else
+            } else 
             {
-                for(int i = 0; i < turnSelectElements.Length; i++)
+                
+                for (int i = 0; i < turnSelectElements.Length; i++)
                 {
                     turnSelectElements[i].revealUI();
                 }
@@ -211,7 +281,22 @@ public class startMenu : MonoBehaviour {
         }
         else if(menuState == MINIGAME_SELECT)
         {
+            if (animationTimer > 0)
+            {
+                animationTimer-=Time.deltaTime;
 
+            }
+            else
+            {
+
+                for (int i = 0; i < minigameElements.Length; i++)
+                {
+                    minigameElements[i].revealUI();
+                }
+
+            }
+               
+            
         } else if(menuState == CREDITS)
         {
             //reveal UI sequentially
@@ -260,6 +345,12 @@ public class startMenu : MonoBehaviour {
             for(int i = 0; i < turnSelectElements.Length; i++)
             {
                 turnSelectElements[i].hideUI();
+            }
+        } else if(screenNum == MINIGAME_SELECT)
+        {
+            for (int i = 0; i < minigameElements.Length; i++)
+            {
+                minigameElements[i].hideUI();
             }
         }
     }
