@@ -60,7 +60,15 @@ public class GameStateControl : MonoBehaviour {
                 transitionTimer -= Time.deltaTime;
             } else
             {
-                SceneManager.LoadScene("GameBoard");
+                if(GameObject.Find("FakeGameData") != null)
+                {
+                    SceneManager.LoadScene("start menu");
+
+                } else
+                {
+                    SceneManager.LoadScene("GameBoard");
+                }
+                
 
             }
         }

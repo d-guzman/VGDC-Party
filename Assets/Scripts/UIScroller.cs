@@ -130,12 +130,19 @@ public class UIScroller : MonoBehaviour {
     {
         return revealed;
     }
+    public bool isMoving()
+    {
+        return moving;
+    }
+    public void setMoving(bool x)
+    {
+        moving = x;
+    }
     public void resetToOriginalPosition()
     {
         if (!revealed)
         {
             transform.localPosition = hiddenPositionBefore;
-
         }
     }
 

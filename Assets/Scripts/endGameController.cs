@@ -24,6 +24,7 @@ public class endGameController : MonoBehaviour {
     public Material player2Material;
     public Material player3Material;
     public Material player4Material;
+    public UIRevealer blackPanel;
     private Material[] materialList;
     private Image[] checkList;
     private GetResultsStats[] stats;
@@ -31,8 +32,12 @@ public class endGameController : MonoBehaviour {
     private float timer;
     public Text winnerText;
     public ReadyGate readyGate;
+    float transitionTimer;
+    bool transitioning;
 	void Start () {
         timer = 6f;
+        transitionTimer = 0.5f;
+        transitioning = false;
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
         stats = new GetResultsStats[4];
         stats[0] = player1Stats;
@@ -80,21 +85,39 @@ public class endGameController : MonoBehaviour {
             }
             winnerText.text = "Player " + (ranks[0] + 1) + " is the Winner!!!";
             resultsScreen.revealUI();
-            
+
             if (readyGate.allPlayersReady())
             {
-                try {
-                    GameObject.Find("TurnCounter").GetComponent<TurnCounter>().setTurnCount(10);
-                }
-                catch
+                transitioning = true;
+            }
+            if (transitioning)
+            {
+
+
+                if (transitionTimer > 0)
                 {
-                    print("No turn counter found");
+                    transitionTimer -= Time.deltaTime;
+                    blackPanel.revealUI();
                 }
-                GameObject.DestroyObject(GameObject.FindGameObjectWithTag("GameData"));
-                SceneManager.LoadScene("start menu");
+                else
+                {
+                    try
+                    {
+                        GameObject.Find("TurnCounter").GetComponent<TurnCounter>().setTurnCount(10);
+                    }
+                    catch
+                    {
+                        print("No turn counter found");
+                    }
+                    GameObject.DestroyObject(GameObject.FindGameObjectWithTag("GameData"));
+                    SceneManager.LoadScene("start menu");
                 }
+            }
         }
-	}
+
+        }
+
+	
     public int[] getPlayerRanks()
     {
         //returns a list of player numbers in order with 0 being first and 3 being last

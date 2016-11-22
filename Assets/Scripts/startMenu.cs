@@ -49,9 +49,14 @@ public class startMenu : MonoBehaviour {
         eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
         turnCounter = GameObject.FindGameObjectWithTag("TurnCounter").GetComponent<TurnCounter>();
         animationTimer = 2.3f;
-        afterPressDelay = 2f;
+        afterPressDelay = 1.5f;
         minigameSelected = 0;
         loadMinigame = false;
+        if(GameObject.FindGameObjectWithTag("SceneMark") == null)
+        {
+            blackPanelDown.revealOnLoad = false;
+            blackPanelDown.hideUI();
+        }
     }
 
     public void ExitPress()
@@ -100,7 +105,13 @@ public class startMenu : MonoBehaviour {
                 screenToReset = MINIGAME_SELECT;
                 for (int i = 0; i < minigameList.Length; i++)
                 {
-                    minigameList[i].resetToOriginalPosition();
+                    if(i != minigameSelected)
+                    {
+                        minigameList[i].revealed = false;
+                        minigameList[i].setMoving(false);
+                        minigameList[i].resetToOriginalPosition();
+                    }
+                    
                 }
             }
             menuState = MAIN_MENU;
@@ -141,6 +152,10 @@ public class startMenu : MonoBehaviour {
             minigameSelected = 0;
             revealMinigame = true;
             animationTimer = 0.5f;
+            for(int i = 0; i < minigameList.Length; i++)
+            {
+                minigameList[i].resetToOriginalPosition();
+            }
         }
 
     }
@@ -352,6 +367,13 @@ public class startMenu : MonoBehaviour {
             {
                 minigameElements[i].hideUI();
             }
+            for(int i = 0; i < minigameList.Length; i++)
+            {
+                minigameList[i].revealed = false;
+                minigameList[i].setMoving(false);
+                minigameList[i].resetToOriginalPosition();
+            }
+            minigameList[0].revealUI(1);
         }
     }
 }
