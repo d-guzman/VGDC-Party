@@ -108,8 +108,10 @@ public class GameStateControl : MonoBehaviour {
                 results[i].GetComponent<GetResultsStats>().setPlayerNum(playerRanks[i]);
             }
             endScreen.GetComponent<UIRevealer>().revealUI();
-            results[playerRanks[0]].GetComponent<GetResultsStats>().addCoins(10);
-            GameObject.Find("+10Text" + results[playerRanks[0]]).GetComponent<UIRevealer>().revealUI(); //reveals the "+10" text for the winner
+
+            //int winningPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().getPlayerNum();
+            int winningPlayer = 0;
+            results[winningPlayer].GetComponent<GetResultsStats>().addCoins(10);
         } else
         {
             endScreen.GetComponent<UIRevealer>().hideUI();

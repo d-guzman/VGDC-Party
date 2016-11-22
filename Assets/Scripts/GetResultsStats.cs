@@ -14,6 +14,7 @@ public class GetResultsStats : MonoBehaviour
     Image avatar;
     private float updateCoinDelay;
     private bool updateCoins;
+    UIRevealer addText;
     void Start()
     {
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
@@ -30,6 +31,7 @@ public class GetResultsStats : MonoBehaviour
         starText = transform.FindChild("StarCount").gameObject.GetComponent<Text>();
         coinText = transform.FindChild("CoinCount").gameObject.GetComponent<Text>();
         avatar = transform.FindChild("PlayerAvatar").gameObject.GetComponent<Image>();
+        addText = GameObject.Find("+10Text" + playerNum).GetComponent<UIRevealer>();
     }
 
     // Update is called once per frame
@@ -38,13 +40,17 @@ public class GetResultsStats : MonoBehaviour
         if(updateCoinDelay > 0)
         {
             updateCoinDelay -= Time.deltaTime;
-            
+            if(updateCoinDelay < 2f && updateCoins)
+            {
+                addText.revealUI();
+            }
         } else
         {
             if (updateCoins)
             {
                 updateData();
-                GameObject.Find("+10Text" + playerNum).GetComponent<UIRevealer>().hideUI();
+                addText.hideUI();
+                addText.gameObject.GetComponent<Text>().enabled = false;
             }
         }
     }
@@ -55,9 +61,10 @@ public class GetResultsStats : MonoBehaviour
     }
     public void addCoins(int x)
     {
-        updateCoinDelay = 1.5f;
+        updateCoinDelay = 2.5f;
         updateCoins = true;
         gameData.setCoins(playerNum, gameData.getCoins(playerNum) + x);
+        
     }
     public void updateData()
     {
