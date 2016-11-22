@@ -6,6 +6,7 @@ public class SoccerScript : MonoBehaviour
 
     private GameObject[] leftTeam, rightTeam;
     private GameObject scoreDisplay,events;
+    public GameObject control;
     private Vector3 leftBound, rightBound;
     private int result = 0, leftScore = 0, rightScore = 0, currentPoint = 1;
     private int[] redP, blueP,win;
@@ -19,15 +20,18 @@ public class SoccerScript : MonoBehaviour
 
     void Start()
     {
-        //events.GetComponent<GameStateControl>();
+        events = GameObject.FindGameObjectWithTag("GameData");
+        //control = GameObject.Find("MiniGameController");
         leftBound = new Vector3(-21, 0, 0);
         rightBound = new Vector3(21, 0, 0);
         rb = GetComponent<Rigidbody>();
         leftTeam = new GameObject[2];
         rightTeam = new GameObject[2];
+        redP = new int[2];
+        blueP = new int[2];
         started = false;
         win = null;
-        playerMat =new Material[] { red, yellow, white, blue };
+        playerMat = new Material[] { red, yellow, white, blue };
         string[] a = new string[4];
         for (int i = 1; i <= 5; i++)
         {
@@ -37,27 +41,32 @@ public class SoccerScript : MonoBehaviour
         scoreDisplay = GameObject.Find("Point1");
         for (int i = 0; i < 4; i++)
         {
-            a[i]=GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>().getCurrentSpace(i);
+            //a[i]=GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>().getCurrentSpaceTag(i);
+            a[i] = events.GetComponent<GameData>().getCurrentSpaceTag(i);
         }
         int l = 0;
         int r = 0;
         if (a[0]!=null)
         {
-            for (int i = 0; i < 4; i++)
+            for (int i = 1; i <= 4; i++)
             {
                 //Assumes 2 red, 2 blue
-                if (a[i].Equals("BlueSpace"))
+                if (a[i-1].Equals("BlueSpace"))
                 {
                     blueP[l] = i;
-                    leftTeam[l] = GameObject.Find("Player" + i.ToString());
-                    leftTeam[l].GetComponentInChildren<Renderer>().material = playerMat[i];
+                    //leftTeam[l] = GameObject.Find("Player" + i.ToString());
+                    leftTeam[l] = GameObject.Find("P" + i.ToString()+"_Model");
+                    //leftTeam[l].GetComponentInChildren<Renderer>().material = playerMat[i-1];
+                    leftTeam[l].GetComponent<Renderer>().material = playerMat[i-1];
                     l++;
                 }
-                else
+                else if(a[i-1].Equals("RedSpace"))
                 {
-                    redP[l] = i;
-                    rightTeam[r] = GameObject.Find("Player" + i.ToString());
-                    rightTeam[r].GetComponentInChildren<Renderer>().material = playerMat[i];
+                    redP[r] = i;
+                    //rightTeam[r] = GameObject.Find("Player" + i.ToString());
+                    rightTeam[r] = GameObject.Find("P" + i.ToString()+"_Model");
+                    //rightTeam[r].GetComponentInChildren<Renderer>().material = playerMat[i-1];
+                    rightTeam[r].GetComponent<Renderer>().material = playerMat[i-1];
                     r++;
                 }
             }
@@ -65,14 +74,20 @@ public class SoccerScript : MonoBehaviour
         else
         {
             //temporary implementation
-            leftTeam[0] = GameObject.Find("Player1");
-            leftTeam[0].GetComponentInChildren<Renderer>().material = white;
-            leftTeam[1] = GameObject.Find("Player2");
-            leftTeam[1].GetComponentInChildren<Renderer>().material = blue;
-            rightTeam[0] = GameObject.Find("Player3");
-            rightTeam[0].GetComponentInChildren<Renderer>().material = yellow;
-            rightTeam[1] = GameObject.Find("Player4");
-            rightTeam[1].GetComponentInChildren<Renderer>().material = red;
+            leftTeam[l] = GameObject.Find("P1_Model");
+            leftTeam[l].GetComponent<Renderer>().material = playerMat[l+r];
+            l++;
+            blueP[l] = 1;
+            leftTeam[l] = GameObject.Find("P2_Model");
+            leftTeam[l].GetComponent<Renderer>().material = playerMat[l + r];
+            blueP[l] = 2;
+            rightTeam[r] = GameObject.Find("P3_Model");
+            rightTeam[r].GetComponent<Renderer>().material = playerMat[l + r+1];
+            r++;
+            redP[l] = 3;
+            rightTeam[r] = GameObject.Find("P4_Model");
+            rightTeam[r].GetComponent<Renderer>().material = playerMat[l + r+1];
+            redP[l] = 4;
         }
         leftTeam[0].transform.position = new Vector3(-5, 3, -3);
         leftTeam[1].transform.position = new Vector3(-5, 3, 3);
@@ -85,20 +100,21 @@ public class SoccerScript : MonoBehaviour
     {
         if (Input.GetButtonDown("SubmitStart"))
         {
-            events.GetComponent<GameStateControl>().startGame();
+            control.GetComponent<GameStateControl>().startGame();
             //first.
         }
         if (this.transform.position.x < leftBound.x || this.transform.position.x > rightBound.x)
         {
             scorePoint(this.transform.position.x);
             checkWin(leftScore, rightScore);
-            if (result != 0)
+            if (result != 0 && !started)
             {
                 setWinner(result);
                 for (int i = 0; i < 2; i++)
-                { GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>().setCoins(win[i], GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>().getCoins(win[i])); }
+                { events.GetComponent<GameData>().setCoins(win[i]-1, events.GetComponent<GameData>().getCoins(win[i]-1)+10); }
                 print("game done");
-                events.GetComponent<GameStateControl>().setGameOver(true);
+                control.GetComponent<GameStateControl>().setGameOver(true);
+                started = true;
             }
         }
     }
@@ -134,5 +150,11 @@ public class SoccerScript : MonoBehaviour
     {
         if (result == 1) { win = redP; }
         else if (result == -1) { win = blueP; }
+    }
+
+    public int[] getWinner()
+    {
+        int[] ret = { win[0]-1,win[1]-1 };
+        return ret;
     }
 }

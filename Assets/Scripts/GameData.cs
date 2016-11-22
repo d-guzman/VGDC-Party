@@ -5,6 +5,7 @@ public class GameData : MonoBehaviour {
 
     // Use this for initialization
     string[] currentSpace;
+    string[] currentSpaceTag;
     string[] nextSpace;
     int[] coins;
     int[] stars;
@@ -21,6 +22,7 @@ public class GameData : MonoBehaviour {
         GameObject[] playerList = GameObject.FindGameObjectsWithTag("BoardPlayer");
 
         currentSpace = new string[4];
+        currentSpaceTag = new string[4];
         nextSpace = new string[4];
         coins = new int[4];
         stars = new int[4];
@@ -30,6 +32,7 @@ public class GameData : MonoBehaviour {
         for(int i = 0; i < playerList.Length; i++)
         {
             currentSpace[i] = "StartSpace";
+            currentSpaceTag[i] = "StartSpace";
             coins[i] = 10;
             stars[i] = 0;
             pos[i] = playerList[i].transform.position;
@@ -66,6 +69,18 @@ public class GameData : MonoBehaviour {
     public void setCurrentSpace(int playerNum, string space)
     {
         currentSpace[playerNum] = space;
+    }
+    public string getCurrentSpaceTag(int x)
+    {
+        return currentSpaceTag[x];
+    }
+    public void setCurrentSpaceTag(int playerNum, string space)
+    {
+        //currentSpaceTag[playerNum] = space;
+        currentSpaceTag[0] = "RedSpace";
+        currentSpaceTag[1] = "RedSpace";
+        currentSpaceTag[2] = "BlueSpace";
+        currentSpaceTag[3] = "BlueSpace";
     }
     public string getNextSpace(int x)
     {

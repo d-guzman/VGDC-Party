@@ -564,6 +564,7 @@ public class GameController : MonoBehaviour {
         {
             Player playerClass = players[i].GetComponent<Player>();
             gameData.setCurrentSpace(playerClass.getPlayerNum(),playerClass.getCurrentSpace().name);
+            gameData.setCurrentSpaceTag(playerClass.getPlayerNum(), playerClass.getCurrentSpace().tag);
             gameData.setNextSpace(playerClass.getPlayerNum(), playerClass.returnNextSpace().name);
             gameData.setPos(playerClass.getPlayerNum(), players[i].transform.position);
             gameData.setCoins(playerClass.getPlayerNum(),playerClass.getCoins());
