@@ -352,14 +352,14 @@ public class Player : MonoBehaviour {
 
                 if (getCoins() >= 20)
                 {
-                    starUI[0].GetComponent<Text>().text = "Would you like to buy a BYTE?";
+                    starUI[0].GetComponent<Text>().text = "Would you like to buy a STAR?";
                     starUI[1].SetActive(true);
                     starUI[2].SetActive(true);
                     starUI[3].SetActive(false);
                     starUI[4].SetActive(true);
                 } else
                 {
-                    starUI[0].GetComponent<Text>().text = "You are too poor to buy a BYTE";
+                    starUI[0].GetComponent<Text>().text = "You are too poor to buy a STAR";
                     starUI[1].SetActive(false);
                     starUI[2].SetActive(false);
                     starUI[3].SetActive(true);

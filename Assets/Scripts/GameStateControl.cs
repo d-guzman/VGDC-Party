@@ -108,7 +108,8 @@ public class GameStateControl : MonoBehaviour {
                 results[i].GetComponent<GetResultsStats>().setPlayerNum(playerRanks[i]);
             }
             endScreen.GetComponent<UIRevealer>().revealUI();
-
+            results[playerRanks[0]].GetComponent<GetResultsStats>().addCoins(10);
+            GameObject.Find("+10Text" + results[playerRanks[0]]).GetComponent<UIRevealer>().revealUI(); //reveals the "+10" text for the winner
         } else
         {
             endScreen.GetComponent<UIRevealer>().hideUI();
@@ -139,6 +140,8 @@ public class GameStateControl : MonoBehaviour {
     }
     public int[] getPlayerRanks()
     {
+        //returns a list of player numbers in order with 0 being first and 3 being last
+        //ex: [0,2,3,1]
         int[] result = new int[4];
         int[][] scores = new int[4][];
 
