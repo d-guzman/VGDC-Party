@@ -181,10 +181,7 @@ public class PlayerController : MonoBehaviour {
             
         } else
         {
-            if (Input.GetButtonDown(baseString + "_Fire1"))
-            {
-                ready();
-            }
+           
         }
     }
 
@@ -230,11 +227,7 @@ public class PlayerController : MonoBehaviour {
             stun();
         }
     }
-    void ready()
-    {
-        int playerNum = int.Parse(gameObject.name.Substring(1, 1))-1;
-        gameStateControl.playerIsReady(playerNum);
-    }
+    
     
 
 	

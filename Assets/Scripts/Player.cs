@@ -240,7 +240,6 @@ public class Player : MonoBehaviour {
             }
             if (state==MOVING)
             {
-                print(ignoreNextJunction);
                 rotationScript.setTargetDirection(nextSpace.transform.position-currentSpace.transform.position);
                 moveCounter.enabled = true;
                 moveCounter.text = ""+toMove;

@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using UnityEngine.UI;
 public class GameStateControl : MonoBehaviour {
 
     // Use this for initialization
@@ -12,6 +13,11 @@ public class GameStateControl : MonoBehaviour {
     private bool gameStart;
     GameObject[] playerList;
     public GameObject[] results;
+    private Image[] checkList;
+    public Image player1Check;
+    public Image player2Check;
+    public Image player3Check;
+    public Image player4Check;
     private bool[] playersReady;
     private bool allowPlayersReady;
 	void Start () {
@@ -24,6 +30,11 @@ public class GameStateControl : MonoBehaviour {
             playersReady[i] = false;
         }
         allowPlayersReady = true;
+        checkList = new Image[4];
+        checkList[0] = player1Check;
+        checkList[1] = player2Check;
+        checkList[2] = player3Check;
+        checkList[3] = player4Check;
 	}
 	
 	// Update is called once per frame
@@ -47,6 +58,44 @@ public class GameStateControl : MonoBehaviour {
         {
             SceneManager.LoadScene("GameBoard");
         }
+        if(gameOver && allowPlayersReady)
+        {
+            //Keyboard controls for debug
+            if (Input.GetKeyDown("v"))
+            {
+                playerIsReady(0);
+            }
+            if (Input.GetKeyDown("b"))
+            {
+                playerIsReady(1);
+            }
+            if (Input.GetKeyDown("n"))
+            {
+                playerIsReady(2);
+            }
+            if (Input.GetKeyDown("m"))
+            {
+                playerIsReady(3);
+            }
+            //end keyboard controls
+             
+            if (Input.GetButtonDown("P1_Fire1"))
+            {
+                playerIsReady(0);
+            }
+            if (Input.GetButtonDown("P2_Fire1"))
+            {
+                playerIsReady(1);
+            }
+            if (Input.GetButtonDown("P3_Fire1"))
+            {
+                playerIsReady(2);
+            }
+            if (Input.GetButtonDown("P4_Fire1"))
+            {
+                playerIsReady(3);
+            }
+        }
     }
     public void setGameOver(bool x)
     {
@@ -67,6 +116,7 @@ public class GameStateControl : MonoBehaviour {
         for (int i = 0; i < playersReady.Length; i++)
         {
             playersReady[i] = false;
+            checkList[i].enabled = false;
         }
         allowPlayersReady = true;
     }
@@ -184,6 +234,7 @@ public class GameStateControl : MonoBehaviour {
         if (allowPlayersReady)
         {
             playersReady[x] = true;
+            checkList[x].enabled = true;
         }
     }
 }
