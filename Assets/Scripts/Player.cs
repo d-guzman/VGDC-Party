@@ -34,7 +34,7 @@ public class Player : MonoBehaviour {
     private const int ONSTAR = 4;
     private const int GETINITATIVE = 5;
     private const int TURNOVER = 6;
-
+    private const int GAME_OVER = 7;
     private int score; //used to determine ranking
                        // Use this for initialization
     private bool hasRolled;

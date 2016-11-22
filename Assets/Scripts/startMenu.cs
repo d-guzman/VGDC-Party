@@ -100,13 +100,6 @@ public class startMenu : MonoBehaviour {
         }
 
     }
-    public void increaseTurnCount()
-    {
-        if(turnCounter.getTurnCount() < 100)
-        {
-            turnCounter.setTurnCount(turnCounter.getTurnCount() + 1);
-        }
-    }
     public void minigamePress()
     {
         if (afterPressDelay <= 0)
@@ -119,9 +112,17 @@ public class startMenu : MonoBehaviour {
         }
 
     }
+    public void increaseTurnCount()
+    {
+        if(turnCounter.getTurnCount() < 101)
+        {
+            turnCounter.setTurnCount(turnCounter.getTurnCount() + 1);
+        }
+    }
+
     public void decreaseTurnCount()
     {
-        if(turnCounter.getTurnCount() > 1)
+        if(turnCounter.getTurnCount() > 2)
         {
             turnCounter.setTurnCount(turnCounter.getTurnCount() - 1);
         }

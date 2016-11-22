@@ -27,10 +27,10 @@ public class endGameController : MonoBehaviour {
     private Material[] materialList;
     private Image[] checkList;
     private GetResultsStats[] stats;
-    private bool[] playersReady;
-    private bool allowPlayersReady;
+
     private float timer;
     public Text winnerText;
+    public ReadyGate readyGate;
 	void Start () {
         timer = 6f;
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
@@ -39,12 +39,7 @@ public class endGameController : MonoBehaviour {
         stats[1] = player2Stats;
         stats[2] = player3Stats;
         stats[3] = player4Stats;
-        playersReady = new bool[4];
-        playersReady[0] = false;
-        playersReady[1] = false;
-        playersReady[2] = false;
-        playersReady[3] = false;
-        allowPlayersReady = false;
+
         checkList = new Image[4];
         checkList[0] = player1CheckMark;
         checkList[1] = player2CheckMark;
@@ -65,6 +60,7 @@ public class endGameController : MonoBehaviour {
         {
             modelList[i].material = materialList[ranks[i]];
         }
+        readyGate.allowReadying(false);
     }
 
     // Update is called once per frame
@@ -75,7 +71,7 @@ public class endGameController : MonoBehaviour {
         }else
         {
             
-            allowPlayersReady = true;
+            readyGate.allowReadying(true);
             int[] ranks = getPlayerRanks();
             for(int i = 0; i < 4; i++)
             {
@@ -84,42 +80,8 @@ public class endGameController : MonoBehaviour {
             }
             winnerText.text = "Player " + (ranks[0] + 1) + " is the Winner!!!";
             resultsScreen.revealUI();
-            //Keyboard controls for debug
-            if (Input.GetKeyDown("v"))
-            {
-                playerIsReady(0);
-            }
-            if (Input.GetKeyDown("b"))
-            {
-                playerIsReady(1);
-            }
-            if (Input.GetKeyDown("n"))
-            {
-                playerIsReady(2);
-            }
-            if (Input.GetKeyDown("m"))
-            {
-                playerIsReady(3);
-            }
-            //end keyboard controls
-
-            if (Input.GetButtonDown("P1_Fire1"))
-            {
-                playerIsReady(0);
-            }
-            if (Input.GetButtonDown("P2_Fire1"))
-            {
-                playerIsReady(1);
-            }
-            if (Input.GetButtonDown("P3_Fire1"))
-            {
-                playerIsReady(2);
-            }
-            if (Input.GetButtonDown("P4_Fire1"))
-            {
-                playerIsReady(3);
-            }
-            if (allPlayersReady())
+            
+            if (readyGate.allPlayersReady())
             {
                 try {
                     GameObject.Find("TurnCounter").GetComponent<TurnCounter>().setTurnCount(10);
@@ -176,43 +138,5 @@ public class endGameController : MonoBehaviour {
     {
         return gameData.getStars(playerNum) * 1000 + gameData.getCoins(playerNum);
     }
-    public bool allPlayersReady()
-    {
-        if (allowPlayersReady)
-        {
-            bool result = true;
-            for (int i = 0; i < playersReady.Length; i++)
-            {
-                if (!playersReady[i])
-                {
-                    result = false;
-                }
-            }
-            if (result)
-            {
-                //sets all back to unready and prevents them from readying until allowed again
-
-                for (int i = 0; i < playersReady.Length; i++)
-                {
-                    playersReady[i] = false;
-                }
-                allowPlayersReady = false;
-            }
-            return result;
-
-        }
-        else
-        {
-            return false;
-        }
-
-    }
-    public void playerIsReady(int x)
-    {
-        if (allowPlayersReady)
-        {
-            playersReady[x] = true;
-            checkList[x].enabled = true;
-        }
-    }
+    
 }

@@ -13,37 +13,26 @@ public class GameStateControl : MonoBehaviour {
     private bool gameStart;
     GameObject[] playerList;
     public GameObject[] results;
-    private Image[] checkList;
-    public Image player1Check;
-    public Image player2Check;
-    public Image player3Check;
-    public Image player4Check;
-    private bool[] playersReady;
-    private bool allowPlayersReady;
+
+    public ReadyGate readyGate;
+
+
 	void Start () {
         gameOver = false;
         gameStart = false;
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
-        playersReady = new bool[4];
-        for(int i = 0; i < playersReady.Length; i++)
-        {
-            playersReady[i] = false;
-        }
-        allowPlayersReady = true;
-        checkList = new Image[4];
-        checkList[0] = player1Check;
-        checkList[1] = player2Check;
-        checkList[2] = player3Check;
-        checkList[3] = player4Check;
+        readyGate.allowReadying(true);
+        
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        if(onePlayerReady() && !gameStart)
+        if(readyGate.onePlayerReady() && !gameStart)
         {
             startGame();
         }
-        if(allPlayersReady() && gameOver)
+        if(readyGate.allPlayersReady() && gameOver)
         {
             SceneManager.LoadScene("GameBoard");
         }
@@ -58,44 +47,7 @@ public class GameStateControl : MonoBehaviour {
         {
             SceneManager.LoadScene("GameBoard");
         }
-        if(gameOver && allowPlayersReady)
-        {
-            //Keyboard controls for debug
-            if (Input.GetKeyDown("v"))
-            {
-                playerIsReady(0);
-            }
-            if (Input.GetKeyDown("b"))
-            {
-                playerIsReady(1);
-            }
-            if (Input.GetKeyDown("n"))
-            {
-                playerIsReady(2);
-            }
-            if (Input.GetKeyDown("m"))
-            {
-                playerIsReady(3);
-            }
-            //end keyboard controls
-             
-            if (Input.GetButtonDown("P1_Fire1"))
-            {
-                playerIsReady(0);
-            }
-            if (Input.GetButtonDown("P2_Fire1"))
-            {
-                playerIsReady(1);
-            }
-            if (Input.GetButtonDown("P3_Fire1"))
-            {
-                playerIsReady(2);
-            }
-            if (Input.GetButtonDown("P4_Fire1"))
-            {
-                playerIsReady(3);
-            }
-        }
+        
     }
     public void setGameOver(bool x)
     {
@@ -116,17 +68,15 @@ public class GameStateControl : MonoBehaviour {
         {
             endScreen.GetComponent<UIRevealer>().hideUI();
         }
-        for (int i = 0; i < playersReady.Length; i++)
-        {
-            playersReady[i] = false;
-            checkList[i].enabled = false;
-        }
-        allowPlayersReady = true;
+        readyGate.unReadyAllPlayers();
+        readyGate.allowReadying(true);
     }
     public void startGame()
     {
         gameStart = true;
         startScreen.GetComponent<UIRevealer>().hideUI();
+        readyGate.unReadyAllPlayers();
+        readyGate.allowReadying(false);
     }
     public bool getGameOver()
     {
@@ -183,63 +133,7 @@ public class GameStateControl : MonoBehaviour {
     {
         return gameData.getStars(playerNum) * 1000 + gameData.getCoins(playerNum);
     }
-    public bool playersCanReady()
-    {
-        return allowPlayersReady;
-    }
-    public bool allPlayersReady()
-    {
-        if (allowPlayersReady)
-        {
-            bool result = true;
-            for (int i = 0; i < playersReady.Length; i++)
-            {
-                if (!playersReady[i])
-                {
-                    result = false;
-                }
-            }
-            if (result)
-            {
-                //sets all back to unready and prevents them from readying until allowed again
-
-                for (int i = 0; i < playersReady.Length; i++)
-                {
-                    playersReady[i] = false;
-                }
-                allowPlayersReady = false;
-            }
-            return result;
-
-        } else
-        {
-            return false;
-        }
-        
-    }
-    public bool onePlayerReady()
-    {
-        bool result = false;
-
-        if (allowPlayersReady)
-        {
-            for (int i = 0; i < playersReady.Length; i++)
-            {
-                if (playersReady[i])
-                {
-                    result = true;
-                }
-            }
-        }
-        return result;
-
-    }
-    public void playerIsReady(int x)
-    {
-        if (allowPlayersReady)
-        {
-            playersReady[x] = true;
-            checkList[x].enabled = true;
-        }
-    }
+    
+    
+    
 }

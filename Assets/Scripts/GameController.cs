@@ -15,14 +15,18 @@ public class GameController : MonoBehaviour {
     GameData gameData;
     UIRevealer[] minigameUI;
     UIRevealer[] playerTabs;
+    UIRevealer tieBreakUI;
     UIRevealer turnCounterUI;
     UIRevealer lowerScreenUI;
+    UIRevealer blackPanel;
     LowerScreenTextScript lowerScreenText;
+    UIRevealer noMoreTurnsUI;
     int gameState;
-    private const int MAIN_MENU = 0;
+
     private const int GAME_BOARD = 1;
-    private const int MINIGAME = 2;
-    private const int GAME_OVER = 3;
+    private const int NO_MORE_TURNS = 4;
+    private const int TIE_BREAKER = 3;
+    private const int GAME_OVER = 2;
 
     int boardState;
     private const int PRE_GAME = 0;
@@ -43,6 +47,12 @@ public class GameController : MonoBehaviour {
     private float beforePlayerTurnTimer;
     private float afterPlayerTurnTimer;
     private float genericDelay;
+    public ReadyGate readyGate;
+    private dice2d flatDice;
+    List<Player> winnerList;
+    int[] validNumbers;
+    bool tied;
+
     void Start()
     {
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
@@ -60,6 +70,7 @@ public class GameController : MonoBehaviour {
         beforePlayerTurnTimer = 0f;
         afterPlayerTurnTimer = 0f;
         genericDelay = 2f;
+        tied = false;
     }
     public void loadGameObjects()
     {
@@ -74,6 +85,9 @@ public class GameController : MonoBehaviour {
         }
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         turnCounter = GameObject.Find("TurnCounter").GetComponent<TurnCounter>();
+        turnCounter.decrementTurnCount(); //decrement at the beginning of each turn
+        //initial value with be 1 greater to counter first turn decrement
+        noMoreTurnsUI = GameObject.Find("NoMoreTurnsUI").GetComponent<UIRevealer>();
         lowerScreenUI = GameObject.Find("LowerScreen").GetComponent<UIRevealer>();
         lowerScreenText = GameObject.Find("LowerScreenText").GetComponent<LowerScreenTextScript>();
         playerTabs = new UIRevealer[4];
@@ -81,6 +95,10 @@ public class GameController : MonoBehaviour {
         playerTabs[1] = GameObject.Find("Player2Tab").GetComponent<UIRevealer>();
         playerTabs[2] = GameObject.Find("Player3Tab").GetComponent<UIRevealer>();
         playerTabs[3] = GameObject.Find("Player4Tab").GetComponent<UIRevealer>();
+        flatDice = GameObject.Find("DiceBackground").GetComponent<dice2d>();
+        tieBreakUI = GameObject.Find("TieBreakUI").GetComponent<UIRevealer>();
+        blackPanel = GameObject.Find("BlackPanel").GetComponent<UIRevealer>();
+
         minigameUI = new UIRevealer[3];
         minigameList = new string[3][] { minigamesFFA, minigames2v2, minigames1v3 };
         GameObject tempObject = GameObject.Find("MinigameUI");
@@ -92,7 +110,10 @@ public class GameController : MonoBehaviour {
     }
     void Update()
     {
- 
+        if(turnCounter.getTurnCount() <= 0 && gameState == GAME_BOARD)
+        {
+            setGameState(NO_MORE_TURNS);
+        }
 
         
 
@@ -248,7 +269,6 @@ public class GameController : MonoBehaviour {
                     }
                     else
                     {
-                        turnCounter.decrementTurnCount();
                         setBoardState(DECIDE_MINIGAME);
                     }
                 }
@@ -273,7 +293,7 @@ public class GameController : MonoBehaviour {
                         }
                         if (genericDelay < 0.5f)
                         {
-                            GameObject.Find("BlackPanel").GetComponent<UIRevealer>().revealUI();
+                            blackPanel.revealUI();
                         }
 
                     }
@@ -289,6 +309,65 @@ public class GameController : MonoBehaviour {
                     setBoardState(NEW_TURN);
                 }
             }
+        } else if(gameState == TIE_BREAKER)
+        {
+            if (readyGate.allPlayersReady())
+            {
+                readyGate.allowReadying(false);
+                genericDelay = 2f;
+                int winner = Random.Range(0, validNumbers.Length);
+                flatDice.stopDice(validNumbers[winner]+1);
+                for(int i = 0; i < players.Length; i++)
+                {
+                    if(players[i].GetComponent<Player>().getPlayerNum() == validNumbers[winner])
+                    {
+                        players[i].GetComponent<Player>().addStar();
+                    }
+                }
+                GameObject.Find("Star" + validNumbers[winner]).GetComponent<UIRevealer>().revealUI();
+                tied = false;
+            }
+            if (!tied)
+            {
+               setGameState(GAME_OVER);
+            }
+        } else if(gameState == NO_MORE_TURNS)
+        {
+            if(genericDelay > 0)
+            {
+                genericDelay -= Time.deltaTime;
+                if(genericDelay < 0.5f)
+                {
+                    noMoreTurnsUI.hideUI();
+                    turnCounterUI.hideUI();
+                }
+            } else
+            {
+                if(getWinners().Count > 1)
+                {
+                    setGameState(TIE_BREAKER);
+                } else
+                {
+                    setGameState(GAME_OVER);
+                }
+            }
+        } else if(gameState == GAME_OVER)
+        {
+            if(genericDelay > 0)
+            {
+                genericDelay -= Time.deltaTime;
+                if(genericDelay < 0.5f)
+                {
+                    blackPanel.revealUI();
+                }
+            } else
+            {
+                loadScene("end_game");
+            }
+        }
+        if (Input.GetKeyDown("8"))
+        {
+            setGameState(NO_MORE_TURNS);
         }
     }
     public void setCameraPreset(int x)
@@ -402,8 +481,8 @@ public class GameController : MonoBehaviour {
 
     public void LoadMainMenu()
     {
-        gameState = MAIN_MENU;
-        SceneManager.LoadScene("MainMenu");
+        
+        SceneManager.LoadScene("start menu");
 
     }
     public void setGameState(int x)
@@ -416,6 +495,34 @@ public class GameController : MonoBehaviour {
         if(gameState == GAME_BOARD)
         {
             loadGameBoard();
+        } else if(gameState == GAME_OVER)
+        {
+            genericDelay = 2f;
+        } else if(gameState == NO_MORE_TURNS)
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                players[i].GetComponent<Player>().setPlayerState(7);
+            }
+            genericDelay = 2.5f;
+            turnCounterUI.revealUI();
+            noMoreTurnsUI.revealUI();
+        } else if(gameState == TIE_BREAKER)
+        {
+            
+            winnerList = getWinners();
+            tied = true;
+            validNumbers = new int[winnerList.Count];
+            for (int i = 0; i < validNumbers.Length; i++)
+            {
+                validNumbers[i] = winnerList[i].getPlayerNum();
+            }
+            flatDice.setValidNumber(validNumbers);
+
+                flatDice.rollDice();
+                tieBreakUI.revealUI();
+                readyGate.allowReadying(true);
+            
         }
     }
     public void setBoardState(int x)
@@ -532,6 +639,23 @@ public class GameController : MonoBehaviour {
         }
 
 
+    }
+    public List<Player> getWinners()
+    {
+        List<Player> result = new List<Player>();
+        int max = -1;
+        for(int i = 0; i < players.Length; i++)
+        {
+            max = Mathf.Max(max, players[i].GetComponent<Player>().getScore());
+        }
+        for(int i = 0; i < players.Length; i++)
+        {
+            if(players[i].GetComponent<Player>().getScore() == max)
+            {
+                result.Add(players[i].GetComponent<Player>());   
+            }
+        }
+        return result;
     }
     public int getScore(int playerNum)
     {

@@ -12,6 +12,7 @@ public class printTurns : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        myText.text = ""+turnCounter.getTurnCount();
+        myText.text = ""+(turnCounter.getTurnCount() -1);
+        //print 1 less because the extra turn will be immediately decremented at game start
 	}
 }
