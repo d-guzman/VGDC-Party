@@ -14,7 +14,7 @@ public class GameData : MonoBehaviour {
     int gameState;
     int boardState;
     string starSpace;
-
+    int overallWinner;
     void Awake () {
         
        
@@ -42,7 +42,7 @@ public class GameData : MonoBehaviour {
         gameState = 1;
         boardState = 1;
         starSpace = "";
-
+        overallWinner = 0;
         //players need current space, coins, stars, x,y
     }
     public int getGameState()
@@ -130,8 +130,12 @@ public class GameData : MonoBehaviour {
     {
         starSpace = x;
     }
-    public void resetData()
+    public void setOverallWinner(int x)
     {
-
+        overallWinner = x;
+    }
+    public int getOverallWinner()
+    {
+        return overallWinner;
     }
 }

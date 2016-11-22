@@ -15,13 +15,24 @@ public class endGameController : MonoBehaviour {
     public Image player2CheckMark;
     public Image player3CheckMark;
     public Image player4CheckMark;
+    public MeshRenderer playerAModel;
+    public MeshRenderer playerBModel;
+    public MeshRenderer playerCModel;
+    public MeshRenderer playerDModel;
+    private MeshRenderer[] modelList;
+    public Material player1Material;
+    public Material player2Material;
+    public Material player3Material;
+    public Material player4Material;
+    private Material[] materialList;
     private Image[] checkList;
     private GetResultsStats[] stats;
     private bool[] playersReady;
     private bool allowPlayersReady;
     private float timer;
+    public Text winnerText;
 	void Start () {
-        timer = 5f;
+        timer = 6f;
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
         stats = new GetResultsStats[4];
         stats[0] = player1Stats;
@@ -39,6 +50,21 @@ public class endGameController : MonoBehaviour {
         checkList[1] = player2CheckMark;
         checkList[2] = player3CheckMark;
         checkList[3] = player4CheckMark;
+        modelList = new MeshRenderer[4];
+        modelList[0] = playerAModel;
+        modelList[1] = playerBModel;
+        modelList[2] = playerCModel;
+        modelList[3] = playerDModel;
+        materialList = new Material[4];
+        materialList[0] = player1Material;
+        materialList[1] = player2Material;
+        materialList[2] = player3Material;
+        materialList[3] = player4Material;
+        int[] ranks = getPlayerRanks();
+        for(int i = 0; i < ranks.Length; i++)
+        {
+            modelList[i].material = materialList[ranks[i]];
+        }
     }
 
     // Update is called once per frame
@@ -48,6 +74,7 @@ public class endGameController : MonoBehaviour {
             timer -= Time.deltaTime;
         }else
         {
+            
             allowPlayersReady = true;
             int[] ranks = getPlayerRanks();
             for(int i = 0; i < 4; i++)
@@ -55,7 +82,7 @@ public class endGameController : MonoBehaviour {
                 stats[i].setPlayerNum(ranks[i]);
                 stats[i].updateData();
             }
-
+            winnerText.text = "Player " + (ranks[0] + 1) + " is the Winner!!!";
             resultsScreen.revealUI();
             //Keyboard controls for debug
             if (Input.GetKeyDown("v"))
