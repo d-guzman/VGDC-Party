@@ -85,7 +85,7 @@ public class startMenu : MonoBehaviour {
     public void startPress()
     {
         loadBoard = true;
-        afterPressDelay = 0.5f;
+        afterPressDelay = 0.7f;
         blackPanelUp.revealUI();
     }
     public void backPress()
@@ -214,12 +214,16 @@ public class startMenu : MonoBehaviour {
 
 
     }
+    public void BButtonPress()
+    {     
+        backPress();
+    }
     public void startMinigame()
     {
         if (!loadMinigame)
         {
             loadMinigame = true;
-            afterPressDelay = 0.5f;
+            afterPressDelay = 0.7f;
             blackPanelDown.revealUI();
         }
         audioSource.PlayOneShot(clickSound);
@@ -304,6 +308,10 @@ public class startMenu : MonoBehaviour {
                 {
                     turnSelectElements[i].revealUI();
                 }
+                if (anyPressB())
+                {
+                    BButtonPress();
+                }
             }
         }
         else if(menuState == MINIGAME_SELECT)
@@ -320,7 +328,10 @@ public class startMenu : MonoBehaviour {
                 {
                     minigameElements[i].revealUI();
                 }
-
+                if (anyPressB())
+                {
+                    BButtonPress();
+                }
             }
                
             
@@ -356,6 +367,10 @@ public class startMenu : MonoBehaviour {
                 }
                 animationTimer -= Time.deltaTime;
             }
+            if (anyPressB())
+            {
+                BButtonPress();
+            }
         }
 	}
     public void resetMenuScreen(int screenNum)
@@ -387,5 +402,25 @@ public class startMenu : MonoBehaviour {
             }
             minigameList[0].revealUI(1);
         }
+    }
+    public bool anyPressB()
+    {
+        bool result = false;
+        if (Input.GetButtonDown("P1_Fire2"))
+        {
+            result = true;
+        } else if (Input.GetButtonDown("P2_Fire2"))
+        {
+            result = true;
+        }
+        else if (Input.GetButtonDown("P3_Fire2"))
+        {
+            result = true;
+        }
+        else if (Input.GetButtonDown("P4_Fire2"))
+        {
+            result = true;
+        }
+        return result;
     }
 }

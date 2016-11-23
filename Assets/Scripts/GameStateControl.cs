@@ -14,7 +14,7 @@ public class GameStateControl : MonoBehaviour {
     private bool gameStart;
     GameObject[] playerList;
     public GameObject[] results;
-    
+    public AudioSource backgroundMusic;
     public ReadyGate readyGate;
     float transitionTimer;
     bool loadScene;
@@ -36,7 +36,7 @@ public class GameStateControl : MonoBehaviour {
         if(readyGate.allPlayersReady() && gameOver)
         {
             loadScene = true;
-            transitionTimer = 0.5f;
+            transitionTimer = 0.7f;
             blackPanel.revealUI();
 
         }
@@ -50,7 +50,7 @@ public class GameStateControl : MonoBehaviour {
         if (Input.GetKeyDown("7"))
         {
             loadScene = true;
-            transitionTimer = 0.5f;
+            transitionTimer = 0.7f;
             blackPanel.revealUI();
         }
         if (loadScene)
@@ -98,6 +98,7 @@ public class GameStateControl : MonoBehaviour {
     public void startGame()
     {
         gameStart = true;
+        backgroundMusic.Play();
         startScreen.GetComponent<UIRevealer>().hideUI();
         readyGate.unReadyAllPlayers();
         readyGate.allowReadying(false);

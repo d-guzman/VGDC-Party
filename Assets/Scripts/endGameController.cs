@@ -39,7 +39,7 @@ public class endGameController : MonoBehaviour {
     bool clipNotPlayed = true;
 	void Start () {
         timer = 12f;
-        transitionTimer = 0.5f;
+        transitionTimer = 0.7f;
         transitioning = false;
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
         audioSource = GetComponent<AudioSource>();

@@ -295,7 +295,7 @@ public class GameController : MonoBehaviour {
                         {
                             minigameUI[minigameType].gameObject.GetComponentInChildren<Text>().color = Color.red;
                         }
-                        if (genericDelay < 0.5f)
+                        if (genericDelay < 0.7f)
                         {
                             blackPanel.revealUI();
                         }
@@ -360,7 +360,7 @@ public class GameController : MonoBehaviour {
             if(genericDelay > 0)
             {
                 genericDelay -= Time.deltaTime;
-                if(genericDelay < 0.5f)
+                if(genericDelay < 0.7f)
                 {
                     blackPanel.revealUI();
                 }
