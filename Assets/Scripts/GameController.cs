@@ -174,7 +174,7 @@ public class GameController : MonoBehaviour {
             //print(boardState);
             if (boardState == PRE_GAME)
             {
-                
+                initiativeReadyGate.allowReadying(true);
                 if (initiativeReadyGate.allPlayersReady())
                 {
                     initiativeUI.hideUI();
@@ -587,10 +587,12 @@ public class GameController : MonoBehaviour {
         {
             setCameraPreset(1);
             initiativeReadyGate.allowReadying(true);
-            initiativePromptUI.revealUI();
+            initiativeUI.revealUI();
+            
         } else if(boardState == GET_INITIATIVE)
         {
             setCameraPreset(2);
+            initiativePromptUI.revealUI();
         } else if(boardState == NEW_TURN)
         {
 
@@ -748,7 +750,7 @@ public class GameController : MonoBehaviour {
             gameData.setStars(playerClass.getPlayerNum(), playerClass.getStars());
             gameData.setTurnOrder(playerClass.getPlayerNum(), playerClass.getTurnOrder());
         }
-        gameData.setBoardState(boardState);
+        gameData.setBoardState(BACK_FROM_MINIGAME);
         gameData.setGameState(gameState);
     }
 }

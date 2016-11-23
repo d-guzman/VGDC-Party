@@ -21,6 +21,7 @@ public class Player : MonoBehaviour {
     private GameObject[] starUI;
     private GameObject selectionArrow;
     public GameObject risingText;
+
     private int starSelection;
     private Vector3 heightOffset;
     public Text moveCounter;
@@ -44,6 +45,7 @@ public class Player : MonoBehaviour {
     private string aButton, bButton;
     private string baseControllerName;
     private bool stopRepeat;
+    private Quaternion baseRotation;
     private AudioSource audioSource;
     public AudioClip onSpaceSound;
     void Awake()
@@ -90,6 +92,7 @@ public class Player : MonoBehaviour {
         aButton = baseControllerName + "_Fire1";
         bButton = baseControllerName + "_Fire2";
         stopRepeat = false;
+        baseRotation = transform.rotation;
     }
     public void setPlayerState(int x)
     {
@@ -286,6 +289,7 @@ public class Player : MonoBehaviour {
                         setPlayerState(TURNOVER);   //signals gamecontroller that this turn is over, gamecontroller will set this back to 0
                         stopSpace();
                         destination = currentSpace.transform.position + heightOffset;
+                        rotationScript.setTargetDirection((destination - transform.position));
                     }
                 }
                 
@@ -436,7 +440,7 @@ public class Player : MonoBehaviour {
         else
         {
             //this code runs when it's not a player's turn
-           
+            rotationScript.setTargetDirection(Vector3.forward);
         }
         
 	}    
