@@ -13,6 +13,9 @@ public class dice2d : MonoBehaviour {
     float gravity;
     float timeBetweenNums;
     private int[] validNumbers;
+    private AudioSource audioSource;
+    public AudioClip clickSound;
+    public AudioClip stopSound;
 	void Start () {
         isRolling = false;
         diceText = GetComponentInChildren<Text>();
@@ -45,7 +48,7 @@ public class dice2d : MonoBehaviour {
         jumpTimer = 0.3f;
         jumpVelocity = 350f;
         gravity = jumpVelocity * 6f;
-
+        audioSource.PlayOneShot(stopSound);
     }
     public void displayRng()
     {
@@ -85,7 +88,7 @@ public class dice2d : MonoBehaviour {
                 break;
             }
         }
-
+        audioSource.PlayOneShot(clickSound);
         diceText.text = tempNum;
     }
     public void jump()

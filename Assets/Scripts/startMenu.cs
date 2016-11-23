@@ -40,9 +40,11 @@ public class startMenu : MonoBehaviour {
     bool revealMinigame;
     bool loadMinigame;
     bool loadBoard;
-
+    private AudioSource audioSource;
+    public AudioClip clickSound;
     // Use this for initialization
     void Start () {
+        audioSource = GetComponent<AudioSource>();
         menuState = 0;
         startText =startText.GetComponent<Button>();
         exitText = exitText.GetComponent<Button>();
@@ -58,7 +60,10 @@ public class startMenu : MonoBehaviour {
             blackPanelDown.hideUI();
         }
     }
-
+    public void playClickSound()
+    {
+        audioSource.PlayOneShot(clickSound);
+    }
     public void ExitPress()
     {
         Application.Quit();
@@ -161,6 +166,7 @@ public class startMenu : MonoBehaviour {
     }
     public void increaseTurnCount()
     {
+        audioSource.PlayOneShot(clickSound);
         if(turnCounter.getTurnCount() < 101)
         {
             turnCounter.setTurnCount(turnCounter.getTurnCount() + 1);
@@ -169,7 +175,8 @@ public class startMenu : MonoBehaviour {
 
     public void decreaseTurnCount()
     {
-        if(turnCounter.getTurnCount() > 2)
+        audioSource.PlayOneShot(clickSound);
+        if (turnCounter.getTurnCount() > 2)
         {
             turnCounter.setTurnCount(turnCounter.getTurnCount() - 1);
         }
@@ -187,7 +194,9 @@ public class startMenu : MonoBehaviour {
             }
             minigameList[minigameSelected].revealUI(1); //reveal new minigame
         }
-        
+        audioSource.PlayOneShot(clickSound);
+
+
     }
     public void decrementMinigameSelection()
     {
@@ -201,7 +210,9 @@ public class startMenu : MonoBehaviour {
             }
             minigameList[minigameSelected].revealUI(-1); //reveal new minigame
         }
-        
+        audioSource.PlayOneShot(clickSound);
+
+
     }
     public void startMinigame()
     {
@@ -211,8 +222,9 @@ public class startMenu : MonoBehaviour {
             afterPressDelay = 0.5f;
             blackPanelDown.revealUI();
         }
-        
-        
+        audioSource.PlayOneShot(clickSound);
+
+
     }
     // Update is called once per frame
     void Update () {

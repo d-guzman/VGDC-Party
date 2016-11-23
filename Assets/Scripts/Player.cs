@@ -44,9 +44,11 @@ public class Player : MonoBehaviour {
     private string aButton, bButton;
     private string baseControllerName;
     private bool stopRepeat;
+    private AudioSource audioSource;
+    public AudioClip onSpaceSound;
     void Awake()
     {
-        
+        audioSource = GetComponent<AudioSource>();
         currentSpace = GameObject.Find("StartSpace");
         nextSpace = GameObject.Find("Space 0");
         junctionArrow = GameObject.Find("JunctionArrow");
@@ -250,6 +252,7 @@ public class Player : MonoBehaviour {
                 //move(nextSpace);
                 if (isOnNextSpace())
                 {
+                    
                     currentSpace = nextSpace;
                     nextSpace = getNextSpace();
                     destination = nextSpace.transform.position + heightOffset;
@@ -257,6 +260,7 @@ public class Player : MonoBehaviour {
                     {
                         setPlayerState(ONJUNCTION);
                         destination = currentSpace.transform.position + heightOffset;
+
                     }
                     else if (currentSpace.CompareTag("StarSpace"))
                     {
@@ -270,7 +274,7 @@ public class Player : MonoBehaviour {
                     {
                        
                         ignoreNextJunction = false;
-                       
+                        audioSource.PlayOneShot(onSpaceSound);
                         toMove--;
                     }
                     //currentSpace = getNextSpace();

@@ -17,7 +17,11 @@ public class DiceScript : MonoBehaviour {
     private float jumpTimer;
     private float jumpVelocity;
     private float gravity;
+    private AudioSource audioSource;
+    public AudioClip clickSound;
+    public AudioClip stopSound;
 	void Start () {
+        audioSource = GetComponent<AudioSource>();
         diceText = GetComponentInChildren<TextMesh>();
         myRenderer = GetComponent<MeshRenderer>();
         childRenderer = transform.FindChild("DiceText").GetComponent<MeshRenderer>();
@@ -77,6 +81,7 @@ public class DiceScript : MonoBehaviour {
     }
     public void stopDice(int result)
     {
+        audioSource.PlayOneShot(stopSound);
         isRolling = false;
         diceText.text = "" + result;
         jumping = true;
@@ -179,7 +184,7 @@ public class DiceScript : MonoBehaviour {
                 break;
             }
         }
-
+        audioSource.PlayOneShot(clickSound);
         diceText.text = tempNum;
     }
     private void scaleDice()

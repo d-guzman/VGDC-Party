@@ -34,11 +34,15 @@ public class endGameController : MonoBehaviour {
     public ReadyGate readyGate;
     float transitionTimer;
     bool transitioning;
+    private AudioSource audioSource;
+    public AudioClip zeldaSound;
+    bool clipNotPlayed = true;
 	void Start () {
-        timer = 6f;
+        timer = 12f;
         transitionTimer = 0.5f;
         transitioning = false;
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
+        audioSource = GetComponent<AudioSource>();
         stats = new GetResultsStats[4];
         stats[0] = player1Stats;
         stats[1] = player2Stats;
@@ -73,6 +77,11 @@ public class endGameController : MonoBehaviour {
         if (timer > 0)
         {
             timer -= Time.deltaTime;
+            if (clipNotPlayed)
+            {
+                clipNotPlayed = false;
+                audioSource.PlayOneShot(zeldaSound);
+            }
         }else
         {
             

@@ -52,7 +52,10 @@ public class GameController : MonoBehaviour {
     List<Player> winnerList;
     int[] validNumbers;
     bool tied;
-
+    AudioSource audioSource;
+    public AudioClip coinSound;
+    public AudioClip jumpSound;
+    public AudioClip getStarSound;
     void Start()
     {
         gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
@@ -74,6 +77,7 @@ public class GameController : MonoBehaviour {
     }
     public void loadGameObjects()
     {
+        audioSource = GetComponent<AudioSource>();
         players = new GameObject[4];
         players[0] = GameObject.Find("boardPlayer1");
         players[1] = GameObject.Find("boardPlayer2");
