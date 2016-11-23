@@ -28,4 +28,8 @@ public class LowerScreenTextScript : MonoBehaviour {
     {
         return textList[x];
     }
+    public void setColor(Color x)
+    {
+        text.color = x;
+    }
 }

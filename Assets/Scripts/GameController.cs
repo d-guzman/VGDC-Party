@@ -9,8 +9,8 @@ public class GameController : MonoBehaviour {
 
     // Use this for initialization
     GameObject cam;
-    GameObject[] players;
-    GameObject currentPlayer;
+    Player currentPlayer;
+    Player[] playerList;
     TurnCounter turnCounter;
     GameData gameData;
     UIRevealer[] minigameUI;
@@ -19,7 +19,10 @@ public class GameController : MonoBehaviour {
     UIRevealer turnCounterUI;
     UIRevealer lowerScreenUI;
     UIRevealer blackPanel;
+    UIRevealer initiativeUI;
+    UIRevealer initiativePromptUI;
     LowerScreenTextScript lowerScreenText;
+    Image lowerScreenBackground;
     UIRevealer noMoreTurnsUI;
     int gameState;
 
@@ -47,7 +50,8 @@ public class GameController : MonoBehaviour {
     private float beforePlayerTurnTimer;
     private float afterPlayerTurnTimer;
     private float genericDelay;
-    public ReadyGate readyGate;
+    public ReadyGate initiativeReadyGate;
+    public ReadyGate tieBreakReadyGate;
     private dice2d flatDice;
     List<Player> winnerList;
     int[] validNumbers;
@@ -78,22 +82,31 @@ public class GameController : MonoBehaviour {
     public void loadGameObjects()
     {
         audioSource = GetComponent<AudioSource>();
-        players = new GameObject[4];
-        players[0] = GameObject.Find("boardPlayer1");
-        players[1] = GameObject.Find("boardPlayer2");
-        players[2] = GameObject.Find("boardPlayer3");
-        players[3] = GameObject.Find("boardPlayer4");
-        for (int i = 0; i < players.Length; i++)
+        playerList = new Player[4];
+        playerList[0] = GameObject.Find("boardPlayer1").GetComponent<Player>();
+        playerList[1] = GameObject.Find("boardPlayer2").GetComponent<Player>();
+        playerList[2] = GameObject.Find("boardPlayer3").GetComponent<Player>();
+        playerList[3] = GameObject.Find("boardPlayer4").GetComponent<Player>();
+        GameObject[] temp = new GameObject[4];
+        temp[0] = GameObject.Find("boardPlayer1");
+        temp[1] = GameObject.Find("boardPlayer2");
+        temp[2] = GameObject.Find("boardPlayer3");
+        temp[3] = GameObject.Find("boardPlayer4");
+        for (int i = 0; i < playerList.Length; i++)
         {
-            players[i].GetComponent<Player>().setListOfPlayers(players);
+            playerList[i].setListOfPlayers(temp);
         }
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         turnCounter = GameObject.Find("TurnCounter").GetComponent<TurnCounter>();
         turnCounter.decrementTurnCount(); //decrement at the beginning of each turn
         //initial value with be 1 greater to counter first turn decrement
         noMoreTurnsUI = GameObject.Find("NoMoreTurnsUI").GetComponent<UIRevealer>();
-        lowerScreenUI = GameObject.Find("LowerScreen").GetComponent<UIRevealer>();
+        GameObject lowerScreen = GameObject.Find("LowerScreen");
+        lowerScreenUI = lowerScreen.GetComponent<UIRevealer>();
         lowerScreenText = GameObject.Find("LowerScreenText").GetComponent<LowerScreenTextScript>();
+        lowerScreenBackground = lowerScreen.GetComponent<Image>();
+        initiativeUI = GameObject.Find("InitiativeUI").GetComponent<UIRevealer>();
+        initiativePromptUI = GameObject.Find("InitiativePromptBack").GetComponent<UIRevealer>();
         playerTabs = new UIRevealer[4];
         playerTabs[0] = GameObject.Find("Player1Tab").GetComponent<UIRevealer>();
         playerTabs[1] = GameObject.Find("Player2Tab").GetComponent<UIRevealer>();
@@ -127,10 +140,10 @@ public class GameController : MonoBehaviour {
         {
             if (Input.GetKeyDown("1"))
             {
-                players[0].GetComponent<Player>().setSpaceType(0);
-                players[1].GetComponent<Player>().setSpaceType(0);
-                players[2].GetComponent<Player>().setSpaceType(0);
-                players[3].GetComponent<Player>().setSpaceType(0);
+                playerList[0].setSpaceType(0);
+                playerList[1].setSpaceType(0);
+                playerList[2].setSpaceType(0);
+                playerList[3].setSpaceType(0);
                 
                 gameState = 1;
                 //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
@@ -138,22 +151,22 @@ public class GameController : MonoBehaviour {
             }
             if (Input.GetKeyDown("2"))
             {
-                players[0].GetComponent<Player>().setSpaceType(0);
-                players[1].GetComponent<Player>().setSpaceType(0);
-                players[2].GetComponent<Player>().setSpaceType(1);
-                players[3].GetComponent<Player>().setSpaceType(1);
-                
+                playerList[0].setSpaceType(0);
+                playerList[1].setSpaceType(0);
+                playerList[2].setSpaceType(0);
+                playerList[3].setSpaceType(0);
+
                 gameState = 1;
                 //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
                 loadScene("soccerField");
             }
             if (Input.GetKeyDown("3"))
             {
-                players[0].GetComponent<Player>().setSpaceType(0);
-                players[1].GetComponent<Player>().setSpaceType(0);
-                players[2].GetComponent<Player>().setSpaceType(0);
-                players[3].GetComponent<Player>().setSpaceType(0);
-                
+                playerList[0].setSpaceType(0);
+                playerList[1].setSpaceType(0);
+                playerList[2].setSpaceType(0);
+                playerList[3].setSpaceType(0);
+
                 gameState = 1;
                 //SceneManager.LoadScene(minigameList[type][rngGame]);     //this is correct implementation, but requires at least 1 of every game type
                 loadScene("hand cart");
@@ -161,15 +174,21 @@ public class GameController : MonoBehaviour {
             //print(boardState);
             if (boardState == PRE_GAME)
             {
-
+                
+                if (initiativeReadyGate.allPlayersReady())
+                {
+                    initiativeUI.hideUI();
+                    setBoardState(GET_INITIATIVE);
+                    
+                }
             }
             else if (boardState == GET_INITIATIVE)
             {
                 int rollingPlayer = -1;
 
-                for (int j = 0; j < players.Length; j++)
+                for (int j = 0; j < playerList.Length; j++)
                 {
-                    if (!players[j].GetComponent<Player>().getInitiative())
+                    if (!playerList[j].getInitiative())
                     {
                         rollingPlayer = j;
                         j = 100000; //break out of loop
@@ -179,17 +198,39 @@ public class GameController : MonoBehaviour {
 
                 if (rollingPlayer != -1)
                 {
-                    followPlayer(players[rollingPlayer]);
-                    if (players[rollingPlayer].GetComponent<Player>().getState() != 5)
+                    followPlayer(playerList[rollingPlayer].gameObject);
+                    if (playerList[rollingPlayer].getState() != 5)
                     {
-                        players[rollingPlayer].GetComponent<Player>().setPlayerState(5);
+                        playerList[rollingPlayer].setPlayerState(5);
+                    }
+                    lowerScreenUI.revealUI();
+                    lowerScreenText.setText(playerList[rollingPlayer].getPlayerNum() + 4);
+                    if(playerList[rollingPlayer].getPlayerNum() == 0)
+                    {
+                        lowerScreenBackground.color = new Color(1, 0, 0, 0.66f);
+                        lowerScreenText.setColor(Color.white);
+                    } else if(playerList[rollingPlayer].getPlayerNum() == 1)
+                    {
+                        lowerScreenBackground.color = new Color(1, 1, 0, 0.66f);
+                        lowerScreenText.setColor(Color.black);
+                    } else if(playerList[rollingPlayer].getPlayerNum() == 2)
+                    {
+                        lowerScreenBackground.color = new Color(0, 0, 0, 146f / 255f);
+                        lowerScreenText.setColor(Color.white);
+                    } else if(playerList[rollingPlayer].getPlayerNum() == 3)
+                    {
+                        lowerScreenBackground.color = new Color(0, 0, 1, 0.66f);
+                        lowerScreenText.setColor(Color.white);
                     }
                 }
                 else
                 {
                     setTurnOrder();
-
+                    lowerScreenBackground.color = new Color(0, 0, 0, 146f/255f);
+                    lowerScreenText.setColor(Color.white);
+                    initiativePromptUI.hideUI();
                     setBoardState(NEW_TURN);
+                    
                 }
             }
             else if (boardState == BACK_FROM_MINIGAME)
@@ -217,11 +258,11 @@ public class GameController : MonoBehaviour {
             {
                 if (beforePlayerTurnTimer > 0)
                 {
-                    if (playerTurn < players.Length)
+                    if (playerTurn < playerList.Length)
                     {
                         currentPlayer = getCurrentPlayer(playerTurn);
                         lowerScreenUI.revealForTime(1.2f);
-                        lowerScreenText.setText(currentPlayer.GetComponent<Player>().getPlayerNum());
+                        lowerScreenText.setText(currentPlayer.getPlayerNum());
                     }
 
                     beforePlayerTurnTimer -= Time.deltaTime; //this is so we can zoom the camera out before moving to the next player
@@ -229,25 +270,25 @@ public class GameController : MonoBehaviour {
                 else
                 {
 
-                    if (playerTurn < players.Length)
+                    if (playerTurn < playerList.Length)
                     {
                         currentPlayer = getCurrentPlayer(playerTurn);
-                        followPlayer(currentPlayer);
-                        if (currentPlayer.GetComponent<Player>().getState() == 0)
+                        followPlayer(currentPlayer.gameObject);
+                        if (currentPlayer.getState() == 0)
                         {
 
-                            currentPlayer.GetComponent<Player>().setPlayerState(1);
+                            currentPlayer.setPlayerState(1);
 
 
                         }
-                        else if (currentPlayer.GetComponent<Player>().getState() == 3)
+                        else if (currentPlayer.getState() == 3)
                         {
                             cam.GetComponentInParent<CamBehavior>().setFollowPlayer(false);
-                            cam.GetComponentInParent<CamBehavior>().setTargetLocation(currentPlayer.transform.position + new Vector3(0, 300, -150));
+                            cam.GetComponentInParent<CamBehavior>().setTargetLocation(currentPlayer.gameObject.transform.position + new Vector3(0, 300, -150));
 
 
                         }
-                        else if (currentPlayer.GetComponent<Player>().getState() == 6)
+                        else if (currentPlayer.getState() == 6)
                         {
                             if(afterPlayerTurnTimer == 1.2f)
                             {
@@ -262,8 +303,8 @@ public class GameController : MonoBehaviour {
                                 afterPlayerTurnTimer = 1.2f;
                                 beforePlayerTurnTimer = 1.2f;
                                 playerTurn++;
-                                currentPlayer.GetComponent<Player>().setPlayerState(0);
-                                currentPlayer.GetComponent<Player>().moveToCorner();
+                                currentPlayer.setPlayerState(0);
+                                currentPlayer.moveToCorner();
                                 setCameraPreset(1);
                             }
 
@@ -315,17 +356,17 @@ public class GameController : MonoBehaviour {
             }
         } else if(gameState == TIE_BREAKER)
         {
-            if (readyGate.allPlayersReady())
+            if (tieBreakReadyGate.allPlayersReady())
             {
-                readyGate.allowReadying(false);
+                tieBreakReadyGate.allowReadying(false);
                 genericDelay = 2f;
                 int winner = Random.Range(0, validNumbers.Length);
                 flatDice.stopDice(validNumbers[winner]+1);
-                for(int i = 0; i < players.Length; i++)
+                for(int i = 0; i < playerList.Length; i++)
                 {
-                    if(players[i].GetComponent<Player>().getPlayerNum() == validNumbers[winner])
+                    if(playerList[i].getPlayerNum() == validNumbers[winner])
                     {
-                        players[i].GetComponent<Player>().addStar();
+                        playerList[i].addStar();
                     }
                 }
                 GameObject.Find("Star" + validNumbers[winner]).GetComponent<UIRevealer>().revealUI();
@@ -418,12 +459,12 @@ public class GameController : MonoBehaviour {
         int result = -1;
         int redCount = 0;
         int blueCount = 0;
-        for(int i = 0; i < players.Length; i++)
+        for(int i = 0; i < playerList.Length; i++)
         {
-            if(players[i].GetComponent<Player>().getSpaceType() == 0)
+            if(playerList[i].getSpaceType() == 0)
             {
                 blueCount++;
-            } else if(players[i].GetComponent<Player>().getSpaceType() == 1)
+            } else if(playerList[i].getSpaceType() == 1)
             {
                 redCount++;
             }
@@ -505,9 +546,9 @@ public class GameController : MonoBehaviour {
         } else if(gameState == NO_MORE_TURNS)
         {   
             
-            for (int i = 0; i < players.Length; i++)
+            for (int i = 0; i < playerList.Length; i++)
             {
-                players[i].GetComponent<Player>().setPlayerState(7);
+                playerList[i].setPlayerState(7);
             }
             genericDelay = 2.5f;
             for (int i = 0; i < playerTabs.Length; i++)
@@ -531,7 +572,7 @@ public class GameController : MonoBehaviour {
 
                 flatDice.rollDice();
                 tieBreakUI.revealUI();
-                readyGate.allowReadying(true);
+                tieBreakReadyGate.allowReadying(true);
             
         }
     }
@@ -545,6 +586,8 @@ public class GameController : MonoBehaviour {
         if(boardState == PRE_GAME)
         {
             setCameraPreset(1);
+            initiativeReadyGate.allowReadying(true);
+            initiativePromptUI.revealUI();
         } else if(boardState == GET_INITIATIVE)
         {
             setCameraPreset(2);
@@ -570,30 +613,30 @@ public class GameController : MonoBehaviour {
     public void setTurnOrder()
     {
         
-        for(int i = 0; i < players.Length; i++)
+        for(int i = 0; i < playerList.Length; i++)
         {
             int max = 0;
             int index = 0;
-            for(int j = 0; j < players.Length; j++)
+            for(int j = 0; j < playerList.Length; j++)
             {
-                if(max < players[j].GetComponent<Player>().getInitativeNum() && players[j].GetComponent<Player>().getTurnOrder() == -1)
+                if(max < playerList[j].getInitativeNum() && playerList[j].getTurnOrder() == -1)
                 {
-                    max = players[j].GetComponent<Player>().getInitativeNum();
+                    max = playerList[j].getInitativeNum();
                     index = j;
                 }
             }
-            players[index].GetComponent<Player>().setTurnOrder(i);
+            playerList[index].setTurnOrder(i);
         }
         
     }
-    public GameObject getCurrentPlayer(int x)
+    public Player getCurrentPlayer(int x)
     {
-        GameObject result = null;
+        Player result = null;
         for(int i = 0; i < 4; i++)
         {
-            if (players[i].GetComponent<Player>().getTurnOrder() == x)
+            if (playerList[i].getTurnOrder() == x)
             {
-                result = players[i];
+                result = playerList[i];
             }
         }
         return result;
@@ -635,7 +678,7 @@ public class GameController : MonoBehaviour {
         }
         for(int i = 0; i < result.Length; i++)
         {
-            players[result[i]].GetComponent<Player>().setRank(i);
+            playerList[result[i]].setRank(i);
 
         }
        
@@ -644,7 +687,7 @@ public class GameController : MonoBehaviour {
 
             if (scores[i][0] == scores[i-1][0]) //worse rank player has identical score to higher rank player
             {
-                players[result[i]].GetComponent<Player>().setRank(players[result[i-1]].GetComponent<Player>().getRank());
+                playerList[result[i]].setRank(playerList[result[i-1]].getRank());
             }
         }
 
@@ -654,22 +697,22 @@ public class GameController : MonoBehaviour {
     {
         List<Player> result = new List<Player>();
         int max = -1;
-        for(int i = 0; i < players.Length; i++)
+        for(int i = 0; i < playerList.Length; i++)
         {
-            max = Mathf.Max(max, players[i].GetComponent<Player>().getScore());
+            max = Mathf.Max(max, playerList[i].getScore());
         }
-        for(int i = 0; i < players.Length; i++)
+        for(int i = 0; i < playerList.Length; i++)
         {
-            if(players[i].GetComponent<Player>().getScore() == max)
+            if(playerList[i].getScore() == max)
             {
-                result.Add(players[i].GetComponent<Player>());   
+                result.Add(playerList[i]);   
             }
         }
         return result;
     }
     public int getScore(int playerNum)
     {
-        return players[playerNum].GetComponent<Player>().getStars() * 1000 + players[playerNum].GetComponent<Player>().getCoins();
+        return playerList[playerNum].getStars() * 1000 + playerList[playerNum].getCoins();
     }
     public void revealPlayerTabs()
     {
@@ -687,20 +730,20 @@ public class GameController : MonoBehaviour {
     }
     public void resetPlayerSpaceTypes()
     {
-        for(int i = 0; i < players.Length; i++)
+        for(int i = 0; i < playerList.Length; i++)
         {
-            players[i].GetComponent<Player>().setSpaceType(2);
+            playerList[i].setSpaceType(2);
         }
     }
     public void saveData()
     {
-        for(int i = 0; i < players.Length; i++)
+        for(int i = 0; i < playerList.Length; i++)
         {
-            Player playerClass = players[i].GetComponent<Player>();
+            Player playerClass = playerList[i];
             gameData.setCurrentSpace(playerClass.getPlayerNum(),playerClass.getCurrentSpace().name);
             gameData.setCurrentSpaceTag(playerClass.getPlayerNum(), playerClass.getCurrentSpace().tag);
             gameData.setNextSpace(playerClass.getPlayerNum(), playerClass.returnNextSpace().name);
-            gameData.setPos(playerClass.getPlayerNum(), players[i].transform.position);
+            gameData.setPos(playerClass.getPlayerNum(), playerList[i].gameObject.transform.position);
             gameData.setCoins(playerClass.getPlayerNum(),playerClass.getCoins());
             gameData.setStars(playerClass.getPlayerNum(), playerClass.getStars());
             gameData.setTurnOrder(playerClass.getPlayerNum(), playerClass.getTurnOrder());

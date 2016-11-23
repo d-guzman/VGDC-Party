@@ -8,8 +8,10 @@ public class ReadyGate : MonoBehaviour
     bool[] playersReady;
     bool allowPlayersReady;
     public Image[] checkList;
+    AudioSource clickSound;
     void Start()
     {
+        clickSound = GetComponent<AudioSource>();
         playersReady = new bool[4];
         playersReady[0] = false;
         playersReady[1] = false;
@@ -93,6 +95,7 @@ public class ReadyGate : MonoBehaviour
         {
             playersReady[x] = true;
             checkList[x].enabled = true;
+            clickSound.Play();
         }
     }
     public bool onePlayerReady()

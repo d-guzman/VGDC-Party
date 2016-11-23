@@ -40,7 +40,7 @@ public class GameData : MonoBehaviour {
             nextSpace[i] = "Space 0";
         }
         gameState = 1;
-        boardState = 1;
+        boardState = 0;
         starSpace = "";
         overallWinner = 0;
         //players need current space, coins, stars, x,y
