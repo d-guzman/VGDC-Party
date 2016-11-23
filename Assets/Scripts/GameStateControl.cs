@@ -30,6 +30,7 @@ public class GameStateControl : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        print(readyGate.onePlayerReady());
         if(readyGate.onePlayerReady() && !gameStart)
         {
             startGame();
@@ -88,11 +89,15 @@ public class GameStateControl : MonoBehaviour {
 
             //int winningPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().getPlayerNum();
             List<int> winningPlayers = winnerList.getWinners();
-            print(winningPlayers.Count);
             for(int i = 0; i < winningPlayers.Count; i++)
             {
-                print(winningPlayers[i]);
-                results[winningPlayers[i]].GetComponent<GetResultsStats>().addCoins(10);
+                for(int j = 0; j < results.Length; j++)
+                {
+                    if (results[j].GetComponent<GetResultsStats>().getPlayerNum() == winningPlayers[i])
+                    {
+                        results[winningPlayers[i]].GetComponent<GetResultsStats>().addCoins(10);
+                    }
+                }                
             }
         } else
         {

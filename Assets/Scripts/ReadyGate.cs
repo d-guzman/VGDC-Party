@@ -127,7 +127,12 @@ public class ReadyGate : MonoBehaviour
     {
         for (int i = 0; i < playersReady.Length; i++)
         {
+
             playersReady[i] = false;
+        }
+        for(int i = 0; i < checkList.Length; i++)
+        {
+            checkList[i].enabled = false;
         }
     }
 }
