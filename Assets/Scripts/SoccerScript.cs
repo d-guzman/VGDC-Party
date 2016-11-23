@@ -110,8 +110,11 @@ public class SoccerScript : MonoBehaviour
             if (result != 0 && !started)
             {
                 setWinner(result);
-                for (int i = 0; i < 2; i++)
-                { events.GetComponent<GameData>().setCoins(win[i]-1, events.GetComponent<GameData>().getCoins(win[i]-1)+10); }
+                if (events.name != "FakeGameData")
+                {
+                    for (int i = 0; i < 2; i++)
+                    { events.GetComponent<GameData>().setCoins(win[i] - 1, events.GetComponent<GameData>().getCoins(win[i] - 1) + 10); }
+                }
                 print("game done");
                 control.GetComponent<GameStateControl>().setGameOver(true);
                 started = true;
