@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class SoccerScript : MonoBehaviour
 {
@@ -14,12 +15,14 @@ public class SoccerScript : MonoBehaviour
     private Rigidbody rb;
     public Material gray, red, blue,yellow,white;
     public Material[] playerMat;
+    private WinnerList winnerList;
     //result: 0 for playing, -1 for left side win, 1 for right side win
 
     // Use this for initialization
 
     void Start()
     {
+        winnerList = GetComponent<WinnerList>();
         events = GameObject.FindGameObjectWithTag("GameData");
         //control = GameObject.Find("MiniGameController");
         leftBound = new Vector3(-21, 0, 0);
@@ -76,18 +79,18 @@ public class SoccerScript : MonoBehaviour
             //temporary implementation
             leftTeam[l] = GameObject.Find("P1_Model");
             leftTeam[l].GetComponent<Renderer>().material = playerMat[l+r];
-            l++;
             blueP[l] = 1;
+            l++;
             leftTeam[l] = GameObject.Find("P2_Model");
             leftTeam[l].GetComponent<Renderer>().material = playerMat[l + r];
             blueP[l] = 2;
             rightTeam[r] = GameObject.Find("P3_Model");
             rightTeam[r].GetComponent<Renderer>().material = playerMat[l + r+1];
+            redP[r] = 3;
             r++;
-            redP[l] = 3;
             rightTeam[r] = GameObject.Find("P4_Model");
             rightTeam[r].GetComponent<Renderer>().material = playerMat[l + r+1];
-            redP[l] = 4;
+            redP[r] = 4;
         }
         leftTeam[0].transform.position = new Vector3(-5, 3, -3);
         leftTeam[1].transform.position = new Vector3(-5, 3, 3);
@@ -110,12 +113,15 @@ public class SoccerScript : MonoBehaviour
             if (result != 0 && !started)
             {
                 setWinner(result);
-                if (events.name != "FakeGameData")
-                {
-                    for (int i = 0; i < 2; i++)
-                    { events.GetComponent<GameData>().setCoins(win[i] - 1, events.GetComponent<GameData>().getCoins(win[i] - 1) + 10); }
-                }
-                print("game done");
+                //if (events.name != "FakeGameData")
+                //{
+                //for (int i = 0; i < 2; i++)
+                //{ events.GetComponent<GameData>().setCoins(win[i] - 1, events.GetComponent<GameData>().getCoins(win[i] - 1) + 10); }
+                //print(getWinner());
+                //}
+                List<int> temp = new List<int>();
+                temp.AddRange(getWinner());
+                winnerList.setWinners(temp);
                 control.GetComponent<GameStateControl>().setGameOver(true);
                 started = true;
             }
@@ -157,6 +163,7 @@ public class SoccerScript : MonoBehaviour
 
     public int[] getWinner()
     {
+        //Returns the indexes of winners
         int[] ret = { win[0]-1,win[1]-1 };
         return ret;
     }
