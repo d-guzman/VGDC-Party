@@ -9,6 +9,7 @@ public class GameStateControl : MonoBehaviour {
     public GameObject startScreen;
     public GameObject endScreen;
     public UIRevealer blackPanel;
+    public WinnerList winnerList;
     GameData gameData;
     private bool gameOver;
     private bool gameStart;
@@ -86,8 +87,13 @@ public class GameStateControl : MonoBehaviour {
             endScreen.GetComponent<UIRevealer>().revealUI();
 
             //int winningPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().getPlayerNum();
-            int winningPlayer = 0;
-            results[winningPlayer].GetComponent<GetResultsStats>().addCoins(10);
+            List<int> winningPlayers = winnerList.getWinners();
+            print(winningPlayers.Count);
+            for(int i = 0; i < winningPlayers.Count; i++)
+            {
+                print(winningPlayers[i]);
+                results[winningPlayers[i]].GetComponent<GetResultsStats>().addCoins(10);
+            }
         } else
         {
             endScreen.GetComponent<UIRevealer>().hideUI();

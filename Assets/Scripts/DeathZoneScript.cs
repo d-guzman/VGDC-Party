@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using System.Collections.Generic;
 public class DeathZoneScript : MonoBehaviour
 {
     // Connect the Player objects to make it easier to deactivate them, and
@@ -21,12 +21,14 @@ public class DeathZoneScript : MonoBehaviour
     private GameObject[] playerList;
 
     public GameObject eventHandler;
+    private WinnerList winnerList;
 
     // If the the player model enters the death zone, the player GameObject will 
     // become deactivated.
     void Start()
     {
         playerList = GetActivePlayers();
+        winnerList = GetComponent<WinnerList>();
     }
     void Update()
     {
@@ -34,6 +36,9 @@ public class DeathZoneScript : MonoBehaviour
         {
             if (eventHandler.GetComponent<GameStateControl>().getGameOver() == false)
             {
+                List<int> temp = new List<int>();
+                temp.Add(playerList[0].GetComponent<Player>().getPlayerNum());
+                winnerList.setWinners(temp);
                 eventHandler.GetComponent<GameStateControl>().setGameOver(true);
             }
         }
