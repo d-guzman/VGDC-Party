@@ -43,6 +43,7 @@ public class GetResultsStats : MonoBehaviour
             updateCoinDelay -= Time.deltaTime;
             if(updateCoinDelay < 2f && updateCoins)
             {
+                addText.gameObject.GetComponent<Text>().enabled = true;
                 addText.revealUI();
             }
         } else
@@ -58,7 +59,12 @@ public class GetResultsStats : MonoBehaviour
     public void setPlayerNum(int x)
     {
         playerNum = x;
+        addText = GameObject.Find("+10Text" + playerNum).GetComponent<UIRevealer>();
         updateData();
+    }
+    public int getPlayerNum()
+    {
+        return playerNum;
     }
     public void addCoins(int x)
     {

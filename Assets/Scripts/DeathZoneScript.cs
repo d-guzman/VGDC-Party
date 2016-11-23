@@ -37,7 +37,10 @@ public class DeathZoneScript : MonoBehaviour
             if (eventHandler.GetComponent<GameStateControl>().getGameOver() == false)
             {
                 List<int> temp = new List<int>();
-                temp.Add(playerList[0].GetComponent<Player>().getPlayerNum());
+                string winner = playerList[0].name;
+                winner = winner.Substring(6);
+              
+                temp.Add((int.Parse(winner) - 1));
                 winnerList.setWinners(temp);
                 eventHandler.GetComponent<GameStateControl>().setGameOver(true);
             }
