@@ -17,6 +17,7 @@ public class dice2d : MonoBehaviour {
     public AudioClip clickSound;
     public AudioClip stopSound;
 	void Start () {
+        audioSource = GetComponent<AudioSource>();
         isRolling = false;
         diceText = GetComponentInChildren<Text>();
         jumpVelocity = 180;
