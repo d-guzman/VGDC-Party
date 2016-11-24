@@ -8,8 +8,12 @@ public class PlayerController : MonoBehaviour {
     private float timer = 5;
     
     //jump
+    // --- isFalling IS A DEPRECIATED VARIABLE. DELETE LATER! 
     public bool isFalling = false;
     private float jumpH=7.0f;
+    private Rigidbody rb;
+    public int maxJumpFrames = 15;
+    private int currentJumpFrames;
 
     //attack
     public bool wasHit = false;
@@ -28,6 +32,7 @@ public class PlayerController : MonoBehaviour {
         gameObject.SetActive(true);
         gameStateControl = GameObject.FindGameObjectWithTag("MiniGameController").GetComponent<GameStateControl>();
         baseString = "P"+gameObject.name.Substring(1, 1);
+        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -42,36 +47,30 @@ public class PlayerController : MonoBehaviour {
                 if (stunned == false)
                 {
                     jumpHit();
-                    Debug.DrawRay(player.transform.position, player.transform.TransformDirection(Vector3.forward) * 10, Color.green);
 
                     float moveHorizontal = Input.GetAxis("P1" + "_Horizontal");
                     float moveVerticle = Input.GetAxis("P1" + "_Vertical");
 
-                    if (Input.GetButtonDown("P1" + "_Fire1") && isFalling == false)
+                    // This is the new jumping mechanic. It works by keeping track of a specific
+                    // amount of frames, and stops jumping when you hit the limit. The frame tracker
+                    // also prevents jump spamming.
+                    if (currentJumpFrames < maxJumpFrames && nowFalling() == false && Input.GetButton("P1_Fire1"))
                     {
-                        Vector3 movementjump = new Vector3(moveHorizontal * speed * Time.deltaTime, jumpH * 1.1f, moveVerticle * speed * Time.deltaTime);
-                        player.GetComponent<Rigidbody>().velocity = movementjump;
-                        isFalling = true;
-                        print(player.GetComponent<Rigidbody>().velocity[1]);
-                        //print(player.GetComponent<Rigidbody>().velocity[2]);
-                        print(player.GetComponent<Rigidbody>().velocity[0]);
-
-
-
+                        rb.useGravity = false;
+                        rb.velocity = Vector3.up * 6.5f;
+                        currentJumpFrames++;
                     }
+                    else
+                    {
+                        if (currentJumpFrames != 0)
+                        {
+                            rb.useGravity = true;
+                            rb.velocity = -Vector3.up * 6.0f;
+                            currentJumpFrames--;
+                        }
+                    }
+                    //
 
-                    // if (player.GetComponent<Rigidbody>().velocity[1] == 7.7)
-                    //{
-                    //  Vector3 moveDown = new Vector3(moveHorizontal * speed * Time.deltaTime, -jumpH / 1.1f, moveVerticle * speed * Time.deltaTime);
-
-                    //player.GetComponent<Rigidbody>().velocity = moveDown;
-                    // }
-                    if (Input.GetButtonUp("P1" + "_Fire1") && isFalling == true)
-                         {
-                         Vector3 moveDown = new Vector3(moveHorizontal * speed * Time.deltaTime, -jumpH / 1.1f, moveVerticle * speed * Time.deltaTime);
-                         player.GetComponent<Rigidbody>().velocity = Vector3.down;
-                         isFalling = false;
-                         }
                     if (player.GetComponent<Rigidbody>().velocity[1] == 0)
                     { isFalling = false; }
                 }
@@ -95,13 +94,23 @@ public class PlayerController : MonoBehaviour {
 
                     float moveHorizontal = Input.GetAxis("P2" + "_Horizontal");
                     float moveVerticle = Input.GetAxis("P2" + "_Vertical");
-
-                    if (Input.GetButtonDown("P2" + "_Fire1") && isFalling == false)
+                    // New Jump Mechanic!
+                    if (currentJumpFrames < maxJumpFrames && nowFalling() == false && Input.GetButton("P2_Fire1"))
                     {
-                        Vector3 movementjump = new Vector3(moveHorizontal * speed * Time.deltaTime, jumpH / 1.1f, moveVerticle * speed * Time.deltaTime);
-                        player.GetComponent<Rigidbody>().velocity = movementjump;
-                        isFalling = true;
+                        rb.useGravity = false;
+                        rb.velocity = Vector3.up * 6.5f;
+                        currentJumpFrames++;
                     }
+                    else
+                    {
+                        if (currentJumpFrames != 0)
+                        {
+                            rb.useGravity = true;
+                            rb.velocity = -Vector3.up * 6.0f;
+                            currentJumpFrames--;
+                        }
+                    }
+                    //
                     if (player.GetComponent<Rigidbody>().velocity[1] == 0)
                     { isFalling = false; }
                 }
@@ -126,13 +135,23 @@ public class PlayerController : MonoBehaviour {
 
                     float moveHorizontal = Input.GetAxis("P3" + "_Horizontal");
                     float moveVerticle = Input.GetAxis("P3" + "_Vertical");
-
-                    if (Input.GetButtonDown("P3" + "_Fire1") && isFalling == false)
+                    // New Jump Mechanic!
+                    if (currentJumpFrames < maxJumpFrames && nowFalling() == false && Input.GetButton("P3_Fire1"))
                     {
-                        Vector3 movementjump = new Vector3(moveHorizontal * speed * Time.deltaTime, jumpH / 1.1f, moveVerticle * speed * Time.deltaTime);
-                        player.GetComponent<Rigidbody>().velocity = movementjump;
-                        isFalling = true;
+                        rb.useGravity = false;
+                        rb.velocity = Vector3.up * 6.5f;
+                        currentJumpFrames++;
                     }
+                    else
+                    {
+                        if (currentJumpFrames != 0)
+                        {
+                            rb.useGravity = true;
+                            rb.velocity = -Vector3.up * 6.0f;
+                            currentJumpFrames--;
+                        }
+                    }
+                    //
                     if (player.GetComponent<Rigidbody>().velocity[1] == 0)
                     { isFalling = false; }
                 }
@@ -158,11 +177,28 @@ public class PlayerController : MonoBehaviour {
                     float moveHorizontal = Input.GetAxis("P4" + "_Horizontal");
                     float moveVerticle = Input.GetAxis("P4" + "_Vertical");
 
+                    /* OLD JUMP MECHANIC
                     if (Input.GetButtonDown("P4" + "_Fire1") && isFalling == false)
                     {
                         Vector3 movementjump = new Vector3(moveHorizontal * speed * Time.deltaTime, jumpH / 1.1f, moveVerticle * speed * Time.deltaTime);
                         player.GetComponent<Rigidbody>().velocity = movementjump;
                         isFalling = true;
+                    }
+                    */
+                    if (currentJumpFrames < maxJumpFrames && nowFalling() == false && Input.GetButton("P4_Fire1"))
+                    {
+                        rb.useGravity = false;
+                        rb.velocity = Vector3.up * 6.5f;
+                        currentJumpFrames++;
+                    }
+                    else
+                    {
+                        if (currentJumpFrames != 0)
+                        {
+                            rb.useGravity = true;
+                            rb.velocity = -Vector3.up * 6.0f;
+                            currentJumpFrames--;
+                        }
                     }
                     if (player.GetComponent<Rigidbody>().velocity[1] == 0)
                     { isFalling = false; }
@@ -179,9 +215,6 @@ public class PlayerController : MonoBehaviour {
 
             }
             
-        } else
-        {
-           
         }
     }
 
@@ -225,6 +258,17 @@ public class PlayerController : MonoBehaviour {
         {
             enemy.collider.attachedRigidbody.AddForce((enemy.transform.up)*4+enemy.transform.forward, ForceMode.VelocityChange);
             stun();
+        }
+    }
+
+    private bool nowFalling() {
+        if (rb.velocity.y < -.001f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
     
