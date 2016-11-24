@@ -30,7 +30,7 @@ public class GameStateControl : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        print(readyGate.onePlayerReady());
+        
         if(readyGate.onePlayerReady() && !gameStart)
         {
             startGame();

@@ -139,7 +139,7 @@ public class startMenu : MonoBehaviour {
             menuState = CREDITS;
             eventSystem.SetSelectedGameObject(null);
             menuScreens[1].revealUI();
-            animationTimer = 2.3f;
+            animationTimer = 2.6f;
             eventSystem.SetSelectedGameObject(GameObject.Find("BackButton2"));
             afterPressDelay = 0.5f;//prevents button pressing while the menu screen moves
 
@@ -341,29 +341,37 @@ public class startMenu : MonoBehaviour {
 
             if (animationTimer > 0)
             {
-                if (animationTimer > 2)
+                if (animationTimer > 2f)
                 {
                     creditsElements[0].revealUI();
-                } else if (animationTimer > 1.6f)
+                } else if (animationTimer > 1.8f)
                 {
                     creditsElements[1].revealUI();
-                    creditsElements[6].revealUI();
-                } else if (animationTimer > 1.3f)
+                    creditsElements[8].revealUI();
+                } else if (animationTimer > 1.6f)
                 {
                     creditsElements[2].revealUI();
-                    creditsElements[7].revealUI();
-                } else if (animationTimer > 1f)
+                    creditsElements[9].revealUI();
+                } else if (animationTimer > 1.4f)
                 {
                     creditsElements[3].revealUI();
-                    creditsElements[8].revealUI();
-                } else if (animationTimer > 0.7f)
+                    creditsElements[10].revealUI();
+                } else if (animationTimer > 1.2f)
                 {
                     creditsElements[4].revealUI();
-                    creditsElements[9].revealUI();
-                } else if(animationTimer > 0.4f)
+                    creditsElements[11].revealUI();
+                } else if(animationTimer > 1f)
                 {
                     creditsElements[5].revealUI();
-                    creditsElements[10].revealUI();
+                    creditsElements[12].revealUI();
+                } else if(animationTimer > 0.8f)
+                {
+                    creditsElements[6].revealUI();
+                    creditsElements[13].revealUI();
+                } else if(animationTimer > 0.6f)
+                {
+                    creditsElements[7].revealUI();
+                    creditsElements[14].revealUI();
                 }
                 animationTimer -= Time.deltaTime;
             }

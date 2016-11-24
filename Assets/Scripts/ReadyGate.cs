@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Diagnostics;
 public class ReadyGate : MonoBehaviour
 {
 
@@ -9,7 +10,7 @@ public class ReadyGate : MonoBehaviour
     bool allowPlayersReady;
     public Image[] checkList;
     AudioSource clickSound;
-    void Start()
+    void Awake()
     {
         clickSound = GetComponent<AudioSource>();
         playersReady = new bool[4];
@@ -122,6 +123,7 @@ public class ReadyGate : MonoBehaviour
     public void allowReadying(bool x)
     {
         allowPlayersReady = x;
+        
     }
     public void unReadyAllPlayers()
     {
