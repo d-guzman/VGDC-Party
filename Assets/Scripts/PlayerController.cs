@@ -3,219 +3,111 @@ using System.Collections;
 
 
 public class PlayerController : MonoBehaviour {
+    private int playerNum;  //which player this represents [0,1,2,3]
     //stun
-    public bool stunned = false;
+    private bool stunned = false;
     private float timer = 5;
-    
+    bool touchingPlayer = false;
     //jump
     // --- isFalling IS A DEPRECIATED VARIABLE. DELETE LATER! 
-    public bool isFalling = false;
-    private float jumpH=7.0f;
+    private bool isFalling = false;
+    public float jumpVelocity=10f;
     private Rigidbody rb;
-    public int maxJumpFrames = 15;
-    private int currentJumpFrames;
-
+    float jumpTimer;
+    public float grav1Duration;
+    public bool onGround = true;
+    bool jumpButtonHeld = false;
+    bool inAir = false;
+    bool jumping = false;
     //attack
-    public bool wasHit = false;
-    public bool punching = false;
-
+    private bool wasHit = false;
+    private bool punching = false;
+    float punchCooldown;
     //body
     
     private float speed=5f;
-    public GameObject player;
+    
 
     private GameStateControl gameStateControl;
+    private playerCollisionControl collisionController;
     private string baseString;
-
+    //friction materials
+    public PhysicMaterial highFriction;
+    public PhysicMaterial lowFriction;
+    //additional gravity
+    public float additionalGravity; //in terms of 1G.  a value of 2 adds double gravity to current gravity, making 3x grav total
     void Start()
     {
         gameObject.SetActive(true);
         gameStateControl = GameObject.FindGameObjectWithTag("MiniGameController").GetComponent<GameStateControl>();
-        baseString = "P"+gameObject.name.Substring(1, 1);
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponentInChildren<Rigidbody>();
+        collisionController = GetComponentInChildren<playerCollisionControl>();
+        if(gameObject.name == "Player1")
+        {
+            playerNum = 0;
+            baseString = "P1";
+        } else if(gameObject.name == "Player2")
+        {
+            playerNum = 1;
+            baseString = "P2";
+        } else if(gameObject.name == "Player3")
+        {
+            playerNum = 2;
+            baseString = "P3";
+        } else if(gameObject.name == "Player4")
+        {
+            playerNum = 3;
+            baseString = "P4";
+        }
     }
 
     void Update()
     {
-
+        onGround = collisionController.onGround();
+        if (onGround)
+        {
+            jumping = false;
+        }
+        touchingPlayer = collisionController.touchingPlayer();
+        
+        //print("onGround: " + onGround + ", jumping: " + jumping + ", touchingPlayer: " + touchingPlayer);
+        jumpButtonHeld = Input.GetButton(baseString + "_Fire1"); //doesn't activate any actions, just needed info
         if (gameStateControl.getGameStarted() && !gameStateControl.getGameOver())
         {
-
-            if (player.name == "P1_Model")
+            
+            if (stunned == false)
             {
-
-                if (stunned == false)
+                runJumpPhysics();
+                if(!jumping && onGround)
                 {
-                    jumpHit();
-
-                    float moveHorizontal = Input.GetAxis("P1" + "_Horizontal");
-                    float moveVerticle = Input.GetAxis("P1" + "_Vertical");
-
-                    // This is the new jumping mechanic. It works by keeping track of a specific
-                    // amount of frames, and stops jumping when you hit the limit. The frame tracker
-                    // also prevents jump spamming.
-                    if (currentJumpFrames < maxJumpFrames && nowFalling() == false && Input.GetButton("P1_Fire1"))
+                    if (Input.GetButtonDown(baseString + "_Fire1")) //activate jump
                     {
-                        rb.useGravity = false;
-                        rb.velocity = Vector3.up * 6.5f;
-                        currentJumpFrames++;
+                        jump(jumpVelocity);
                     }
-                    else
-                    {
-                        if (currentJumpFrames != 0)
-                        {
-                            rb.useGravity = true;
-                            rb.velocity = -Vector3.up * 6.0f;
-                            currentJumpFrames--;
-                        }
-                    }
-                    //
-
-                    if (player.GetComponent<Rigidbody>().velocity[1] == 0)
-                    { isFalling = false; }
                 }
-                else
-                {
-                    player.GetComponent<Collider>().attachedRigidbody.AddForce(-player.transform.forward, ForceMode.VelocityChange);
-                    stunned = false;
-                    punching = false;
-
-                }
-                punch("P1");
+                jumpHit();
+                float moveHorizontal = Input.GetAxis(baseString + "_Horizontal");
+                float moveVerticle = Input.GetAxis(baseString + "_Vertical");
+                
             }
-
-            if (player.name == "P2_Model")
+            else
             {
-
-
-                if (stunned == false)
-                {
-                    jumpHit();
-
-                    float moveHorizontal = Input.GetAxis("P2" + "_Horizontal");
-                    float moveVerticle = Input.GetAxis("P2" + "_Vertical");
-                    // New Jump Mechanic!
-                    if (currentJumpFrames < maxJumpFrames && nowFalling() == false && Input.GetButton("P2_Fire1"))
-                    {
-                        rb.useGravity = false;
-                        rb.velocity = Vector3.up * 6.5f;
-                        currentJumpFrames++;
-                    }
-                    else
-                    {
-                        if (currentJumpFrames != 0)
-                        {
-                            rb.useGravity = true;
-                            rb.velocity = -Vector3.up * 6.0f;
-                            currentJumpFrames--;
-                        }
-                    }
-                    //
-                    if (player.GetComponent<Rigidbody>().velocity[1] == 0)
-                    { isFalling = false; }
-                }
-                else
-                {
-
-                    player.GetComponent<Collider>().attachedRigidbody.AddForce(-player.transform.forward, ForceMode.VelocityChange);
-                    stunned = false;
-                    punching = false;
-
-                }
-
-                punch("P2");
-
+               rb.AddForce(-transform.forward, ForceMode.VelocityChange);
+                stunned = false;
+                punching = false;
+                jumpButtonHeld = false;
             }
+            punch(baseString);
+            
 
-            if (player.name == "P3_Model")
-            {
-                if (stunned == false)
-                {
-                    jumpHit();
+            
 
-                    float moveHorizontal = Input.GetAxis("P3" + "_Horizontal");
-                    float moveVerticle = Input.GetAxis("P3" + "_Vertical");
-                    // New Jump Mechanic!
-                    if (currentJumpFrames < maxJumpFrames && nowFalling() == false && Input.GetButton("P3_Fire1"))
-                    {
-                        rb.useGravity = false;
-                        rb.velocity = Vector3.up * 6.5f;
-                        currentJumpFrames++;
-                    }
-                    else
-                    {
-                        if (currentJumpFrames != 0)
-                        {
-                            rb.useGravity = true;
-                            rb.velocity = -Vector3.up * 6.0f;
-                            currentJumpFrames--;
-                        }
-                    }
-                    //
-                    if (player.GetComponent<Rigidbody>().velocity[1] == 0)
-                    { isFalling = false; }
-                }
-                else
-                {
-                    player.GetComponent<Collider>().attachedRigidbody.AddForce(-player.transform.forward, ForceMode.VelocityChange);
-                    stunned = false;
-                    punching = false;
 
-                }
-
-                punch("P3");
-
-            }
-
-            if (player.name == "P4_Model")
-            {
-
-                if (stunned == false)
-                {
-                    jumpHit();
-
-                    float moveHorizontal = Input.GetAxis("P4" + "_Horizontal");
-                    float moveVerticle = Input.GetAxis("P4" + "_Vertical");
-
-                    /* OLD JUMP MECHANIC
-                    if (Input.GetButtonDown("P4" + "_Fire1") && isFalling == false)
-                    {
-                        Vector3 movementjump = new Vector3(moveHorizontal * speed * Time.deltaTime, jumpH / 1.1f, moveVerticle * speed * Time.deltaTime);
-                        player.GetComponent<Rigidbody>().velocity = movementjump;
-                        isFalling = true;
-                    }
-                    */
-                    if (currentJumpFrames < maxJumpFrames && nowFalling() == false && Input.GetButton("P4_Fire1"))
-                    {
-                        rb.useGravity = false;
-                        rb.velocity = Vector3.up * 6.5f;
-                        currentJumpFrames++;
-                    }
-                    else
-                    {
-                        if (currentJumpFrames != 0)
-                        {
-                            rb.useGravity = true;
-                            rb.velocity = -Vector3.up * 6.0f;
-                            currentJumpFrames--;
-                        }
-                    }
-                    if (player.GetComponent<Rigidbody>().velocity[1] == 0)
-                    { isFalling = false; }
-                }
-                else
-                {
-                    player.GetComponent<Collider>().attachedRigidbody.AddForce(-player.transform.forward, ForceMode.VelocityChange);
-                    stunned = false;
-                    punching = false;
-
-                }
-
-                punch("P4");
+               
 
             }
             
-        }
+        
     }
 
 
@@ -231,10 +123,10 @@ public class PlayerController : MonoBehaviour {
             RaycastHit enemy;
            
             Vector3 half = new Vector3(.6f, .6f, .6f);
-            if (Physics.BoxCast(player.transform.position, half, player.transform.forward, out enemy,Quaternion.identity, 1f))
+            if (Physics.BoxCast(transform.position, half, transform.forward, out enemy,Quaternion.identity, 1f))
             {
                 print("hited");
-                enemy.collider.attachedRigidbody.AddForce(player.transform.forward*7,ForceMode.VelocityChange);
+                enemy.collider.attachedRigidbody.AddForce(transform.forward*7,ForceMode.VelocityChange);
 
                 punching = false;
             }
@@ -245,16 +137,14 @@ public class PlayerController : MonoBehaviour {
 
     void stun()
     {
-        
         stunned=true;
-        punching = true;
-       
+        punching = true; 
     }
 
     void jumpHit()
     {
         RaycastHit enemy;
-        if (Physics.Raycast(player.transform.position, Vector3.up, out enemy,.7f))
+        if (Physics.Raycast(transform.position, Vector3.up, out enemy,.7f))
         {
             enemy.collider.attachedRigidbody.AddForce((enemy.transform.up)*4+enemy.transform.forward, ForceMode.VelocityChange);
             stun();
@@ -272,13 +162,41 @@ public class PlayerController : MonoBehaviour {
         }
     }
     
-    
+    void runJumpPhysics()
+    {
+        if (jumping)
+        {
+            jumpTimer += Time.deltaTime;
+            if(jumpTimer < grav1Duration && jumpButtonHeld)
+            {
+                //use normal gravity while within grav1Duration AND player is holding down jump
+                //add no additional gravity for part one of jump
+                print("normal gravity");
+            } else
+            {
+                //use higher gravity after grav1Duration expires OR player stops holding jump
+                //add additional gravity
+                rb.AddForce(Physics.gravity * additionalGravity * rb.mass);
+                print("high gravity");
+            }
+        }
+        
+    }
+    void jump(float upForce)
+    {
+        jumpTimer = 0f;  //will start counting up from here
+        onGround = false;
+        jumping = true;
+        rb.position = rb.position + Vector3.up * 0.1f;
+        rb.velocity = Vector3.up * jumpVelocity;
+        print("PLAYER JUMPED");
+    }
 
-	
- 
-
-    
 
 
-   
-}
+
+
+
+
+
+    }
