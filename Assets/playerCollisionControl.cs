@@ -4,8 +4,8 @@ using System.Collections;
 public class playerCollisionControl : MonoBehaviour {
 
     // Use this for initialization
-    private bool grounded;
-    private bool touchPlayer;
+    public bool grounded;
+    public bool touchPlayer;
     Rigidbody rb;
 	void Start () {
         rb = GetComponent<Rigidbody>();

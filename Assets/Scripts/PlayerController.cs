@@ -18,11 +18,19 @@ public class PlayerController : MonoBehaviour {
     public bool onGround = true;
     bool jumpButtonHeld = false;
     bool inAir = false;
-    bool jumping = false;
+    public bool jumping = false;
     //attack
     private bool wasHit = false;
     private bool punching = false;
     float punchCooldown;
+    public float stunDuration;
+    private float stunTimer = 0;
+    //movement
+    public float playerMaxSpeed = 1000f;
+    public float playerAccel = 100f;
+    private Vector3 joyStickVector;
+    private float joyStickVectorMag;
+    private Vector3 horzVelocity;
     //body
     
     private float speed=5f;
@@ -34,6 +42,7 @@ public class PlayerController : MonoBehaviour {
     //friction materials
     public PhysicMaterial highFriction;
     public PhysicMaterial lowFriction;
+    private Material myMaterial;
     //additional gravity
     public float additionalGravity; //in terms of 1G.  a value of 2 adds double gravity to current gravity, making 3x grav total
     void Start()
@@ -59,54 +68,71 @@ public class PlayerController : MonoBehaviour {
             playerNum = 3;
             baseString = "P4";
         }
+        myMaterial = GetComponentInChildren<Renderer>().material;
+        
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        onGround = collisionController.onGround();
-        if (onGround)
-        {
-            jumping = false;
-        }
-        touchingPlayer = collisionController.touchingPlayer();
-        
+        getData();
+        preventShoving();
+
         //print("onGround: " + onGround + ", jumping: " + jumping + ", touchingPlayer: " + touchingPlayer);
-        jumpButtonHeld = Input.GetButton(baseString + "_Fire1"); //doesn't activate any actions, just needed info
+
         if (gameStateControl.getGameStarted() && !gameStateControl.getGameOver())
         {
-            
-            if (stunned == false)
+            runMovementPhysics();
+            GetComponentInChildren<RotateToDirection>().setDisabled(false);
+            if (stunned)
             {
-                runJumpPhysics();
-                if(!jumping && onGround)
+                if(stunTimer > 0)
                 {
-                    if (Input.GetButtonDown(baseString + "_Fire1")) //activate jump
-                    {
-                        jump(jumpVelocity);
-                    }
+                    stunTimer -= Time.deltaTime;
+                    myMaterial.SetColor("_Color", Color.red);
+                } else
+                {
+                    stunned = false;
+                    myMaterial.SetColor("_Color", Color.white);
+
+
                 }
-                jumpHit();
-                float moveHorizontal = Input.GetAxis(baseString + "_Horizontal");
-                float moveVerticle = Input.GetAxis(baseString + "_Vertical");
-                
-            }
-            else
+
+            } else
             {
-               rb.AddForce(-transform.forward, ForceMode.VelocityChange);
-                stunned = false;
-                punching = false;
-                jumpButtonHeld = false;
+                if(Input.GetButtonDown(baseString + "_Fire2"))
+                {
+                    punch();
+                }
             }
-            punch(baseString);
-            
+        } else
+        {
+            applyFriction();
+            GetComponentInChildren<RotateToDirection>().setDisabled(true);
 
-            
+        }
 
 
-               
 
+
+
+    }
+    void Update()
+    {
+        //must run AFTER fixedUpdate because onGround value is updated during fixedUpdate in PlayerCollisionController
+        //Should not cause issues because jumping is a very simple physics interaction without many moving parts
+        //this regulates jumping
+        if (!stunned)
+        {
+            if (!jumping && onGround)
+            {
+                if (Input.GetButtonDown(baseString + "_Fire1")) //activate jump
+                {
+                    jump(jumpVelocity);
+                }
             }
-            
+        }
+        runJumpPhysics();
+
         
     }
 
@@ -114,53 +140,42 @@ public class PlayerController : MonoBehaviour {
 
    
 
-    void punch(string x)
+    void punch()
     {
-        if (Input.GetButtonDown(x+"_Fire2")&& punching==false)
-        {
-            print("punch");
-            punching = true;
-            RaycastHit enemy;
+       
+        Transform modelTransform = transform.GetChild(0);
+        print(modelTransform.name);
+        print("punch");
+
+        RaycastHit[] hitList;
            
-            Vector3 half = new Vector3(.6f, .6f, .6f);
-            if (Physics.BoxCast(transform.position, half, transform.forward, out enemy,Quaternion.identity, 1f))
-            {
-                print("hited");
-                enemy.collider.attachedRigidbody.AddForce(transform.forward*7,ForceMode.VelocityChange);
-
-                punching = false;
-            }
-            else
-            { punching = false; }
+        Vector3 half = new Vector3(1f, .2f, 0.1f);
+        hitList = Physics.BoxCastAll(modelTransform.position + modelTransform.forward * 1.6f, half, modelTransform.forward, Quaternion.identity, 10f);
+        for(int i = 0; i < hitList.Length; i++)
+        {
+            
+            hitList[i].collider.attachedRigidbody.velocity += modelTransform.forward * 10f;
+            hitList[i].collider.GetComponentInParent<PlayerController>().setStunned(stunDuration);
+            print("Hit Player: " + hitList[i].collider.gameObject.name);
         }
-    }
+            
 
-    void stun()
+                
+        
+           
+        
+    }
+    public void setStunned(float duration)
     {
-        stunned=true;
-        punching = true; 
+        //force has already been applied by the player who hits this player
+        stunned = true;
+        stunTimer = stunDuration;
     }
+    
 
-    void jumpHit()
-    {
-        RaycastHit enemy;
-        if (Physics.Raycast(transform.position, Vector3.up, out enemy,.7f))
-        {
-            enemy.collider.attachedRigidbody.AddForce((enemy.transform.up)*4+enemy.transform.forward, ForceMode.VelocityChange);
-            stun();
-        }
-    }
+    
 
-    private bool nowFalling() {
-        if (rb.velocity.y < -.001f)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    
     
     void runJumpPhysics()
     {
@@ -182,18 +197,89 @@ public class PlayerController : MonoBehaviour {
         }
         
     }
-    void jump(float upForce)
+    public void runMovementPhysics()
+    {
+        horzVelocity = new Vector3(rb.velocity.x,0,rb.velocity.z);
+        Vector3 moveVector = joyStickVector * playerAccel * Time.deltaTime;
+        horzVelocity += moveVector;
+        if(horzVelocity.magnitude > playerMaxSpeed)
+        {
+            //if moving too fast, cap to max speed
+            horzVelocity = horzVelocity.normalized * playerMaxSpeed;
+        }
+
+        applyFriction();
+
+        horzVelocity.y = rb.velocity.y;
+        rb.velocity = horzVelocity;
+        
+        
+    }
+    public void applyFriction()
+    {
+        if (!stunned)
+        {
+            if (joyStickVectorMag < 0.1f)
+            {
+                //if not moving, apply friction
+                //this is better than physics friction because it applies in mid air
+                horzVelocity *= 10f * Time.deltaTime;
+            }
+        } else
+        {
+            //minimal friction while stunned
+            horzVelocity *= 40 * Time.deltaTime; 
+            //translation: horzVelocity will lose (X*100)% horizontal velocity over 1 FULL SECOND
+        }
+        
+    }
+    void jump(float upVelocity)
     {
         jumpTimer = 0f;  //will start counting up from here
         onGround = false;
         jumping = true;
-        rb.position = rb.position + Vector3.up * 0.1f;
-        rb.velocity = Vector3.up * jumpVelocity;
-        print("PLAYER JUMPED");
+        rb.velocity += Vector3.up * upVelocity;
+
     }
+    public void preventShoving()
+    {
+        //moving players should not passively shove non-moving players
+        //if not  moving, mass increases
+        if (onGround && !stunned)
+        {
+            if (joyStickVectorMag < 0.1f)
+            {
+                rb.mass = 1000000f;
+            }
+            else
+            {
+                rb.mass = 1f;
+            }
+        } else
+        {
+            rb.mass = 1f;
+        }
+        
+    }
+    
+    public void getData()
+    {
+        //updates variables that store data to be used later in the fixedUpdate()
+        float move_Hori = Input.GetAxisRaw(baseString + "_Horizontal");
+        float move_Vert = Input.GetAxisRaw(baseString + "_Vertical");
 
-
-
+        joyStickVector = new Vector3(move_Hori, 0.0f, move_Vert);
+        joyStickVectorMag = joyStickVector.magnitude;
+        onGround = collisionController.onGround();
+        if (onGround && jumpTimer > 0.1f)
+        {
+            jumping = false;
+        }
+        touchingPlayer = collisionController.touchingPlayer();
+        jumpButtonHeld = Input.GetButton(baseString + "_Fire1"); //doesn't activate any actions, just needed info
+    }
+   
+    
 
 
 
