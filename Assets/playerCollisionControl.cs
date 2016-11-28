@@ -6,9 +6,11 @@ public class playerCollisionControl : MonoBehaviour {
     // Use this for initialization
     public bool grounded;
     public bool touchPlayer;
+    public bool hit;
     Rigidbody rb;
 	void Start () {
         rb = GetComponent<Rigidbody>();
+        hit = false;
 	}
     void FixedUpdate()
     {
@@ -21,6 +23,7 @@ public class playerCollisionControl : MonoBehaviour {
         }
         grounded = false;
         touchPlayer = false;
+        hit = false;
     }
     void Update()
     {
@@ -37,8 +40,14 @@ public class playerCollisionControl : MonoBehaviour {
         {
             touchPlayer = true;
         }
+        if (collision.gameObject.CompareTag("Arm"))
+        {
+            hit = true;
+            print(collision.transform.forward * 10);
+            rb.velocity = collision.transform.forward * 10f;
+        }
     }
-    
+
     public bool onGround()
     {
         return grounded;
@@ -46,5 +55,9 @@ public class playerCollisionControl : MonoBehaviour {
     public bool touchingPlayer()
     {
         return touchPlayer;
+    }
+    public bool playerHit()
+    {
+        return hit;
     }
 }

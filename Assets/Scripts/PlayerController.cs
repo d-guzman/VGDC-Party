@@ -45,11 +45,17 @@ public class PlayerController : MonoBehaviour {
     private Material myMaterial;
     //additional gravity
     public float additionalGravity; //in terms of 1G.  a value of 2 adds double gravity to current gravity, making 3x grav total
+    private Rigidbody arm;
+    public float punchDuration;
+    public float punchTimer;
+    public float punchDistance;
     void Start()
     {
         gameObject.SetActive(true);
         gameStateControl = GameObject.FindGameObjectWithTag("MiniGameController").GetComponent<GameStateControl>();
-        rb = GetComponentInChildren<Rigidbody>();
+       
+        
+        
         collisionController = GetComponentInChildren<playerCollisionControl>();
         if(gameObject.name == "Player1")
         {
@@ -68,6 +74,8 @@ public class PlayerController : MonoBehaviour {
             playerNum = 3;
             baseString = "P4";
         }
+        rb = transform.Find(baseString + "_Model").GetComponent<Rigidbody>();
+        arm = transform.Find(baseString + "_Arm").GetComponent<Rigidbody>();
         myMaterial = GetComponentInChildren<Renderer>().material;
         
     }
@@ -106,6 +114,7 @@ public class PlayerController : MonoBehaviour {
             }
         } else
         {
+            stunned = false;
             applyFriction();
             GetComponentInChildren<RotateToDirection>().setDisabled(true);
 
@@ -121,6 +130,8 @@ public class PlayerController : MonoBehaviour {
         //must run AFTER fixedUpdate because onGround value is updated during fixedUpdate in PlayerCollisionController
         //Should not cause issues because jumping is a very simple physics interaction without many moving parts
         //this regulates jumping
+        getData();
+
         if (!stunned)
         {
             if (!jumping && onGround)
@@ -130,6 +141,13 @@ public class PlayerController : MonoBehaviour {
                     jump(jumpVelocity);
                 }
             }
+            if (collisionController.playerHit())
+            {
+                setStunned(stunDuration);
+            }
+        } else
+        {
+            
         }
         runJumpPhysics();
 
@@ -139,7 +157,7 @@ public class PlayerController : MonoBehaviour {
 
 
    
-
+    /*
     void punch()
     {
        
@@ -149,8 +167,8 @@ public class PlayerController : MonoBehaviour {
 
         RaycastHit[] hitList;
            
-        Vector3 half = new Vector3(1f, .2f, 0.1f);
-        hitList = Physics.BoxCastAll(modelTransform.position + modelTransform.forward * 1.6f, half, modelTransform.forward, Quaternion.identity, 10f);
+        Vector3 half = new Vector3(.5f, .2f, 0.5f);
+        hitList = Physics.BoxCastAll(modelTransform.position + modelTransform.forward * 1.6f, half, modelTransform.forward, Quaternion.identity, 2f);
         for(int i = 0; i < hitList.Length; i++)
         {
             
@@ -165,6 +183,14 @@ public class PlayerController : MonoBehaviour {
            
         
     }
+    */
+    
+    void punch()
+    {
+        punchTimer = 0;
+        
+    }
+    
     public void setStunned(float duration)
     {
         //force has already been applied by the player who hits this player
@@ -223,13 +249,19 @@ public class PlayerController : MonoBehaviour {
             {
                 //if not moving, apply friction
                 //this is better than physics friction because it applies in mid air
-                horzVelocity *= 10f * Time.deltaTime;
+                horzVelocity *= (1-Time.deltaTime*5);
             }
         } else
         {
             //minimal friction while stunned
-            horzVelocity *= 40 * Time.deltaTime; 
-            //translation: horzVelocity will lose (X*100)% horizontal velocity over 1 FULL SECOND
+            horzVelocity *= (1-Time.deltaTime*1.5f); 
+
+        }
+        if (gameStateControl.getGameOver())
+        {
+            horzVelocity *= (1 - Time.deltaTime * 5);
+            horzVelocity.y = rb.velocity.y;
+            rb.velocity = horzVelocity;
         }
         
     }
@@ -278,8 +310,8 @@ public class PlayerController : MonoBehaviour {
         touchingPlayer = collisionController.touchingPlayer();
         jumpButtonHeld = Input.GetButton(baseString + "_Fire1"); //doesn't activate any actions, just needed info
     }
-   
     
+
 
 
 
