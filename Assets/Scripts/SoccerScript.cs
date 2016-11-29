@@ -59,6 +59,7 @@ public class SoccerScript : MonoBehaviour
                     blueP[l] = i;
                     //leftTeam[l] = GameObject.Find("Player" + i.ToString());
                     leftTeam[l] = GameObject.Find("P" + i.ToString()+"_Model");
+                    GameObject.Find("Hat" + i.ToString()).GetComponent<Renderer>().material = blue;
                     //leftTeam[l].GetComponentInChildren<Renderer>().material = playerMat[i-1];
                     leftTeam[l].GetComponent<Renderer>().material = playerMat[i];
                     l++;
@@ -68,6 +69,7 @@ public class SoccerScript : MonoBehaviour
                     redP[r] = i;
                     //rightTeam[r] = GameObject.Find("Player" + i.ToString());
                     rightTeam[r] = GameObject.Find("P" + i.ToString()+"_Model");
+                    GameObject.Find("Hat" + i.ToString()).GetComponent<Renderer>().material = red;
                     //rightTeam[r].GetComponentInChildren<Renderer>().material = playerMat[i-1];
                     rightTeam[r].GetComponent<Renderer>().material = playerMat[i];
                     r++;
@@ -77,16 +79,10 @@ public class SoccerScript : MonoBehaviour
         else
         {
             //temporary implementation
-            leftTeam[l] = GameObject.Find("P1_Model");
-            leftTeam[l].GetComponent<Renderer>().material = playerMat[l+r];
-            l++;
-            leftTeam[l] = GameObject.Find("P2_Model");
-            leftTeam[l].GetComponent<Renderer>().material = playerMat[l + r];
-            rightTeam[r] = GameObject.Find("P3_Model");
-            rightTeam[r].GetComponent<Renderer>().material = playerMat[l + r+1];
-            r++;
-            rightTeam[r] = GameObject.Find("P4_Model");
-            rightTeam[r].GetComponent<Renderer>().material = playerMat[l + r+1];
+            GameObject.Find("Hat1").GetComponent<Renderer>().material = blue;
+            GameObject.Find("Hat2").GetComponent<Renderer>().material = blue;
+            GameObject.Find("Hat3").GetComponent<Renderer>().material = red;
+            GameObject.Find("Hat4").GetComponent<Renderer>().material = red;
             leftTeam[0] = GameObject.Find("P1_Model");
             leftTeam[0].GetComponent<Renderer>().material = playerMat[0];
             blueP[0] = 0;
@@ -109,6 +105,7 @@ public class SoccerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //add something so on collision with ball there's force added
         if (Input.GetButtonDown("SubmitStart"))
         {
             control.GetComponent<GameStateControl>().startGame();
