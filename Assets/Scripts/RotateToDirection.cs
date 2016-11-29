@@ -39,11 +39,11 @@ public class RotateToDirection : MonoBehaviour
             float move_Vert = Input.GetAxisRaw(baseString + "_Vertical");
             Vector3 playerMove = new Vector3(move_Hori , 0.0f, move_Vert);
 
-            if(playerMove.magnitude > 0.5f && !player.GetComponentInParent<PlayerController>().isStunned())
+            if(playerMove.magnitude > 0.5f)
             {
                 playerRotate = Quaternion.LookRotation(playerMove);    
             }
-            Quaternion rotation = Quaternion.Slerp(player.transform.rotation, playerRotate, 10.0f * Time.deltaTime);
+            Quaternion rotation = Quaternion.Slerp(player.transform.rotation, playerRotate, 20.0f * Time.deltaTime);
             rb.MoveRotation(rotation);
         }
 
