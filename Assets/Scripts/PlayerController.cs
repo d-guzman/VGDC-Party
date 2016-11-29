@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour {
     public float punchDuration;
     public float punchTimer;
     public float punchDistance;
+    private float punchVelocity;
     void Start()
     {
         gameObject.SetActive(true);
@@ -89,10 +90,12 @@ public class PlayerController : MonoBehaviour {
 
         if (gameStateControl.getGameStarted() && !gameStateControl.getGameOver())
         {
+            print(stunned);
             runMovementPhysics();
             GetComponentInChildren<RotateToDirection>().setDisabled(false);
             if (stunned)
             {
+                
                 if(stunTimer > 0)
                 {
                     stunTimer -= Time.deltaTime;
@@ -101,8 +104,6 @@ public class PlayerController : MonoBehaviour {
                 {
                     stunned = false;
                     myMaterial.SetColor("_Color", Color.white);
-
-
                 }
 
             } else
@@ -110,6 +111,14 @@ public class PlayerController : MonoBehaviour {
                 if(Input.GetButtonDown(baseString + "_Fire2"))
                 {
                     punch();
+                }
+                if(punchTimer < punchDuration)
+                {
+                    punchTimer += Time.deltaTime;
+                    punchVelocity = Mathf.Cos(Mathf.Lerp(0,6.28f,punchTimer/punchDuration)) * punchDistance;
+                    print(arm.position);
+                    //arm.position = (arm.position + transform.forward * punchVelocity);
+                    arm.velocity = transform.forward * punchVelocity;
                 }
             }
         } else
@@ -225,27 +234,39 @@ public class PlayerController : MonoBehaviour {
     }
     public void runMovementPhysics()
     {
-        horzVelocity = new Vector3(rb.velocity.x,0,rb.velocity.z);
-        Vector3 moveVector = joyStickVector * playerAccel * Time.deltaTime;
-        horzVelocity += moveVector;
-        if(horzVelocity.magnitude > playerMaxSpeed)
+        horzVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        if (!stunned)
         {
-            //if moving too fast, cap to max speed
-            horzVelocity = horzVelocity.normalized * playerMaxSpeed;
+            
+            if (joyStickVectorMag > 0.5f)
+            {
+                
+                Vector3 moveVector = joyStickVector * playerAccel * Time.deltaTime;
+                horzVelocity += moveVector;
+                if (horzVelocity.magnitude > playerMaxSpeed)
+                {
+                    //if moving too fast, cap to max speed
+                    horzVelocity = horzVelocity.normalized * playerMaxSpeed;
+                }
+
+                
+
+                
+            }
+            
         }
-
         applyFriction();
-
         horzVelocity.y = rb.velocity.y;
         rb.velocity = horzVelocity;
-        
-        
+
+
+
     }
     public void applyFriction()
     {
         if (!stunned)
         {
-            if (joyStickVectorMag < 0.1f)
+            if (joyStickVectorMag < 0.5f)
             {
                 //if not moving, apply friction
                 //this is better than physics friction because it applies in mid air
@@ -254,8 +275,8 @@ public class PlayerController : MonoBehaviour {
         } else
         {
             //minimal friction while stunned
-            horzVelocity *= (1-Time.deltaTime*1.5f); 
-
+            horzVelocity *= (1-Time.deltaTime*5);
+            print("FRICTION");
         }
         if (gameStateControl.getGameOver())
         {
@@ -279,17 +300,17 @@ public class PlayerController : MonoBehaviour {
         //if not  moving, mass increases
         if (onGround && !stunned)
         {
-            if (joyStickVectorMag < 0.1f)
+            if (joyStickVectorMag < 0.5f)
             {
                 rb.mass = 1000000f;
             }
             else
             {
-                rb.mass = 1f;
+                rb.mass = 10f;
             }
         } else
         {
-            rb.mass = 1f;
+            rb.mass = 10f;
         }
         
     }
@@ -311,7 +332,10 @@ public class PlayerController : MonoBehaviour {
         jumpButtonHeld = Input.GetButton(baseString + "_Fire1"); //doesn't activate any actions, just needed info
     }
     
-
+    public bool isStunned()
+    {
+        return stunned;
+    }
 
 
 

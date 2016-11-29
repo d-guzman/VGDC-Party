@@ -43,8 +43,11 @@ public class playerCollisionControl : MonoBehaviour {
         if (collision.gameObject.CompareTag("Arm"))
         {
             hit = true;
-            print(collision.transform.forward * 10);
             rb.velocity = collision.transform.forward * 10f;
+            if (collision.transform.name == ("P1_Arm"))
+            {
+                GameObject.Find("P1_Model").GetComponent<Rigidbody>().velocity = collision.transform.forward * -5f;
+            }
         }
     }
 
