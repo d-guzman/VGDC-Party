@@ -43,8 +43,8 @@ public class playerCollisionControl : MonoBehaviour {
         if (collision.gameObject.CompareTag("Arm"))
         {
             hit = true;
-            print(collision.transform.forward * 10);
             rb.velocity = collision.transform.forward * 10f;
+            collision.gameObject.GetComponent<FixedJoint>().connectedBody.velocity = collision.transform.forward * -5f;
         }
     }
 

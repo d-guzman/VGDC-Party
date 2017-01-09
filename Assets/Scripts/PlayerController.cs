@@ -90,10 +90,11 @@ public class PlayerController : MonoBehaviour {
         if (gameStateControl.getGameStarted() && !gameStateControl.getGameOver())
         {
             runMovementPhysics();
-            GetComponentInChildren<RotateToDirection>().setDisabled(false);
+            
             if (stunned)
             {
-                if(stunTimer > 0)
+                GetComponentInChildren<RotateToDirection>().setDisabled(true);
+                if (stunTimer > 0)
                 {
                     stunTimer -= Time.deltaTime;
                     myMaterial.SetColor("_Color", Color.red);
@@ -107,7 +108,8 @@ public class PlayerController : MonoBehaviour {
 
             } else
             {
-                if(Input.GetButtonDown(baseString + "_Fire2"))
+                GetComponentInChildren<RotateToDirection>().setDisabled(false);
+                if (Input.GetButtonDown(baseString + "_Fire2"))
                 {
                     punch();
                 }
@@ -225,14 +227,20 @@ public class PlayerController : MonoBehaviour {
     }
     public void runMovementPhysics()
     {
-        horzVelocity = new Vector3(rb.velocity.x,0,rb.velocity.z);
-        Vector3 moveVector = joyStickVector * playerAccel * Time.deltaTime;
-        horzVelocity += moveVector;
-        if(horzVelocity.magnitude > playerMaxSpeed)
+       
+            horzVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+            Vector3 moveVector = joyStickVector * playerAccel * Time.deltaTime;
+        if (stunned)
         {
-            //if moving too fast, cap to max speed
-            horzVelocity = horzVelocity.normalized * playerMaxSpeed;
+            moveVector = Vector3.zero;
         }
+            horzVelocity += moveVector;
+            if (horzVelocity.magnitude > playerMaxSpeed)
+            {
+                //if moving too fast, cap to max speed
+                horzVelocity = horzVelocity.normalized * playerMaxSpeed;
+            }
+        
 
         applyFriction();
 
